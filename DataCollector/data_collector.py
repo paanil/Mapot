@@ -1,5 +1,6 @@
 import http.client
 import xml.etree.ElementTree as ET
+import json
 
 headers = { "Content-Type": "text/xml; charset=utf-8",
             "SOAPAction": "http://ec.europa.eu/eurostat/sri/service/2.0/GetCompactData" }
@@ -57,23 +58,56 @@ def et_findall(elem, tag):
 
     return children
 
-def main():
-    ghg_data = do_query("greenhouse_gas.xml")
-    if ghg_data is None: return
+def write_json(filename, data):
+    with open(filename, "w") as f:
+        f.write(json.dumps(data, sort_keys=True, indent=4))
 
-    # print(ghg_data.replace(">", ">\n"))
+def collect_data(data_name):
+    xml_data = do_query(data_name + ".query.xml")
+    if xml_data is None: return False
 
-    root = ET.fromstring(ghg_data)
+    with open("tiedosto.txt", "w") as f:
+        f.write(xml_data.replace(">", ">\n"))
 
+    # print(xml_data.replace(">", ">\n"))
+
+    root = ET.fromstring(xml_data)
     dataset = et_find(root, "DataSet")
+
+    data = {}
 
     for series in et_findall(dataset, "Series"):
         area = series.get("REF_AREA")
-        print(area + ":")
+        obs_dict = {}
+
         for obs in et_findall(series, "Obs"):
-            year = obs.get("TIME_PERIOD")
-            value = obs.get("OBS_VALUE")
-            print("  " + year + ": " + value)
+            year = int(obs.get("TIME_PERIOD"))
+            value = float(obs.get("OBS_VALUE"))
+            obs_dict[year] = value
+
+        data[area] = obs_dict
+
+    write_json(data_name + ".json", data)
+    return True
+
+def main():
+    collect_data("death")
+    # collect_data("methane")
+    # collect_data("greenhouse_gas")
+
+    # ghg_data = do_query("greenhouse_gas.xml")
+    # if ghg_data is None: return
+
+    # root = ET.fromstring(ghg_data)
+    # dataset = et_find(root, "DataSet")
+    #
+    # for series in et_findall(dataset, "Series"):
+    #     area = series.get("REF_AREA")
+    #     print(area + ":")
+    #     for obs in et_findall(series, "Obs"):
+    #         year = obs.get("TIME_PERIOD")
+    #         value = obs.get("OBS_VALUE")
+    #         print("  " + year + ": " + value)
 
     # ns1 = "{http://schemas.xmlsoap.org/soap/envelope/}"
     # ns2 = "{http://ec.europa.eu/eurostat/sri/service/2.0}"
