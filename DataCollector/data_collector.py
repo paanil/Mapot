@@ -1,6 +1,7 @@
 import http.client
 import xml.etree.ElementTree as ET
 import json
+import config
 
 headers = { "Content-Type": "text/xml; charset=utf-8",
             "SOAPAction": "http://ec.europa.eu/eurostat/sri/service/2.0/GetCompactData" }
@@ -59,15 +60,16 @@ def et_findall(elem, tag):
     return children
 
 def write_json(filename, data):
-    with open(filename, "w") as f:
+    data_path = config.get_value("DataPath")
+    with open(data_path + filename, "w") as f:
         f.write(json.dumps(data, sort_keys=True, indent=4))
 
 def collect_data(data_name):
     xml_data = do_query(data_name + ".query.xml")
     if xml_data is None: return False
 
-    with open("tiedosto.txt", "w") as f:
-        f.write(xml_data.replace(">", ">\n"))
+    # with open("tiedosto.txt", "w") as f:
+    #     f.write(xml_data.replace(">", ">\n"))
 
     # print(xml_data.replace(">", ">\n"))
 
@@ -91,8 +93,8 @@ def collect_data(data_name):
     return True
 
 def main():
-    collect_data("death")
-    # collect_data("methane")
+    # collect_data("death")
+    collect_data("methane")
     # collect_data("greenhouse_gas")
 
     # ghg_data = do_query("greenhouse_gas.xml")
