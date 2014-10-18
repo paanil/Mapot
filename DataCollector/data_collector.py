@@ -36,14 +36,8 @@ body_end = """</Query>
 </soap:Envelope>
 """
 
-def read_query_file(filename):
-    query = ""
-    with open("queries/" + filename, "r") as f:
-        query = f.read()
-    return query
-
 def build_query_body(filename):
-    query = read_query_file(filename)
+    query = util.read_file("queries/" + filename)
     return body_begin + query + body_end
 
 def do_query(filename):
