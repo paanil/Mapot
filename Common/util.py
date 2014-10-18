@@ -1,28 +1,28 @@
 import json
 import sys
 
-default_config = {"DataPath": "../Data/"}
-config = None
+class Config:
+    def __init__(self, default_config):
+        self.default_config = default_config
+        self.config = None
+        
+    def get_value(self, key):
+        value = self.config[key]
+        if value is not None: return value
+        return self.default_config[key]
 
-def get_value(key):
-    global config
-    value = config[key]
-    if value is None: value = default_config[key]
-    return value
-
-def read(config_file):
-    global config
-    config = read_json(config_file)
-    if config is None:
-        config = default_config
-        write_json(config_file, config)
+    def read(self, config_file):
+        self.config = read_json(config_file)
+        if self.config is None:
+            self.config = self.default_config
+            write_json(config_file, self.config)
 
 #-------------------------------------------------------------------------------
 
 def read_file(file_name):
     try:
-      with open(file_name, "r") as f:
-        return f.read()
+        with open(file_name, "r") as f:
+            return f.read()
     except FileNotFoundError:
         print("Cannot open file", file_name, ":", sys.exc_info()[0])
     except IOError:

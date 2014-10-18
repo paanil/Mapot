@@ -1,7 +1,25 @@
 import http.client
 import xml.etree.ElementTree as ET
 import json
-import config
+
+util = None
+config = None
+
+def init():
+    global util
+    global config
+    
+    import os
+    path = os.path.dirname(__file__)
+    path = os.path.split(path)[0]
+    path = os.path.join(path, "Common", "util.py")
+
+    import importlib.machinery
+    loader = importlib.machinery.SourceFileLoader("util", path)
+    util = loader.load_module()
+    
+    config = util.Config({"DataPath": "../Data/"})
+    config.read("config.json")
 
 headers = { "Content-Type": "text/xml; charset=utf-8",
             "SOAPAction": "http://ec.europa.eu/eurostat/sri/service/2.0/GetCompactData" }
@@ -85,7 +103,7 @@ def collect_data(data_name):
         data[area] = obs_dict
     
     data_file = config.get_value("DataPath") + data_name + ".json"
-    config.write_json(data_file, data)
+    util.write_json(data_file, data)
     return True
 
 def main():
