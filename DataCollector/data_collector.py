@@ -47,8 +47,8 @@ def do_query(filename):
 def et_find(elem, tag):
     for child in elem.getchildren():
         if tag in child.tag: return child
-        elem = et_find(child, tag)
-        if elem is not None: return elem
+        childschild = et_find(child, tag)
+        if childschild is not None: return childschild
 
     return None
 
@@ -58,11 +58,6 @@ def et_findall(elem, tag):
         if tag in child.tag: children.append(child)
 
     return children
-
-def write_json(filename, data):
-    data_path = config.get_value("DataPath")
-    with open(data_path + filename, "w") as f:
-        f.write(json.dumps(data, sort_keys=True, indent=4))
 
 def collect_data(data_name):
     xml_data = do_query(data_name + ".query.xml")
@@ -88,29 +83,19 @@ def collect_data(data_name):
             obs_dict[year] = value
 
         data[area] = obs_dict
-
-    write_json(data_name + ".json", data)
+    
+    data_file = config.get_value("DataPath") + data_name + ".json"
+    config.write_json(data_file, data)
     return True
 
 def main():
     # collect_data("death")
-    collect_data("methane")
-    # collect_data("greenhouse_gas")
+    # collect_data("methane")
+    collect_data("greenhouse_gas")
 
     # ghg_data = do_query("greenhouse_gas.xml")
     # if ghg_data is None: return
-
-    # root = ET.fromstring(ghg_data)
-    # dataset = et_find(root, "DataSet")
     #
-    # for series in et_findall(dataset, "Series"):
-    #     area = series.get("REF_AREA")
-    #     print(area + ":")
-    #     for obs in et_findall(series, "Obs"):
-    #         year = obs.get("TIME_PERIOD")
-    #         value = obs.get("OBS_VALUE")
-    #         print("  " + year + ": " + value)
-
     # ns1 = "{http://schemas.xmlsoap.org/soap/envelope/}"
     # ns2 = "{http://ec.europa.eu/eurostat/sri/service/2.0}"
     # ns3 = "{http://www.SDMX.org/resources/SDMXML/schemas/v2_0/message}"

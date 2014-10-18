@@ -10,6 +10,15 @@ def get_value(key):
     if value is None: value = default_config[key]
     return value
 
+def read(config_file):
+    global config
+    config = read_json(config_file)
+    if config is None:
+        config = default_config
+        write_json(config_file, config)
+
+#-------------------------------------------------------------------------------
+
 def read_file(file_name):
     try:
       with open(file_name, "r") as f:
@@ -22,7 +31,7 @@ def read_file(file_name):
         print("Unexpected error when reading file", file_name, ":",  sys.exc_info()[0])
     return None
 
-def read_data_from_json(file_name):
+def read_json(file_name):
     data_string = read_file(file_name)
     if data_string is None: return None
     try:
@@ -30,13 +39,6 @@ def read_data_from_json(file_name):
     except ValueError:
         print("File", file_name, "does not contain valid json :",  sys.exc_info()[0])
     return None
-
-def read(config_file):
-    global config
-    config = read_data_from_json(config_file)
-    if config is None:
-        config = default_config
-        write_json(config_file, config)
 
 def write_json(filename, data):
     with open(filename, "w") as f:
