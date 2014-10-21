@@ -58,7 +58,7 @@ def do_query(filename):
 
 def et_find(elem, tag):
     for child in elem.getchildren():
-        if tag in child.tag: return child
+        if child.tag.endswith(tag): return child
         childschild = et_find(child, tag)
         if childschild is not None: return childschild
 
@@ -78,7 +78,7 @@ def collect_data(data_name):
     # with open("tiedosto.txt", "w") as f:
     #     f.write(xml_data.replace(">", ">\n"))
 
-    # print(xml_data.replace(">", ">\n"))
+    print(xml_data.replace(">", ">\n"))
 
     root = ET.fromstring(xml_data)
     dataset = et_find(root, "DataSet")
@@ -97,13 +97,15 @@ def collect_data(data_name):
         data[area] = obs_dict
     
     data_file = config.get_value("DataPath") + data_name + ".json"
+
     util.write_json(data_file, data)
     return True
 
 def main():
-    # collect_data("death")
+    # collect_data("mortality")
+    collect_data("death")
     # collect_data("methane")
-    collect_data("greenhouse_gas")
+    # collect_data("greenhouse_gas")
 
     # ghg_data = do_query("greenhouse_gas.xml")
     # if ghg_data is None: return
