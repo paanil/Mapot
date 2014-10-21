@@ -1,26 +1,43 @@
 import bpy
 from mathutils import Vector
+import json
+import sys
+import os
 
-def create_mesh(coords):
-	extrudeVec = Vector((0.0, 0.0, 1.0))
+def build_mesh(me, polygons):
+    extrudeVec = Vector((0.0, 0.0, 1.0))
+    
+    coords = []
+    edges = []
+    
+    for points in polygons:
+        first = len(coords)
+        for co in points:
+            index = len(coords)
+            coords.append((co[0], co[1], 0.0))
+            edges.append([index, index + 1])
+        last = len(edges) - 1
+        edges[last][1] = first
 
-	me = bpy.data.meshes.new("MyMesh")
-	ob = bpy.data.objects.new("MyObject", me)
-	bpy.context.scene.objects.link(ob)
-	
-	edges = []
-	num_coords = len(coords)
-	for i in xrange(0, num_coords - 1):
-		edges.append((i, i + 1))
-	edges.append(num_coords - 1, 0)
-
-	me.from_pydata(coords, edges,[])
-	
-	bpy.context.scene.objects.active = ob
-	bpy.ops.object.mode_set(mode = 'EDIT')
-	bpy.ops.mesh.extrude_region_move(TRANSFORM_OT_translate={"value":extrudeVec})
-	bpy.ops.mesh.fill()
+    me.from_pydata(coords, edges,[])
+    
+    bpy.ops.object.mode_set(mode = 'EDIT')
+    bpy.ops.mesh.extrude_edges_move(TRANSFORM_OT_translate={"value":extrudeVec})
+    bpy.ops.mesh.edge_face_add()
+    bpy.ops.object.mode_set(mode = 'OBJECT')
 
 def run():
-	coords=[(-1.0, -1.0, 0.0), (1.0, -1.0, 0.0), (1.0, 1.0 ,0.0), (-1.0, 1.0,0.0)]
-	create_mesh(coords)
+    filepath = os.path.join(os.path.dirname(__file__), "test.json")
+    
+    data = None
+    with open(filepath, "r") as f:
+        data = json.loads(f.read())
+    
+    for area,polygons in data.items():
+        me = bpy.data.meshes.new(area)
+        ob = bpy.data.objects.new(area, me)
+        
+        bpy.context.scene.objects.link(ob)
+        bpy.context.scene.objects.active = ob
+    
+        build_mesh(me, polygons)
