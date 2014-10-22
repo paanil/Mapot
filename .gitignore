@@ -1,8 +1,25 @@
-*.pyc
-*.json
+# Compiled python files
 __pycache__
+*.pyc
+
+# Emacs
 .\#*
 *~
-test.svg
+
+# PyCharm project workspace file
 workspace.xml
+
+# JSON files
+*.json
+
+# Shape files
+*.dbf
+*.shp
+*.shx
+
+# Three.js Blender export module
+export_threejs.py
+
+# Other files
+test.svg
 
