@@ -1,10 +1,10 @@
 import shapefile
 import pyproj
-import svgwrite
+#import svgwrite
 import json
-import pdb
+import sys
 
-scale = 0.00003
+scale = 0.0000003
 
 # Source projection
 sp = pyproj.Proj(init='epsg:4326')
@@ -46,7 +46,15 @@ def get_shapes_of_countries(id_index: int, shapefile_path: str):
     countries = get_shapes_and_attributes_of_countries([id_index], shapefile_path)
     return  [(c[0][0],c[1]) for c in countries]
     
+if len(sys.argv) < 2:
+    print("Give .shp file as argument")
+else:
+    data = get_shapes_of_countries(19, sys.argv[1])
+    print(json.dumps(data))
 
+#with open("C:\\MyTemp\\data.json", "w") as f:
+#    f.write(json.dumps(data))
+    
 # json_output = ""
 # for c in countries:
 #     json_output += json.dumps({'id': str(c[0][2]), 'name': str(c[0][1]), 'shapes': c[1]})
