@@ -2,13 +2,8 @@ import shapefile
 import pyproj
 import svgwrite
 import json
+import pdb
 
-#shape_path = "/home/makakova/mapdata/naturalEarthCountries/ne_10m_admin_0_countries.shp"
-#shape_path = "/home/makakova/mapdata/naturalEarthCountries/ne_50m_admin_0_countries.shp"
-shape_path = "/home/makakova/mapdata/naturalEarthCountries/ne_110m_admin_0_countries.shp"
-#shape_path = "/home/makakova/mapdata/naturalEarthCountriesLakes/ne_110m_admin_0_countries_lakes.shp"
-#shape_path = "/home/makakova/mapdata/land/ne_110m_land.shp"
-selected_attributes = (17,18,19,20)
 scale = 0.00003
 
 # Source projection
@@ -34,26 +29,33 @@ def separate_polygons(shape) -> [[(int,int)]]:
         polygons.append(points[i:j])
     return polygons
 
-sf = shapefile.Reader(shape_path)
-shp_records = sf.shapeRecords()
+def get_shapes_and_attributes_of_countries(attribute_indices: [int], shapefile_path: str) -> [([str],[(int,int)])]:
+    """   """
+    sf = shapefile.Reader(shapefile_path)
+    shp_records = sf.shapeRecords()
+    countries = []
+    for sr in shp_records:
+        polygons = separate_polygons(sr.shape)
+        polygons = [[project(x) for x in xs] for xs in polygons]
+        attributes = [sr.record[int(i)] for i in attribute_indices]
+        countries.append((attributes,polygons))
+    return countries
 
-countries = []
-for sr in shp_records:
-    polygons = separate_polygons(sr.shape)
-    polygons = [[project(x) for x in xs] for xs in polygons]
-    attributes = tuple([sr.record[i] for i in selected_attributes])
-    countries.append((attributes,polygons))
+def get_shapes_of_countries(id_index: int, shapefile_path: str):
+    """ """
+    countries = get_shapes_and_attributes_of_countries([id_index], shapefile_path)
+    return  [(c[0][0],c[1]) for c in countries]
+    
 
-json_output = ""
-for c in countries:
-    json_output += json.dumps({'id': str(c[0][2]), 'name': str(c[0][1]), 'shapes': c[1]})
+# json_output = ""
+# for c in countries:
+#     json_output += json.dumps({'id': str(c[0][2]), 'name': str(c[0][1]), 'shapes': c[1]})
 
-#print(json_output)
 
-dwg = svgwrite.Drawing(filename="test.svg")
-for c in countries:
-    shapes = dwg.add(dwg.g(id=c[0][2]))
-    for polygon in c[1]:
-        shapes.add(dwg.polygon(polygon, fill="lime", stroke="black", stroke_width="1"))
-dwg.save()
+# dwg = svgwrite.Drawing(filename="test.svg")
+# for c in countries:
+#     shapes = dwg.add(dwg.g(id=c[0][2]))
+#     for polygon in c[1]:
+#         shapes.add(dwg.polygon(polygon, fill="lime", stroke="black", stroke_width="1"))
+# dwg.save()
     
