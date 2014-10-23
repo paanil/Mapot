@@ -15,3 +15,9 @@ def hello():
     data = util.read_json(f_name)
     if data is None: flask.abort(500)
     return json.dumps(data)
+
+def world_map():
+    data_path = config.get_value("DataPath")
+    data = util.read_file(data_path + "world_map.json")
+    if data is None: flask.abort(500)
+    return data
