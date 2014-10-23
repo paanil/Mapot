@@ -7,7 +7,7 @@ import os
 # Three.js blender export module 'export_threejs.py'
 # note: - it is assumed to be in the same folder with this file
 #       - it must define THREE_exportGeometry custom property like this:
-# bpy.types.Object.THREE_exportGeometry = bpy.props.BoolProperty(default = True)
+bpy.types.Object.THREE_exportGeometry = bpy.props.BoolProperty(default = True)
 #       - add this definition in it or our script won't work
 sys.path.append(os.path.dirname(__file__))
 import export_threejs
@@ -49,6 +49,8 @@ def build_mesh(mesh, regions):
     bpy.ops.object.mode_set(mode = 'EDIT')
     bpy.ops.mesh.extrude_edges_move(TRANSFORM_OT_translate={"value":extrude_vec})
     bpy.ops.mesh.edge_face_add()
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.quads_convert_to_tris()
     bpy.ops.object.mode_set(mode = 'OBJECT')
 
 
