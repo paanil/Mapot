@@ -24,7 +24,7 @@ def clear_scene(scene):
 
 def get_data(shp_path):
     path = os.path.dirname(__file__)
-    path = os.path.join(path, "shp2threejs.py")
+    path = os.path.join(path, "shp2json.py")
     with os.popen("python " + path + " " + shp_path) as f:
         return json.loads(f.read())
 

@@ -48,6 +48,7 @@ def get_shapes_of_countries(id_index: int, shapefile_path: str):
     
 if len(sys.argv) < 2:
     print("Give .shp file as argument")
+
 else:
     data = get_shapes_of_countries(19, sys.argv[1])
     print(json.dumps(data))
