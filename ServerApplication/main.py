@@ -7,6 +7,10 @@ app = flask.Flask(__name__)
 def index():
     return server_application.hello()
 
+@app.route("/_map_data")
+def world_map():
+    return server_application.world_map()
+
 if __name__ == "__main__":
     server_application.init()
     app.run()
