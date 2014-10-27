@@ -1,5 +1,6 @@
 import json
 import flask
+from flask import render_template
 from common import util
 
 config = None
@@ -9,15 +10,20 @@ def init():
     config = util.Config({"DataPath": "../Data/"})
     config.read("config.json")
 
-def hello():
+def index():
+    return render_template("index.html")
+
+def greenhouse_gas_data():
     data_path = config.get_value("DataPath")
     f_name = data_path + "greenhouse_gas.json"
     data = util.read_json(f_name)
-    if data is None: flask.abort(500)
+    if data is None:
+        flask.abort(500)
     return json.dumps(data)
 
 def world_map():
     data_path = config.get_value("DataPath")
     data = util.read_file(data_path + "world_map.json")
-    if data is None: flask.abort(500)
+    if data is None:
+        flask.abort(500)
     return data
