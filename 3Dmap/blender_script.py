@@ -5,10 +5,9 @@ import sys
 import os
 
 # Three.js blender export module 'export_threejs.py'
-# note: - it is assumed to be in the same folder with this file
-#       - it must define THREE_exportGeometry custom property like this:
+# needs THREE_exportGeometry custom property to be defined like this:
 bpy.types.Object.THREE_exportGeometry = bpy.props.BoolProperty(default = True)
-#       - add this definition in it or our script won't work
+# The module is assumed to be in the same folder with this file.
 sys.path.append(os.path.dirname(__file__))
 import export_threejs
 
@@ -69,7 +68,7 @@ def create_scene(scene, data):
 
 
 def export_scene(scene, path):
-    data = {}
+    data = []
 
     for object in scene.objects:
         file = object.name + ".js"
@@ -95,7 +94,8 @@ def export_scene(scene, path):
             False,  # option_frame_index_as_time
             1)[0]   # option_frame_step
 
-        data[object.name] = json.loads(text)
+        #data[object.name] = json.loads(text)
+        data.append((object.name, json.loads(text)))
 
     with open(path, "w") as f:
         f.write(json.dumps(data, separators=(",", ":")))

@@ -16,7 +16,7 @@
         stats.domElement.style.position = 'absolute';
         container.appendChild(stats.domElement);
 
-        var renderer = new THREE.WebGLRenderer();
+        var renderer = new THREE.WebGLRenderer({antialias: true});
         renderer.setClearColor(0x335577);
         renderer.setSize(800, 600);
         container.appendChild(renderer.domElement);
@@ -59,25 +59,27 @@
             stats.update();
         };
 
-        function mapDataLoaded(data) {
-            //console.log(data);
+        function mapDataLoaded(mapData) {
+            //console.log(mapData);
             var loader = new THREE.JSONLoader;
-            for (var key in data) {
-                if (data.hasOwnProperty(key)) {
-                    var geometry = loader.parse(data[key], "").geometry;
-                    geometry.computeBoundingBox();
-                    sceneBoundingBox.union(geometry.boundingBox);
-                    var rn = Math.random();
-                    //var rb = 0x77 * rn;
-                    //var g = 0x77;
-                    //var c = (rb << 16) | (g << 8) | rb;
-                    var c = 0xFFFFFF*rn;
-                    var maetrial = new THREE.MeshLambertMaterial( { color: c } );
-                    var mesh = new THREE.Mesh(geometry, maetrial);
-                    //mesh.scale.y = Math.random();
-                    //mesh.updateMatrix();
-                    scene.add(mesh);
-                }
+            for (var index in mapData) {
+                country = mapData[index];
+                var name = country[0];
+                var data = country[1];
+                console.log(data);
+                var geometry = loader.parse(data, "").geometry;
+                geometry.computeBoundingBox();
+                sceneBoundingBox.union(geometry.boundingBox);
+                var rn = Math.random();
+                //var c = 0xFFFFFF*rn;
+                var rb = 0x33 * (1.0 - rn);
+                var g = 0x33 + 0x99 * rn;
+                var c = (rb << 16) | (g << 8) | rb;
+                var maetrial = new THREE.MeshLambertMaterial( { color: c } );
+                var mesh = new THREE.Mesh(geometry, maetrial);
+                mesh.scale.y = rn;//Math.random();
+                mesh.updateMatrix();
+                scene.add(mesh);
             }
             sceneBoundingBox.min.y = 1.2;
             sceneBoundingBox.max.y = 5.0;
