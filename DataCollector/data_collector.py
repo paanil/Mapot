@@ -92,9 +92,10 @@ def collect_data(data_name):
 
 def main():
     # collect_data("mortality")
-    collect_data("death")
+    # collect_data("death")
     # collect_data("methane")
     # collect_data("greenhouse_gas")
+    collect_data("forest")
 
     # ghg_data = do_query("greenhouse_gas.xml")
     # if ghg_data is None: return
