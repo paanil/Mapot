@@ -41,16 +41,18 @@ $(function() {
   return false;
 };
 $('a#get_data').bind('click', send_query);
+
 });
 
+
 $(function() {
-  var show_values = function() {
+function show_values() {
   var rates = document.getElementById('rate');
 
   if (document.getElementById('r1').checked) {
     var rate_value = document.getElementById('r1').value;
 }
-
+  console.log("Hello world");
   var color_value = $("input:radio[name=color]:checked").val();
   var height_value = $("input:radio[name=height]:checked").val();
   alert(color_value);
@@ -58,7 +60,7 @@ $(function() {
 
 $('#submit').bind('click', show_values);
 
-  }
+}
 });
 
 $(function() {

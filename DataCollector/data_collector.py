@@ -64,10 +64,8 @@ def collect_data(data_name):
     xml_data = do_query(data_name + ".query.xml")
     if xml_data is None: return False
 
-    # with open("tiedosto.txt", "w") as f:
-    #     f.write(xml_data.replace(">", ">\n"))
 
-    print(xml_data.replace(">", ">\n"))
+    #print(xml_data.replace(">", ">\n"))
 
     root = ET.fromstring(xml_data)
     dataset = et_find(root, "DataSet")
@@ -96,26 +94,7 @@ def main():
     # collect_data("methane")
     # collect_data("greenhouse_gas")
     collect_data("forest")
+    # collect_data("crude_birth_rate")
+    collect_data("crude_death_rate")
+    # collect_data("popdiv_all")
 
-    # ghg_data = do_query("greenhouse_gas.xml")
-    # if ghg_data is None: return
-    #
-    # ns1 = "{http://schemas.xmlsoap.org/soap/envelope/}"
-    # ns2 = "{http://ec.europa.eu/eurostat/sri/service/2.0}"
-    # ns3 = "{http://www.SDMX.org/resources/SDMXML/schemas/v2_0/message}"
-    # ns4 = "{urn:estat:sdmx.infomodel.keyfamily.KeyFamily=UNSD:DSD_GHG_UNDATA:1.0:compact}"
-    #
-    # root = ET.fromstring(ghg_data)
-    # dataset = root.find(ns1 + "Body").\
-    #     find(ns2 + "GetCompactDataResponse").\
-    #     find(ns2 + "GetCompactDataResult").\
-    #     find(ns3 + "CompactData").\
-    #     find(ns4 + "DataSet")
-    #
-    # for series in dataset.findall(ns4 + "Series"):
-    #     area = series.get("REF_AREA")
-    #     print(area + ":")
-    #     for obs in series.findall(ns4 + "Obs"):
-    #         year = obs.get("TIME_PERIOD")
-    #         value = obs.get("OBS_VALUE")
-    #         print("  " + year + ": " + value)
