@@ -5,7 +5,7 @@
 <p id="data"></p>
 <form>
 
-<table style="width:20%">
+<table style="width:40%">
     <tr>
      <td>Color</td>
      <td>Height</td>
@@ -28,50 +28,30 @@
     </tr>
 </table>
 
-<button href ="@" id="submit">Submit</button>
-<p id="value"></p>
+<button id="submit">Submit</button>
 </form>
 <script type="text/javascript">
-$(function() {
-  var send_query = function() {
-  $.getJSON("/_greenhouse_gas_data", {}, function(data) {
+var send_query = function() {
+  $.getJSON("/_data", {
+    color: $("input:radio[name=color]:checked").val(),
+    height: $("input:radio[name=height]:checked").val()
+  }, function(data) {
   console.log(data);
    $("#data").text(data);
   });
   return false;
 };
-$('a#get_data').bind('click', send_query);
 
-});
-
-
-$(function() {
 function show_values() {
-  var rates = document.getElementById('rate');
-
-  if (document.getElementById('r1').checked) {
-    var rate_value = document.getElementById('r1').value;
-}
-  console.log("Hello world");
   var color_value = $("input:radio[name=color]:checked").val();
   var height_value = $("input:radio[name=height]:checked").val();
-  alert(color_value);
-  console.log(color_value);
-
-$('#submit').bind('click', show_values);
-
-}
-});
+  return false;
+};
 
 $(function() {
-  var get_selected = function() {
-  var rb =document.getElementsByName("color")
-  for (var i = rb.length; i--;) {
-    rb[i].onchange = function() {
-        alert(this.value);
-    }
-    }
-  }
-  });
+    $('a#get_data').bind('click', send_query);
+    $('#submit').bind('click', send_query);
+});
+
 </script>
 {% endblock %}

@@ -15,6 +15,10 @@ def world_map():
 def greenhouse_gas():
     return server_application.greenhouse_gas_data()
 
+@app.route("/_data")
+def data():
+    return server_application.data()
+
 if __name__ == "__main__":
     server_application.init()
     app.run()

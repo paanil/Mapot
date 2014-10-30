@@ -1,6 +1,6 @@
 import json
 import flask
-from flask import render_template
+from flask import render_template, request
 from common import util
 
 config = None
@@ -27,3 +27,17 @@ def world_map():
     if data is None:
         flask.abort(500)
     return data
+
+def data():
+    color = request.args.get('color', "", type=str)
+    height = request.args.get('height', "", type=str)
+    data_path = config.get_value("DataPath")
+
+    f_name = data_path + color +".json"
+    # return flask.jsonify(color=color, height=height)
+
+
+    data = util.read_json(f_name)
+    if data is None:
+        flask.abort(500)
+    return json.dumps(data)
