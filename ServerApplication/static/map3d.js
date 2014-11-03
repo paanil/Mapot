@@ -1,16 +1,4 @@
 
-var controls;
-
-function controlsMouseDown(event) {
-    controls.mouseDown(event);
-}
-function controlsMouseMove(event) {
-    controls.mouseMove(event);
-}
-function controlsMouseUp(event) {
-    controls.mouseUp(event);
-}
-
 function Controls(renderer, camera) {
     // --- Members ---
     this.mouseMode = -1;
@@ -22,10 +10,12 @@ function Controls(renderer, camera) {
     this.camera = camera;
     
     // --- Initialization ---
-    controls = this;
+    var _this = this;
     
     this.renderer.domElement.addEventListener('contextmenu', function (event) { event.preventDefault(); }, false);
-    this.renderer.domElement.addEventListener('mousedown', controlsMouseDown, false);
+    this.renderer.domElement.addEventListener('mousedown', function (event) { _this.mouseDown(event); }, false);
+    this.renderer.domElement.addEventListener('mousemove', function (event) { _this.mouseMove(event); }, false);
+    this.renderer.domElement.addEventListener('mouseup', function (event) { _this.mouseUp(event); }, false);
     
     // --- Methods ---
     this.update = function() {
@@ -82,11 +72,8 @@ function Controls(renderer, camera) {
         
         this.mouseStart.copy(this.getMouseOnElement(this.renderer.domElement, event.pageX, event.pageY));
         this.mouseEnd.copy(this.mouseStart);
-        
-        this.renderer.domElement.addEventListener('mousemove', controlsMouseMove, false);
-        this.renderer.domElement.addEventListener('mouseup', controlsMouseUp, false);
     }
-
+    
     this.mouseMove = function(event) {
         event.preventDefault();
         event.stopPropagation();
@@ -102,11 +89,6 @@ function Controls(renderer, camera) {
             return;
         
         this.mouseMode = -1;
-        
-        this.mouseEnd.copy(this.mouseStart);
-        
-        this.renderer.domElement.removeEventListener('mousemove',  controlsMouseMove);
-        this.renderer.domElement.removeEventListener('mouseup', controlsMouseUp);
     }
 }
 
@@ -159,7 +141,8 @@ function Map3D(parentElement) {
             var rb = 0x33 * (1.0 - rn);
             var g = 0x33 + 0x99 * rn;
             var c = (rb << 16) | (g << 8) | rb;
-            var material = new THREE.MeshLambertMaterial( { color: c } );
+            var material = new THREE.MeshLambertMaterial( { color: 0xFFFFFF } );
+            material.setValues( { color: c } );
             var mesh = new THREE.Mesh(geometry, material);
             mesh.scale.y = 0.01;//rn;//Math.random();
             mesh.updateMatrix();
