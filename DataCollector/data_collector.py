@@ -2,6 +2,8 @@ import http.client
 import xml.etree.ElementTree as ET
 import json
 from common import util
+import os
+import errno
 
 config = None
 
@@ -26,7 +28,11 @@ body_end = """</Query>
 """
 
 def build_query_body(filename):
+    sub = '<?xml version="1.0" encoding="utf-8"?>'
+
     query = util.read_file("queries/" + filename)
+    if query.find(sub) is not -1:
+        query = query.replace(sub, '')
     return body_begin + query + body_end
 
 def do_query(filename):
@@ -65,7 +71,7 @@ def collect_data(data_name):
     if xml_data is None: return False
 
 
-    #print(xml_data.replace(">", ">\n"))
+    print(xml_data.replace(">", ">\n"))
 
     root = ET.fromstring(xml_data)
     dataset = et_find(root, "DataSet")
@@ -82,7 +88,10 @@ def collect_data(data_name):
             obs_dict[year] = value
 
         data[area] = obs_dict
-    
+
+    if not os.path.isdir(config.get_value("DataPath")):
+        os.makedirs(config.get_value("DataPath"))
+
     data_file = config.get_value("DataPath") + data_name + ".json"
 
     util.write_json(data_file, data)
@@ -90,11 +99,11 @@ def collect_data(data_name):
 
 def main():
     # collect_data("mortality")
-    # collect_data("death")
+    collect_data("death")
     # collect_data("methane")
     # collect_data("greenhouse_gas")
-    collect_data("forest")
+    # collect_data("forest")
     # collect_data("crude_birth_rate")
-    collect_data("crude_death_rate")
+    # collect_data("crude_death_rate")
     # collect_data("popdiv_all")
 
