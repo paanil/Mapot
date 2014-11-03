@@ -1,6 +1,8 @@
 import http.client
 import xml.etree.ElementTree as ET
 import json
+from os.path import isfile, isdir, join, split, basename, splitext
+from glob import glob
 from common import util
 import os
 import errno
@@ -27,16 +29,16 @@ body_end = """</Query>
 </soap:Envelope>
 """
 
-def build_query_body(filename):
+def build_query_body(file_path):
+    query = util.read_file(file_path)
     sub = '<?xml version="1.0" encoding="utf-8"?>'
 
-    query = util.read_file("queries/" + filename)
-    if query.find(sub) is not -1:
-        query = query.replace(sub, '')
+    query = util.read_file(file_path)
+    query = query.replace(sub, '')
     return body_begin + query + body_end
 
-def do_query(filename):
-    body = build_query_body(filename)
+def do_query(file_path):
+    body = build_query_body(file_path)
 
     connection = http.client.HTTPConnection("data.un.org", 80)
     connection.request("POST", "/ws/NSIStdV20Service.asmx", body, headers)
@@ -46,18 +48,15 @@ def do_query(filename):
 
     print(response.status, response.reason)
     if response.status is not 200:
-        print("Query " + filename + " failed")
+        print("Query " + file_path + " failed")
         return None
 
     return content
 
 def et_find(elem, tag):
-    for child in elem.getchildren():
-        if child.tag.endswith(tag): return child
-        childschild = et_find(child, tag)
-        if childschild is not None: return childschild
-
-    return None
+    for child in elem.getiterator():
+        if child.tag.endswith(tag):
+            return child
 
 def et_findall(elem, tag):
     children = []
@@ -66,12 +65,13 @@ def et_findall(elem, tag):
 
     return children
 
-def collect_data(data_name):
-    xml_data = do_query(data_name + ".query.xml")
+def collect_data(file_path):
+    name, _ = splitext(basename(file_path))
+    print("Downloading: " + name)
+    xml_data = do_query(file_path)
     if xml_data is None: return False
 
-
-    print(xml_data.replace(">", ">\n"))
+#    print(xml_data.replace(">", ">\n"))
 
     root = ET.fromstring(xml_data)
     dataset = et_find(root, "DataSet")
@@ -92,18 +92,14 @@ def collect_data(data_name):
     if not os.path.isdir(config.get_value("DataPath")):
         os.makedirs(config.get_value("DataPath"))
 
-    data_file = config.get_value("DataPath") + data_name + ".json"
+    data_file = config.get_value("DataPath") + name + ".json"
 
     util.write_json(data_file, data)
     return True
 
-def main():
-    # collect_data("mortality")
-    collect_data("death")
-    # collect_data("methane")
-    # collect_data("greenhouse_gas")
-    # collect_data("forest")
-    # collect_data("crude_birth_rate")
-    # collect_data("crude_death_rate")
-    # collect_data("popdiv_all")
-
+def main(path):
+    if isfile(path):
+        collect_data(path)
+    elif isdir(path):
+        for file in glob(join(path, "*.xml")): #TODO: threading
+            collect_data(file)
