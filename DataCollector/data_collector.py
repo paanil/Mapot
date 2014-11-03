@@ -4,6 +4,8 @@ import json
 from os.path import isfile, isdir, join, split, basename, splitext
 from glob import glob
 from common import util
+import os
+import errno
 
 config = None
 
@@ -29,6 +31,10 @@ body_end = """</Query>
 
 def build_query_body(file_path):
     query = util.read_file(file_path)
+    sub = '<?xml version="1.0" encoding="utf-8"?>'
+
+    query = util.read_file(file_path)
+    query = query.replace(sub, '')
     return body_begin + query + body_end
 
 def do_query(file_path):
@@ -65,7 +71,6 @@ def collect_data(file_path):
     xml_data = do_query(file_path)
     if xml_data is None: return False
 
-
 #    print(xml_data.replace(">", ">\n"))
 
     root = ET.fromstring(xml_data)
@@ -83,7 +88,10 @@ def collect_data(file_path):
             obs_dict[year] = value
 
         data[area] = obs_dict
-        
+
+    if not os.path.isdir(config.get_value("DataPath")):
+        os.makedirs(config.get_value("DataPath"))
+
     data_file = config.get_value("DataPath") + name + ".json"
 
     util.write_json(data_file, data)

@@ -3,6 +3,7 @@ from mathutils import Vector
 import json
 import sys
 import os
+from pathlib import Path
 
 # Three.js blender export module 'export_threejs.py'
 # needs THREE_exportGeometry custom property to be defined like this:
@@ -96,6 +97,10 @@ def export_scene(scene, path):
 
         #data[object.name] = json.loads(text)
         data.append((object.name, json.loads(text)))
+
+        dir, _ = os.path.split(path)
+        if not os.path.isdir(dir):
+            os.makedirs(dir)
 
     with open(path, "w") as f:
         f.write(json.dumps(data, separators=(",", ":")))
