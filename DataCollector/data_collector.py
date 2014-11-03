@@ -2,6 +2,8 @@ import http.client
 import xml.etree.ElementTree as ET
 import json
 from common import util
+import os
+import errno
 
 config = None
 
@@ -69,7 +71,7 @@ def collect_data(data_name):
     if xml_data is None: return False
 
 
-    # print(xml_data.replace(">", ">\n"))
+    print(xml_data.replace(">", ">\n"))
 
     root = ET.fromstring(xml_data)
     dataset = et_find(root, "DataSet")
@@ -86,7 +88,10 @@ def collect_data(data_name):
             obs_dict[year] = value
 
         data[area] = obs_dict
-    
+
+    if not os.path.isdir(config.get_value("DataPath")):
+        os.makedirs(config.get_value("DataPath"))
+
     data_file = config.get_value("DataPath") + data_name + ".json"
 
     util.write_json(data_file, data)
