@@ -71,31 +71,33 @@ def collect_data(file_path):
     xml_data = do_query(file_path)
     if xml_data is None: return False
 
-#    print(xml_data.replace(">", ">\n"))
+    print(xml_data.replace(">", ">\n"))
 
     root = ET.fromstring(xml_data)
     dataset = et_find(root, "DataSet")
 
     data = {}
+    metadata = {}
 
     for series in et_findall(dataset, "Series"):
         area = series.get("REF_AREA")
-        unit = series.get("UNIT")
+        metadata["unit"] = series.get("UNIT")
         obs_dict = {}
         
         for obs in et_findall(series, "Obs"):
             year = int(obs.get("TIME_PERIOD"))
             value = float(obs.get("OBS_VALUE"))
+            if metadata["unit"] is None:
+                metadata["unit"] = obs.get("UNIT")
             obs_dict[year] = value
 
         data[area] = obs_dict
-
     if not os.path.isdir(config.get_value("DataPath")):
         os.makedirs(config.get_value("DataPath"))
-
+    
     data_file = config.get_value("DataPath") + name + ".json"
 
-    util.write_json(data_file, data)
+    util.write_json(data_file, {"metadata": metadata, "data": data})
     return True
 
 def main(path):
