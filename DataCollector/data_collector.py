@@ -80,8 +80,9 @@ def collect_data(file_path):
 
     for series in et_findall(dataset, "Series"):
         area = series.get("REF_AREA")
+        unit = series.get("UNIT")
         obs_dict = {}
-
+        
         for obs in et_findall(series, "Obs"):
             year = int(obs.get("TIME_PERIOD"))
             value = float(obs.get("OBS_VALUE"))
@@ -103,3 +104,5 @@ def main(path):
     elif isdir(path):
         for file in glob(join(path, "*.xml")): #TODO: threading
             collect_data(file)
+    else:
+        print("Could not open " + path)
