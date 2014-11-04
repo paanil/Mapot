@@ -1,8 +1,6 @@
 {% extends "header.html" %}
 {% block body %}
-<h1>Kokeiluotsikko</h1>
-<a href="#" id="get_data">Get data</a>
-<p id="data"></p>
+<div>
 <form>
 
 <table style="width:40%">
@@ -30,6 +28,36 @@
 
 <button id="submit">Submit</button>
 </form>
+</div>
+<div id="mapdiv1"></div>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="/static/three.js"></script>
+    <script src="/static/stats.min.js"></script>
+    <script src="/static/map3d.js"></script>
+    <script>
+        var map;
+        //var map2;
+        $(document).ready(function () {
+            var container = document.getElementById('mapdiv1');
+            map = new Map3D(container);
+            map.setDefaultHeight(0.01);
+            map.setHeightRange(0.01, 1.0);
+            map.setDefaultColor(0x222222);
+            map.setColorRange(0x666666, 0x008800);
+
+            //var container2 = document.getElementById('mapdiv2');
+            //map2 = new Map3D(container2);
+
+            $.getJSON('/_map_data', {},
+                function (data) {
+                    console.log(data);
+                    map.setMapData(data);
+                    map.setCountry('FIN', 1.0, 1.0);
+
+                    //map2.setMapData(data);
+                });
+        });
+    </script>
 <script type="text/javascript">
 var send_query = function() {
   $.getJSON("/_data", {
