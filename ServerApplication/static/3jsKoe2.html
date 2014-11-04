@@ -2,22 +2,41 @@
 <html>
   <head>
     <title>Three.js kokeilu</title>
-    <!--style>canvas { width: 800px; height: 600px; }</style-->
-    <style>body { width: 100%; height: 100%; padding: 0; margin: 0; }</style>
+    <style>
+        body {
+            width: 100%; height: 100%; padding: 0; margin: 0;
+            white-space: nowrap;
+        }
+        #mapdiv1, #mapdiv2 {
+            width: 50%; height: 100%; padding: 0; margin: 0;
+            display: inline-block;
+        }
+    </style>
   </head>
   <body id="container">
+    <div id="mapdiv1"></div>
+    <div id="mapdiv2"></div>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="three.js"></script>
     <script src="stats.min.js"></script>
     <script src="map3d.js"></script>
     <script>
         var map;
+        var map2;
         $(document).ready(function () {
-            var container = document.getElementById('container');
+            var container = document.getElementById('mapdiv1');
             map = new Map3D(container);
-            map.ready = function () {
-                map.setCountryHeight('FIN', 1.0);
-            }
+            
+            var container2 = document.getElementById('mapdiv2');
+            map2 = new Map3D(container2);
+            
+            $.getJSON('/_map_data', {},
+                function (data) {
+                    map.setMapData(data);
+                    map.setCountryHeight('FIN', 1.0);
+                    map2.setMapData(data);
+                    map2.setCountryHeight('FIN', 0.5);
+                });
         });
     </script>
   </body>

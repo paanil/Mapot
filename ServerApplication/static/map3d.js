@@ -1,4 +1,7 @@
 
+// ------------------------------
+// ---------- Controls ----------
+
 function Controls(renderer, camera) {
     // --- Members ---
     this.mouseMode = -1;
@@ -92,17 +95,8 @@ function Controls(renderer, camera) {
     }
 }
 
-var map3d;
-
-function map3dOnResize(event) {
-    map3d.onResize(event);
-}
-function map3dDataLoaded(data) {
-    map3d.dataLoaded(data);
-}
-function map3dRender() {
-    map3d.render();
-}
+// ------------------------------
+// ---------- Map3D -------------
 
 function Map3D(parentElement) {
     // --- Members ---
@@ -113,7 +107,6 @@ function Map3D(parentElement) {
     this.camera = new THREE.PerspectiveCamera(75.0, 800.0/600.0, 0.1, 100.0);
     this.controls = new Controls(this.renderer, this.camera);
     this.countries = {};
-    this.ready = function () {};
     
     // --- Methods ---
     this.onResize = function (event) {
@@ -125,7 +118,7 @@ function Map3D(parentElement) {
         this.camera.updateProjectionMatrix();
     }
     
-    this.dataLoaded = function (mapData) {
+    this.setMapData = function (mapData) {
         var sceneBoundingBox = this.controls.sceneBoundingBox;
         
         var loader = new THREE.JSONLoader;
@@ -152,7 +145,6 @@ function Map3D(parentElement) {
         sceneBoundingBox.min.y = 1.2;
         sceneBoundingBox.max.y = 3.5;
         
-        this.ready();
         this.render();
     }
     
@@ -165,15 +157,14 @@ function Map3D(parentElement) {
     }
     
     this.render = function () {
-        requestAnimationFrame(map3dRender);
+        var _this = this;
+        requestAnimationFrame(function () { _this.render(); });
         this.controls.update();
         this.renderer.render(this.scene, this.camera);
         this.stats.update();
     };
     
     // --- Initialization ---
-    map3d = this;
-    
     this.stats.domElement.style.position = 'absolute';
     this.container.appendChild(this.stats.domElement);
 
@@ -193,7 +184,7 @@ function Map3D(parentElement) {
     this.scene.add(directionalLight2);
 
     this.onResize();
-    window.addEventListener('resize', map3dOnResize, false);
     
-    $.getJSON('/_map_data', {}, map3dDataLoaded);
+    var _this = this;
+    window.addEventListener('resize', function (event) { _this.onResize(event); }, false);
 }
