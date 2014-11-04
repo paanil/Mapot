@@ -36,8 +36,10 @@ var send_query = function() {
     color: $("input:radio[name=color]:checked").val(),
     height: $("input:radio[name=height]:checked").val()
   }, function(data) {
+
   var normalized_data = normalize_data(data)
   console.log(normalized_data);
+
    $("#data").text(data);
   });
   return false;
@@ -76,5 +78,6 @@ function normalize_data(data) {
     }
     return normalized_data;
 }
+
 </script>
 {% endblock %}
