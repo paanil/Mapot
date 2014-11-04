@@ -33,11 +33,34 @@ def data():
     height = request.args.get('height', "", type=str)
     data_path = config.get_value("DataPath")
 
-    f_name = data_path + color +".json"
+    f_name = data_path + color + ".json"
     # return flask.jsonify(color=color, height=height)
 
-
     data = util.read_json(f_name)
+    print(data)
     if data is None:
         flask.abort(500)
-    return json.dumps(data)
+
+    newest_data = get_newest_data(data)
+    # normalized_data = normalize_data(data)
+
+    return flask.json.dumps(newest_data)
+
+def get_newest_data(data):
+    newest_data = {}
+    for key in data:
+        country = data[key]
+        max_year = max(country.keys(), key=int)
+        newest_data[key] = country[max_year]
+
+    return newest_data
+
+def normalize_data(data):
+    key_for_max = max(data, key=data.get)
+    max_value = data[key_for_max]
+    key_for_min = min(data, key=data.get)
+    min_value = data[key_for_min]
+
+    for key in data:
+        data[key] = ((data[key])-min_value)/(max_value-min_value)
+    return data

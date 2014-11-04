@@ -36,6 +36,7 @@ var send_query = function() {
     color: $("input:radio[name=color]:checked").val(),
     height: $("input:radio[name=height]:checked").val()
   }, function(data) {
+  normalize_data(data)
   console.log(data);
    $("#data").text(data);
   });
@@ -53,5 +54,20 @@ $(function() {
     $('#submit').bind('click', send_query);
 });
 
+function normalize_data(data) {
+
+    var normalized_data = {};
+
+    max_value = Math.max.apply(Math, data);
+    min_value = Math.min.apply(Math, data);
+    console.log(max_value);
+
+
+    for(key in data){
+        normalized_data(key) = ((data(key))-min_value)/(max_value-min_value);
+    }
+    return normalized_data;
+
+}
 </script>
 {% endblock %}
