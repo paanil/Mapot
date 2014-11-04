@@ -98,6 +98,11 @@ function Controls(renderer, camera) {
 // ------------------------------
 // ---------- Map3D -------------
 
+function Range(min, max) {
+    this.min = typeof min !== 'undefined' ? min : 0.0;
+    this.max = typeof max !== 'undefined' ? max : 1.0;
+}
+
 function Map3D(parentElement) {
     // --- Members ---
     this.container = parentElement;
@@ -107,6 +112,16 @@ function Map3D(parentElement) {
     this.camera = new THREE.PerspectiveCamera(75.0, 800.0/600.0, 0.1, 100.0);
     this.controls = new Controls(this.renderer, this.camera);
     this.countries = {};
+    this.defaultHeight = 0.01;
+    this.defaultColor = 0x222222;
+    this.heightRange = new Range(0.01, 1.0);
+    this.colorRange = new Range(0x666666, 0xFFFFFF);
+    
+    // --- Helper functions ---
+    function setMeshHeight(mesh, height) {
+        mesh.scale.y = height;
+        mesh.updateMatrix();
+    }
     
     // --- Methods ---
     this.onResize = function (event) {
@@ -124,35 +139,90 @@ function Map3D(parentElement) {
         var loader = new THREE.JSONLoader;
         for (var index in mapData) {
             country = mapData[index];
+            
             var name = country[0];
             var data = country[1];
+            
             var geometry = loader.parse(data, "").geometry;
             geometry.computeBoundingBox();
             sceneBoundingBox.union(geometry.boundingBox);
-            var rn = Math.random();
-            //var c = 0xFFFFFF*rn;
-            var rb = 0x33 * (1.0 - rn);
-            var g = 0x33 + 0x99 * rn;
-            var c = (rb << 16) | (g << 8) | rb;
-            var material = new THREE.MeshLambertMaterial( { color: 0xFFFFFF } );
-            material.setValues( { color: c } );
+            var material = new THREE.MeshLambertMaterial( { color: this.defaultColor } );
             var mesh = new THREE.Mesh(geometry, material);
-            mesh.scale.y = 0.01;//rn;//Math.random();
-            mesh.updateMatrix();
+            setMeshHeight(mesh, this.defaultHeight);
+            
             this.scene.add(mesh);
             this.countries[name] = mesh;
         }
+        
         sceneBoundingBox.min.y = 1.2;
         sceneBoundingBox.max.y = 3.5;
         
         this.render();
     }
     
+    this.clear = function () {
+        for (var name in this.countries) {
+            if (this.countries.hasOwnProperty(name)) {
+                var mesh = this.countries[name];
+                setMeshHeight(mesh, this.defaultHeight);
+                mesh.material.setValues( { color: this.defaultColor } );
+            }
+        }
+    }
+    
+    this.setDefaultHeight = function (height) {
+        this.defaultHeight = height;
+    }
+    
+    this.setDefaultColor = function (color) {
+        this.defaultColor = color;
+    }
+    
+    this.setHeightRange = function (min, max) {
+        this.heightRange.min = min;
+        this.heightRange.max = max;
+    }
+    
+    this.setColorRange = function (min, max) {
+        this.colorRange.min = min;
+        this.colorRange.max = max;
+    }
+    
+    function lerp(x, y, t) {
+        return x * (1.0 - t) + y * t;
+    }
+    
+    this.setCountry = function (name, height, color) {
+        if (this.countries.hasOwnProperty(name)) {
+            var mesh = this.countries[name];
+            
+            var distance = this.heightRange.max - this.heightRange.min;
+            setMeshHeight(mesh, this.heightRange.min + distance * height);
+            
+            var color0 = this.colorRange.min;
+            var color1 = this.colorRange.max;
+            var f = color;
+            
+            var r = lerp(color0 >> 16, color1 >> 16, f) & 0xFF;
+            var g = lerp(color0 >> 8, color1 >> 8, f) & 0xFF;
+            var b = lerp(color0, color1, f) & 0xFF;
+            var c = (r << 16) | (g << 8) | b;
+            
+            mesh.material.setValues( { color: c } );
+        }
+    }
+    
     this.setCountryHeight = function (name, height) {
         if (this.countries.hasOwnProperty(name)) {
             var mesh = this.countries[name];
-            mesh.scale.y = height;
-            mesh.updateMatrix();
+            setMeshHeight(mesh, height);
+        }
+    }
+    
+    this.setCountryColor = function (name, color) {
+        if (this.countries.hasOwnProperty(name)) {
+            var mesh = this.countries[name];
+            mesh.material.setValues( { color: color } );
         }
     }
     
