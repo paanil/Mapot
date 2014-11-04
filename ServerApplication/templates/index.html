@@ -1,75 +1,81 @@
 {% extends "header.html" %}
 {% block body %}
 <div>
-<form>
+    <form>
 
-<table style="width:40%">
-    <tr>
-     <td>Color</td>
-     <td>Height</td>
-     <td></td>
-    </tr>
-     <tr>
-     <td><input type="radio" id="r1" name="color" value="methane"/></td>
-     <td><input type="radio" id="r2"  name="height" value="methane"/></td>
-     <td>Methane</td>
-    </tr>
-    <tr>
-     <td><input type="radio" id="r3" name="color" value="death"/></td>
-     <td><input type="radio" id="r4" name="height" value="death"/></td>
-     <td>Death</td>
-    </tr>
-    <tr>
-     <td><input type="radio" id="r5"  name="color" value="greenhouse_gas"/></td>
-     <td><input type="radio" id="r6" name="height" value="greenhouse_gas"/></td>
-     <td>Greenhouse Gas</td>
-    </tr>
-</table>
+    <table style="width:40%">
+        <tr>
+         <td>Color</td>
+         <td>Height</td>
+         <td></td>
+        </tr>
+         <tr>
+         <td><input type="radio" id="r1" name="color" value="methane"/></td>
+         <td><input type="radio" id="r2"  name="height" value="methane"/></td>
+         <td>Methane</td>
+        </tr>
+        <tr>
+         <td><input type="radio" id="r3" name="color" value="death"/></td>
+         <td><input type="radio" id="r4" name="height" value="death"/></td>
+         <td>Death</td>
+        </tr>
+        <tr>
+         <td><input type="radio" id="r5"  name="color" value="greenhouse_gas"/></td>
+         <td><input type="radio" id="r6" name="height" value="greenhouse_gas"/></td>
+         <td>Greenhouse Gas</td>
+        </tr>
+        <tr>
+         <td><input type="radio" id="r5"  name="color" value="crude_death_rate"/></td>
+         <td><input type="radio" id="r6" name="height" value="crude_death_rate"/></td>
+         <td>Crude death rate</td>
+        </tr>
+        <tr>
+         <td><input type="radio" id="r5"  name="color" value="crude_birth_rate"/></td>
+         <td><input type="radio" id="r6" name="height" value="crude_birth_rate"/></td>
+         <td>Crude birth rate</td>
+        </tr>
+    </table>
 
-<button id="submit">Submit</button>
-</form>
+    <button id="submit">Submit</button>
+    </form>
 </div>
-<div id="mapdiv1"></div>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <script src="/static/three.js"></script>
-    <script src="/static/stats.min.js"></script>
-    <script src="/static/map3d.js"></script>
-    <script>
-        var map;
-        //var map2;
-        $(document).ready(function () {
-            var container = document.getElementById('mapdiv1');
-            map = new Map3D(container);
-            map.setDefaultHeight(0.01);
-            map.setHeightRange(0.01, 1.0);
-            map.setDefaultColor(0x222222);
-            map.setColorRange(0x666666, 0x008800);
+<div id="mapdiv" />
 
-            //var container2 = document.getElementById('mapdiv2');
-            //map2 = new Map3D(container2);
-
-            $.getJSON('/_map_data', {},
-                function (data) {
-                    console.log(data);
-                    map.setMapData(data);
-                    map.setCountry('FIN', 1.0, 1.0);
-
-                    //map2.setMapData(data);
-                });
-        });
-    </script>
 <script type="text/javascript">
+var map;
+$(document).ready(function () {
+    var container = document.getElementById('mapdiv');
+    map = new Map3D(container);
+    map.setDefaultHeight(0.01);
+    map.setHeightRange(0.05, 1.0);
+    map.setDefaultColor(0x222222);
+    map.setColorRange(0x666666, 0x008800);
+
+    $.getJSON('/_map_data', {},
+        function (data) {
+            //console.log(data);
+            map.setMapData(data);
+            //map.setCountry('FIN', 1.0, 1.0);
+
+            //map2.setMapData(data);
+        });
+});
+
+
 var send_query = function() {
   $.getJSON("/_data", {
-    color: $("input:radio[name=color]:checked").val(),
-    height: $("input:radio[name=height]:checked").val()
-  }, function(data) {
+        color: $("input:radio[name=color]:checked").val(),
+        height: $("input:radio[name=height]:checked").val()
+    },
+    function(data) {
+        console.log(data);
+        map.setData(data);
 
-  var normalized_data = normalize_data(data)
-  console.log(normalized_data);
+        /*var normalized_data = normalize_data(data)
+        console.log(normalized_data);
 
-   $("#data").text(data);
-  });
+        $("#data").text(data);*/
+    });
   return false;
 };
 
@@ -80,7 +86,6 @@ function show_values() {
 };
 
 $(function() {
-    $('a#get_data').bind('click', send_query);
     $('#submit').bind('click', send_query);
 });
 

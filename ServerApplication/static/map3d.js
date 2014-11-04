@@ -188,16 +188,21 @@ function Map3D(parentElement) {
         this.colorRange.max = max;
     }
     
-    function lerp(x, y, t) {
-        return x * (1.0 - t) + y * t;
-    }
-    
-    this.setCountry = function (name, height, color) {
+    this.setCountryHeight = function (name, height) {
         if (this.countries.hasOwnProperty(name)) {
             var mesh = this.countries[name];
-            
             var distance = this.heightRange.max - this.heightRange.min;
             setMeshHeight(mesh, this.heightRange.min + distance * height);
+        }
+    }
+    
+    function lerp(x, y, t) {
+        return (x & 0xFF) * (1.0 - t) + (y & 0xFF) * t;
+    }
+    
+    this.setCountryColor = function (name, color) {
+        if (this.countries.hasOwnProperty(name)) {
+            var mesh = this.countries[name];
             
             var color0 = this.colorRange.min;
             var color1 = this.colorRange.max;
@@ -212,18 +217,66 @@ function Map3D(parentElement) {
         }
     }
     
-    this.setCountryHeight = function (name, height) {
+    this.setCountry = function (name, height, color) {
+        this.setCountryHeight(height);
+        this.setCountryColor(color);
+    }
+    
+    this.setCountryHeightRaw = function (name, height) {
         if (this.countries.hasOwnProperty(name)) {
             var mesh = this.countries[name];
             setMeshHeight(mesh, height);
         }
     }
     
-    this.setCountryColor = function (name, color) {
+    this.setCountryColorRaw = function (name, color) {
         if (this.countries.hasOwnProperty(name)) {
             var mesh = this.countries[name];
             mesh.material.setValues( { color: color } );
         }
+    }
+    
+    this.normalize_data = function (data) {
+        var normalized_data = {};
+        var max_value;
+        var min_value;
+        for(key in data){
+            if(data.hasOwnProperty(key) && this.countries.hasOwnProperty(key)){
+                if (typeof max_value !== "undefined"){
+                    if(data[key] > max_value) max_value = data[key];
+                    if(data[key] < min_value) min_value = data[key];
+                }
+                else {
+                    max_value = data[key];
+                    min_value = data[key];
+                }
+            }
+        }
+
+        for(key in data){
+            normalized_data[key] = ((data[key])-min_value)/(max_value-min_value);
+        }
+        return normalized_data;
+    }
+    
+    this.setHeightData = function (data) {
+        var normalizedData = this.normalize_data(data);
+        for (var name in normalizedData) {
+            this.setCountryHeight(name, normalizedData[name]);
+        }
+    }
+    
+    this.setColorData = function (data) {
+        var normalizedData = this.normalize_data(data);
+        for (var name in normalizedData) {
+            this.setCountryColor(name, normalizedData[name]);
+        }
+    }
+    
+    this.setData = function (data) {
+        this.clear();
+        this.setHeightData(data.height);
+        this.setColorData(data.color);
     }
     
     this.render = function () {
