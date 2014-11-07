@@ -15,7 +15,7 @@ def project(point: (int,int)) -> (int,int):
     """Projects a point from geograpic coordinates to screen coordinates"""
     x,y = point
     x,y = pyproj.transform(sp,tp,x,y)
-    return  (scale * x, scale * y) #((x+17005833)*scale, (y+8625154)*scale)
+    return  (scale * x, scale * y) 
 
 def separate_polygons(shape) -> [[(int,int)]]:
     """Separates polygons from a shape-object"""
@@ -44,27 +44,11 @@ def get_shapes_and_attributes_of_countries(attribute_indices: [int], shapefile_p
 def get_shapes_of_countries(id_index: int, shapefile_path: str):
     """ """
     countries = get_shapes_and_attributes_of_countries([id_index], shapefile_path)
-    return  [(c[0][0],c[1]) for c in countries]
+    return  [(c[0][0],c[1]) for c in countries if c[0][0] != "ATA"] #TODO: Do something smarter to leave Antarctice out
     
 if len(sys.argv) < 2:
     print("Give .shp file as argument")
 
 else:
-    data = get_shapes_of_countries(19, sys.argv[1])
+    data = get_shapes_of_countries(44, sys.argv[1])
     print(json.dumps(data))
-
-#with open("C:\\MyTemp\\data.json", "w") as f:
-#    f.write(json.dumps(data))
-    
-# json_output = ""
-# for c in countries:
-#     json_output += json.dumps({'id': str(c[0][2]), 'name': str(c[0][1]), 'shapes': c[1]})
-
-
-# dwg = svgwrite.Drawing(filename="test.svg")
-# for c in countries:
-#     shapes = dwg.add(dwg.g(id=c[0][2]))
-#     for polygon in c[1]:
-#         shapes.add(dwg.polygon(polygon, fill="lime", stroke="black", stroke_width="1"))
-# dwg.save()
-    
