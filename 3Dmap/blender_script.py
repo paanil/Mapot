@@ -22,10 +22,11 @@ def clear_scene(scene):
         bpy.data.meshes.remove(mesh)
 
 
-def get_data(shp_path):
+def get_data(shp_path, python_path):
     path = os.path.dirname(__file__)
     path = os.path.join(path, "shp2json.py")
-    with os.popen("python " + path + " " + shp_path) as f:
+
+    with os.popen(python_path + " " + path + " " + shp_path) as f:
         return json.loads(f.read())
 
 
@@ -106,13 +107,12 @@ def export_scene(scene, path):
         f.write(json.dumps(data, separators=(",", ":")))
 
 
-def run(shp_file, out_file):
-    data = get_data(shp_file)
+def run(shp_file, out_file, python_path):
+    data = get_data(shp_file, python_path)
     scene = bpy.context.scene
     clear_scene(scene)
     create_scene(scene, data)
     export_scene(scene, out_file)
-
 
 argv = sys.argv
 argc = len(argv)
@@ -126,5 +126,8 @@ if argc < 2:
     print("Give .shp file as 1st argument")
 elif argc < 3:
     print("Give output file as 2nd argument")
+elif argc < 4:
+    print("Give path to python as 3rd argument")
 else:
-    run(argv[1], argv[2])
+    run(argv[1], argv[2], argv[3])
+
