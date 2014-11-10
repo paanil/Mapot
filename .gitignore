@@ -11,6 +11,7 @@ workspace.xml
 
 # JSON files
 *.json
+!metadata.json
 
 # Shape files
 *.dbf

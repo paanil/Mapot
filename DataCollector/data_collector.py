@@ -6,6 +6,7 @@ from glob import glob
 from common import util
 import os
 import errno
+import hashlib
 
 config = None
 
@@ -65,19 +66,19 @@ def et_findall(elem, tag):
 
     return children
 
-def collect_data(file_path):
+def collect_data(file_path, metadata):
     name, _ = splitext(basename(file_path))
     print("Downloading: " + name)
     xml_data = do_query(file_path)
     if xml_data is None: return False
 
-    print(xml_data.replace(">", ">\n"))
+    #print(xml_data.replace(">", ">\n"))
 
     root = ET.fromstring(xml_data)
     dataset = et_find(root, "DataSet")
 
     data = {}
-    metadata = {}
+    #metadata = {}
 
     for series in et_findall(dataset, "Series"):
         area = series.get("REF_AREA")
@@ -101,10 +102,25 @@ def collect_data(file_path):
     return True
 
 def main(path):
-    if isfile(path):
-        collect_data(path)
-    elif isdir(path):
-        for file in glob(join(path, "*.xml")): #TODO: threading
-            collect_data(file)
-    else:
-        print("Could not open " + path)
+    #TODO: path not used anymore
+    
+    metadata = util.read_json("queries/metadata.json")
+    if metadata is None:
+        print("Failed to read metadata")
+        return
+     
+    #print(metadata)
+    
+    for key in metadata:
+        query_path = "queries/" + key + ".xml"
+        name = metadata[key]
+        id = hashlib.md5(name.encode('ascii', 'ignore')).hexdigest()
+        collect_data(query_path, {"name": name, "id": id} )
+
+    #if isfile(path):
+    #    collect_data(path)
+    #elif isdir(path):
+    #    for file in glob(join(path, "*.xml")): #TODO: threading
+    #        collect_data(file)
+    #else:
+    #    print("Could not open " + path)
