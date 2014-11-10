@@ -2,42 +2,61 @@
 {% block body %}
 <div>
     <form>
+        <table>
 
-    <table style="width:40%">
-        <tr>
-         <td>Color</td>
-         <td>Height</td>
-         <td></td>
-        </tr>
-         <tr>
-         <td><input type="radio" id="r1" name="color" value="methane"/></td>
-         <td><input type="radio" id="r2"  name="height" value="methane"/></td>
-         <td>Methane</td>
-        </tr>
-        <tr>
-         <td><input type="radio" id="r3" name="color" value="death"/></td>
-         <td><input type="radio" id="r4" name="height" value="death"/></td>
-         <td>Death</td>
-        </tr>
-        <tr>
-         <td><input type="radio" id="r5"  name="color" value="greenhouse_gas"/></td>
-         <td><input type="radio" id="r6" name="height" value="greenhouse_gas"/></td>
-         <td>Greenhouse Gas</td>
-        </tr>
-        <tr>
-         <td><input type="radio" id="r5"  name="color" value="crude_death_rate"/></td>
-         <td><input type="radio" id="r6" name="height" value="crude_death_rate"/></td>
-         <td>Crude death rate</td>
-        </tr>
-        <tr>
-         <td><input type="radio" id="r5"  name="color" value="crude_birth_rate"/></td>
-         <td><input type="radio" id="r6" name="height" value="crude_birth_rate"/></td>
-         <td>Crude birth rate</td>
-        </tr>
-    </table>
+            <tr>
+                <td>Color:</td>
+                <td><div class="btn-group"> <a id="color" class="btn btn-default dropdown-toggle btn-color" data-toggle="dropdown" href="#">Select dataset <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        {% for query in queries %}
+                        <li><a href="#">{{ query }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                </td>
+                <td>
+                    <div class="btn-group"> <a id="color_parameters" class="btn btn-default dropdown-toggle btn-select2" data-toggle="dropdown" href="#">Parameters<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Divided by population</a></li>
+                            <li><a href="#">Divided by area</a></li>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            <tr>
 
-    <button id="submit">Submit</button>
+            </tr>
+            <tr>
+                <td>Height:</td>
+                <td>
+                    <div class="btn-group"> <a class="btn btn-default dropdown-toggle btn-height" data-toggle="dropdown" href="#">Select dataset <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            {% for query in queries %}
+                            <li><a href="#">{{ query }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </td>
+                <td>
+                    <div class="btn-group"> <a class="btn btn-default dropdown-toggle btn-select4" data-toggle="dropdown" href="#">Parameters<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Divided by population</a></li>
+                            <li><a href="#">Divided by area</a></li>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+
+            </tr>
+        </table>
+
+        <button id="submit">Submit</button>
+
     </form>
+
 </div>
 <div id="mapdiv" />
 
@@ -63,9 +82,14 @@ $(document).ready(function () {
 
 
 var send_query = function() {
+$(".dropdown-menu li a").click(function(){
+  var selText = $(this).text();
+  $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
+});
+
   $.getJSON("/_data", {
-        color: $("input:radio[name=color]:checked").val(),
-        height: $("input:radio[name=height]:checked").val()
+        color: $('.btn-color').text().trim(),
+        height: $('.btn-height').text().trim()
     },
     function(data) {
         console.log(data);
