@@ -19,50 +19,56 @@ function Controls(renderer, camera) {
     this.renderer.domElement.addEventListener('mousedown', function (event) { _this.mouseDown(event); }, false);
     this.renderer.domElement.addEventListener('mousemove', function (event) { _this.mouseMove(event); }, false);
     this.renderer.domElement.addEventListener('mouseup', function (event) { _this.mouseUp(event); }, false);
+    this.renderer.domElement.addEventListener( 'mousewheel', function (event) {_this.mousewheel(event); }, false );
+    this.renderer.domElement.addEventListener( 'DOMMouseScroll', function (event) {_this.mousewheel(event); }, false ); // For firefox
     
     // --- Methods ---
     this.update = function() {
         var mouseChange = new THREE.Vector2();
         mouseChange.copy(this.mouseEnd).sub(this.mouseStart);
         
-        this.camera.rotation.x = -3.14 * 0.5;
-        this.camera.rotation.y = 0.0;
-        this.camera.rotation.z = 0.0;
+        // this.camera.rotation.x = -3.14 * 0.5;
+        // this.camera.rotation.y = 0.0;
+        // this.camera.rotation.z = 0.0;
         
         var speed = this.cameraControlPoint.y;
         
         switch (this.mouseMode) {
-            case 0: // Left button - Drag
+        case 0: // Left button - Drag
             this.cameraControlPoint.x -= mouseChange.x * speed;
             this.cameraControlPoint.z -= mouseChange.y * speed;
             break;
             
-            case 1: // Middle button - Zoom
+        case 1: // Middle button - Zoom
             this.cameraControlPoint.y += mouseChange.y * speed;
             break;
             
-            case 2: // Right button - Rotate
-            this.camera.rotation.x -= mouseChange.y * 3.14 * 0.75;
-            this.camera.rotation.y = -mouseChange.x * 3.14 * 0.75;
+        case 2: // Right button - Rotate
+	    this.camera.rotation.x -= mouseChange.y * 3.14 * 0.75;
+	    if (this.camera.rotation.x > 0)
+		this.camera.rotation = 0;
+            this.camera.rotation.y += mouseChange.x * 3.14 * 0.75;
             break;
         }
         
         this.sceneBoundingBox.clampPoint(this.cameraControlPoint, this.cameraControlPoint);
-        this.camera.position.copy(this.cameraControlPoint)
+        this.camera.position.copy(this.cameraControlPoint);
         this.camera.position.y = 0.5;
         this.camera.position.add(this.camera.getWorldDirection().multiplyScalar(-this.cameraControlPoint.y));
-        
-        if (this.mouseMode != 2)
-            this.mouseStart.copy(this.mouseEnd);
-    }
+        this.mouseStart.copy(this.mouseEnd);
+    };
     
+    this.mousewheel = function (event) {
+	this.cameraControlPoint.y -= event.wheelDelta * 0.003;
+    };
+
     this.getMouseOnElement = function(elem, pageX, pageY) {
         var rect = elem.getBoundingClientRect();
         return new THREE.Vector2(
             (pageX - rect.left) / rect.width,
             (pageY - rect.top) / rect.height
         );
-    }
+    };
     
     this.mouseDown = function(event) {
         event.preventDefault();
@@ -75,14 +81,15 @@ function Controls(renderer, camera) {
         
         this.mouseStart.copy(this.getMouseOnElement(this.renderer.domElement, event.pageX, event.pageY));
         this.mouseEnd.copy(this.mouseStart);
-    }
+    };
     
     this.mouseMove = function(event) {
         event.preventDefault();
         event.stopPropagation();
         
         this.mouseEnd.copy(this.getMouseOnElement(this.renderer.domElement, event.pageX, event.pageY));
-    }
+	console.log(this.MouseEnd);
+    };
 
     this.mouseUp = function(event) {
         event.preventDefault();
@@ -92,7 +99,7 @@ function Controls(renderer, camera) {
             return;
         
         this.mouseMode = -1;
-    }
+    };
 }
 
 // ------------------------------
@@ -110,6 +117,7 @@ function Map3D(parentElement) {
     this.renderer = new THREE.WebGLRenderer({antialias: false});
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(75.0, 800.0/600.0, 0.1, 100.0);
+    this.camera.rotation.x = -3.14 * 0.5;
     this.controls = new Controls(this.renderer, this.camera);
     this.countries = {};
     this.defaultHeight = 0.01;
@@ -127,11 +135,11 @@ function Map3D(parentElement) {
     this.onResize = function (event) {
         var rect = this.container.getBoundingClientRect();
         var screenW = rect.width;
-        var screenH = rect.height;
+	var screenH = rect.height;
         this.renderer.setSize(screenW, screenH);
         this.camera.aspect = screenW / screenH;
         this.camera.updateProjectionMatrix();
-    }
+    };
     
     this.setMapData = function (mapData) {
         var sceneBoundingBox = this.controls.sceneBoundingBox;
@@ -158,7 +166,7 @@ function Map3D(parentElement) {
         sceneBoundingBox.max.y = 3.5;
         
         this.render();
-    }
+    };
     
     this.clear = function () {
         for (var name in this.countries) {
@@ -168,25 +176,25 @@ function Map3D(parentElement) {
                 mesh.material.setValues( { color: this.defaultColor } );
             }
         }
-    }
+    };
     
     this.setDefaultHeight = function (height) {
         this.defaultHeight = height;
-    }
+    };
     
     this.setDefaultColor = function (color) {
         this.defaultColor = color;
-    }
+    };
     
     this.setHeightRange = function (min, max) {
         this.heightRange.min = min;
         this.heightRange.max = max;
-    }
+    };
     
     this.setColorRange = function (min, max) {
         this.colorRange.min = min;
         this.colorRange.max = max;
-    }
+    };
     
     this.setCountryHeight = function (name, height) {
         if (this.countries.hasOwnProperty(name)) {
@@ -194,11 +202,11 @@ function Map3D(parentElement) {
             var distance = this.heightRange.max - this.heightRange.min;
             setMeshHeight(mesh, this.heightRange.min + distance * height);
         }
-    }
+    };
     
     function lerp(x, y, t) {
         return (x & 0xFF) * (1.0 - t) + (y & 0xFF) * t;
-    }
+    };
     
     this.setCountryColor = function (name, color) {
         if (this.countries.hasOwnProperty(name)) {
@@ -215,26 +223,26 @@ function Map3D(parentElement) {
             
             mesh.material.setValues( { color: c } );
         }
-    }
+    };
     
     this.setCountry = function (name, height, color) {
         this.setCountryHeight(height);
         this.setCountryColor(color);
-    }
+    };
     
     this.setCountryHeightRaw = function (name, height) {
         if (this.countries.hasOwnProperty(name)) {
             var mesh = this.countries[name];
             setMeshHeight(mesh, height);
         }
-    }
+    };
     
     this.setCountryColorRaw = function (name, color) {
         if (this.countries.hasOwnProperty(name)) {
             var mesh = this.countries[name];
             mesh.material.setValues( { color: color } );
         }
-    }
+    };
     
     this.normalize_data = function (data) {
         var normalized_data = {};
@@ -257,27 +265,27 @@ function Map3D(parentElement) {
             normalized_data[key] = ((data[key])-min_value)/(max_value-min_value);
         }
         return normalized_data;
-    }
+    };
     
     this.setHeightData = function (data) {
         var normalizedData = this.normalize_data(data);
         for (var name in normalizedData) {
             this.setCountryHeight(name, normalizedData[name]);
         }
-    }
+    };
     
     this.setColorData = function (data) {
         var normalizedData = this.normalize_data(data);
         for (var name in normalizedData) {
             this.setCountryColor(name, normalizedData[name]);
         }
-    }
+    };
     
     this.setData = function (data) {
         this.clear();
         this.setHeightData(data.height);
         this.setColorData(data.color);
-    }
+    };
     
     this.render = function () {
         var _this = this;
