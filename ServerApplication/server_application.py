@@ -2,13 +2,45 @@ import json
 import flask
 from flask import render_template, request
 from common import util
+#from glob import glob
+#import os
 
 config = None
+datasets =  {}
+
+def read_datasets():
+    global datasets
+    data_path = config.get_value("DataPath")
+    
+    meta = util.read_json(data_path + "metadata.json")
+    if meta is None:
+        print("Failed to read metadata")
+        return
+    
+    for key in meta.keys():#glob(os.path.join(data_path, "*.json")):
+        file = data_path + key + ".json"
+        data = util.read_json(file)
+        try:
+            metadata = data["metadata"]
+            id = metadata["id"]
+            datasets[id] = data
+        except:
+            print("Failed to read dataset '" + key + "'")
 
 def init():
     global config
     config = util.Config({"DataPath": "../Data/"})
     config.read("config.json")
+    read_datasets()
+
+def get_queries():
+    global datasets
+    queries = []
+    for key in datasets:
+        queries.append( (key, datasets[key]["metadata"]["name"]) )
+    return datasets.keys()
+    #print(queries)
+    #return queries
 
 def index():
     return render_template("index.html")
@@ -29,23 +61,28 @@ def world_map():
     return data
 
 def data():
+    global datasets
     color = request.args.get('color', "", type=str)
     height = request.args.get('height', "", type=str)
-    data_path = config.get_value("DataPath")
+    
+    color_data = None
+    height_data = None
+    
+    try:
+        color_data = datasets[color]
+        color_data = get_newest_data(color_data["data"])
+    except:
+        color_data = {}
+        
+    try:
+        height_data = datasets[height]
+        height_data = get_newest_data(height_data["data"])
+    except:
+        height_data = {}
 
-    color_path = data_path + color + ".json"
-    height_path = data_path + height + ".json"
-
-    # return flask.jsonify(color=color, height=height)
-
-    color_data = util.read_json(color_path)
-    height_data = util.read_json(height_path)
-    if data is None:
-        flask.abort(500)
-    color_data = get_newest_data(color_data["data"])    # Pick only the data from the latest year available
-    height_data = get_newest_data(height_data["data"])
-    print(color_data)
-    print(height_data)
+    #print(color_data)
+    #print(height_data)
+    
     return flask.json.dumps({"color": color_data, "height":  height_data})
 
 def get_newest_data(data):

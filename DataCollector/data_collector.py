@@ -1,7 +1,7 @@
 import http.client
 import xml.etree.ElementTree as ET
 import json
-from os.path import isfile, isdir, join, split, basename, splitext
+from os.path import basename, splitext#, isfile, isdir, join, split
 from glob import glob
 from common import util
 import os
@@ -104,7 +104,8 @@ def collect_data(file_path, metadata):
 def main(path):
     #TODO: path not used anymore
     
-    metadata = util.read_json("queries/metadata.json")
+    data_path = config.get_value("DataPath")
+    metadata = util.read_json(data_path + "metadata.json")
     if metadata is None:
         print("Failed to read metadata")
         return
