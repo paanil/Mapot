@@ -2,8 +2,6 @@ import json
 import flask
 from flask import render_template, request
 from common import util
-#from glob import glob
-#import os
 
 config = None
 datasets =  {}
@@ -17,7 +15,7 @@ def read_datasets():
         print("Failed to read metadata")
         return
     
-    for key in meta.keys():#glob(os.path.join(data_path, "*.json")):
+    for key in meta.keys():
         file = data_path + key + ".json"
         data = util.read_json(file)
         try:
@@ -69,15 +67,15 @@ def data():
     height_data = None
     
     try:
-        color_data = datasets[color]
-        color_data = get_newest_data(color_data["data"])
+        color_data = get_newest_data(datasets[color]["data"])
     except:
+        print("No data with id '" + color + "'")
         color_data = {}
         
     try:
-        height_data = datasets[height]
-        height_data = get_newest_data(height_data["data"])
+        height_data = get_newest_data(datasets[height]["data"])
     except:
+        print("No data with id '" + height + "'")
         height_data = {}
 
     #print(color_data)
