@@ -1,12 +1,13 @@
 import http.client
 import xml.etree.ElementTree as ET
 import json
-from os.path import isfile, isdir, join, split, basename, splitext
-from glob import glob
+from os.path import basename, splitext#, isfile, isdir, join, split
+#from glob import glob
 from common import util
 import os
-import errno
+#import errno
 import hashlib
+import math
 
 config = None
 
@@ -88,11 +89,16 @@ def collect_data(file_path, metadata):
         for obs in et_findall(series, "Obs"):
             year = int(obs.get("TIME_PERIOD"))
             value = float(obs.get("OBS_VALUE"))
+            if math.isnan(value):
+                print("NaN value skipped")
+                continue
             if metadata["unit"] is None:
                 metadata["unit"] = obs.get("UNIT")
             obs_dict[year] = value
-
-        data[area] = obs_dict
+        
+        if len(obs_dict) > 0:
+            data[area] = obs_dict
+            
     if not os.path.isdir(config.get_value("DataPath")):
         os.makedirs(config.get_value("DataPath"))
     
@@ -104,7 +110,8 @@ def collect_data(file_path, metadata):
 def main(path):
     #TODO: path not used anymore
     
-    metadata = util.read_json("queries/metadata.json")
+    data_path = config.get_value("DataPath")
+    metadata = util.read_json(data_path + "metadata.json")
     if metadata is None:
         print("Failed to read metadata")
         return
