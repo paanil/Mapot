@@ -1,64 +1,60 @@
 {% extends "header.html" %}
 {% block body %}
 <div>
-    <form>
-        <table>
+    <div class="row">
+        <div class="col-md-1">Color:</div>
+        <div class="col-md-1">
+            <div class ="btn-group"><a id="color" class="btn btn-default dropdown-toggle btn-color" data-toggle="dropdown" href="#">Select dataset <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    {% for query in queries %}
+                    <li><a href="#">{{ query }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-1">
+            <div class ="btn-group"><a id="color_parameters" class="btn btn-default dropdown-toggle btn-select2" data-toggle="dropdown" href="#">Parameters<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">Divided by population</a></li>
+                    <li><a href="#">Divided by area</a></li>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-1">Min color</div>
+        <div class="col-md-1">Max color</div>
+    </div>
+    <div class="row">
+        <div class="col-md-1">Height:</div>
+        <div class="col-md-1">
+            <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-height" data-toggle="dropdown" href="#">Select dataset <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    {% for query in queries %}
+                    <li><a href="#">{{ query }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-1">
+            <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-select4" data-toggle="dropdown" href="#">Parameters<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#">Divided by population</a></li>
+                    <li><a href="#">Divided by area</a></li>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-1">
+            <input type='text' id="minColor"/>
+        </div>
+        <div class="col-md-1">
+            <input type='text' id="maxColor"/>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12"><div id="mapdiv" /></div>
+    </div>
 
-            <tr>
-                <td>Color:</td>
-                <td><div class="btn-group"> <a id="color" class="btn btn-default dropdown-toggle btn-color" data-toggle="dropdown" href="#">Select dataset <span class="caret"></span></a>
-                    <ul class="dropdown-menu">
-                        {% for query in queries %}
-                        <li><a href="#">{{ query }}</a></li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                </td>
-                <td>
-                    <div class="btn-group"> <a id="color_parameters" class="btn btn-default dropdown-toggle btn-select2" data-toggle="dropdown" href="#">Parameters<span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#">Divided by population</a></li>
-                            <li><a href="#">Divided by area</a></li>
-                            </li>
-                        </ul>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-
-            </tr>
-            <tr>
-                <td>Height:</td>
-                <td>
-                    <div class="btn-group"> <a class="btn btn-default dropdown-toggle btn-height" data-toggle="dropdown" href="#">Select dataset <span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            {% for query in queries %}
-                            <li><a href="#">{{ query }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </td>
-                <td>
-                    <div class="btn-group"> <a class="btn btn-default dropdown-toggle btn-select4" data-toggle="dropdown" href="#">Parameters<span class="caret"></span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#">Divided by population</a></li>
-                            <li><a href="#">Divided by area</a></li>
-                            </li>
-                        </ul>
-                    </div>
-                </td>
-            </tr>
-            <tr>
-
-            </tr>
-        </table>
-
-        <button id="submit">Submit</button>
-
-    </form>
-
-</div>
-<div id="mapdiv" />
 
 <script type="text/javascript">
 var map;
@@ -80,12 +76,20 @@ $(document).ready(function () {
         });
 });
 
+var colors_changed = function(color) {
+var color_min = parseInt($('#minColor').spectrum("get").toHex(), 16);
+var color_max = parseInt($('#maxColor').spectrum("get").toHex(), 16);
+map.setColorRange(color_min, color_max);
+}
 
-var send_query = function() {
 $(".dropdown-menu li a").click(function(){
   var selText = $(this).text();
   $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
+  $('.btn-color').text().onchange = send_query();
+  $('.btn-height').text().onchange = send_query();
 });
+
+var send_query = function() {
 
   $.getJSON("/_data", {
         color: $('.btn-color').text().trim(),
@@ -102,16 +106,6 @@ $(".dropdown-menu li a").click(function(){
     });
   return false;
 };
-
-function show_values() {
-  var color_value = $("input:radio[name=color]:checked").val();
-  var height_value = $("input:radio[name=height]:checked").val();
-  return false;
-};
-
-$(function() {
-    $('#submit').bind('click', send_query);
-});
 
 function normalize_data(data) {
     var normalized_data = {};
@@ -135,6 +129,35 @@ function normalize_data(data) {
     }
     return normalized_data;
 }
+
+var minColorPalette = {
+    showPaletteOnly: true,
+    togglePaletteOnly: true,
+    togglePaletteMoreText: 'more',
+    togglePaletteLessText: 'less',
+    color: "#ff0",
+    change: colors_changed,
+    palette: [
+        ["#000","#444","#666","#999","#ccc","#eee","#f3f3f3","#fff"],
+        ["#f00","#f90","#ff0","#0f0","#0ff","#00f","#90f","#f0f"],
+        ["#ea9999","#f9cb9c","#ffe599","#b6d7a8","#a2c4c9","#9fc5e8","#b4a7d6","#d5a6bd"],
+        ["#e06666","#f6b26b","#ffd966","#93c47d","#76a5af","#6fa8dc","#8e7cc3","#c27ba0"],
+        ["#c00","#e69138","#f1c232","#6aa84f","#45818e","#3d85c6","#674ea7","#a64d79"],
+        ["#900","#b45f06","#bf9000","#38761d","#134f5c","#0b5394","#351c75","#741b47"],
+        ["#600","#783f04","#7f6000","#274e13","#0c343d","#073763","#20124d","#4c1130"]
+    ]
+}
+
+$("#minColor").spectrum(
+    minColorPalette
+);
+
+maxColorPalette = minColorPalette;
+maxColorPalette.color = "#f00";
+
+$("#maxColor").spectrum(
+    maxColorPalette
+);
 
 </script>
 {% endblock %}
