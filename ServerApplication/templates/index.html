@@ -5,9 +5,9 @@
         <div class="col-md-1">Color:</div>
         <div class="col-md-1">
             <div class ="btn-group"><a id="color" class="btn btn-default dropdown-toggle btn-color" data-toggle="dropdown" href="#">Select dataset <span class="caret"></span></a>
-                <ul class="dropdown-menu">
+                <ul class="dropdown-menu color-dropdown">
                     {% for query in queries %}
-                    <li><a href="#">{{ query }}</a></li>
+                    <li><a href="#" data-value="{{ query.id }}">{{ query.name }}</a></li>
                     {% endfor %}
                 </ul>
             </div>
@@ -28,9 +28,9 @@
         <div class="col-md-1">Height:</div>
         <div class="col-md-1">
             <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-height" data-toggle="dropdown" href="#">Select dataset <span class="caret"></span></a>
-                <ul class="dropdown-menu">
+                <ul class="dropdown-menu height-dropdown">
                     {% for query in queries %}
-                    <li><a href="#">{{ query }}</a></li>
+                    <li><a href="#" data-value="{{ query.id }}">{{ query.name }}</a></li>
                     {% endfor %}
                 </ul>
             </div>
@@ -58,6 +58,8 @@
 
 <script type="text/javascript">
 var map;
+var color_selection;
+var height_selection;
 $(document).ready(function () {
     var container = document.getElementById('mapdiv');
     map = new Map3D(container);
@@ -76,15 +78,30 @@ $(document).ready(function () {
         });
 });
 
+
 var colors_changed = function(color) {
 var color_min = parseInt($('#minColor').spectrum("get").toHex(), 16);
 var color_max = parseInt($('#maxColor').spectrum("get").toHex(), 16);
 map.setColorRange(color_min, color_max);
 }
 
-$(".dropdown-menu li a").click(function(){
+$(".color-dropdown li a").click(function(){
   var selText = $(this).text();
   $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
+  color_selection = $(this).attr('data-value');
+  console.log(color_selection);
+  send_query();
+});
+
+$(".height-dropdown li a").click(function(){
+  var selText = $(this).text();
+  $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
+  height_selection = $(this).attr('data-value');
+  console.log(height_selection);
+  send_query();
+});
+
+$(function() {
   $('.btn-color').text().onchange = send_query();
   $('.btn-height').text().onchange = send_query();
 });
@@ -92,8 +109,8 @@ $(".dropdown-menu li a").click(function(){
 var send_query = function() {
 
   $.getJSON("/_data", {
-        color: $('.btn-color').text().trim(),
-        height: $('.btn-height').text().trim()
+        color: color_selection,
+        height: height_selection
     },
     function(data) {
         console.log(data);

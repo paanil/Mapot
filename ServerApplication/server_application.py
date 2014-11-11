@@ -33,7 +33,7 @@ def init():
 
 def get_queries():
     global datasets
-    queries = []
+    queries = [{"id": "None", "name": "None"}]
     for id in datasets:
         queries.append( {"id": id, "name": datasets[id]["metadata"]["name"]} )
     #print(queries)
