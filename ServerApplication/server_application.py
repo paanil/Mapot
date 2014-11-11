@@ -34,11 +34,11 @@ def init():
 def get_queries():
     global datasets
     queries = []
-    for key in datasets:
-        queries.append( (key, datasets[key]["metadata"]["name"]) )
-    return datasets.keys()
+    for id in datasets:
+        queries.append( {"id": id, "name": datasets[id]["metadata"]["name"]} )
     #print(queries)
-    #return queries
+    return queries
+    #return datasets.keys()
 
 def index():
     return render_template("index.html")
