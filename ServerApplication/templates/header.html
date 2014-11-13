@@ -1,15 +1,22 @@
 <!doctype html>
-<title>UNdataMap</title>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script src="/static/three.js"></script>
-<script src="/static/stats.min.js"></script>
-<script src="/static/map3d.js"></script>
-<script>window.jQuery || document.write('<script src="{{
-  url_for('static', filename='jquery.js') }}">\x3C/script>')</script>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
-<link rel="stylesheet" href="static/style.css">
-<script src="static/spectrum.js"></script>
-<link rel="stylesheet" href="static/spectrum.css">
-{% block body %}{% endblock %}
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>UNdataMap</title>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script src="/static/three.js"></script>
+        <script src="/static/stats.min.js"></script>
+        <script src="/static/map3d.js"></script>
+        <script>window.jQuery || document.write('<script src="{{
+            url_for('static', filename='jquery.js') }}">\x3C/script>')</script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="static/style.css">
+        <script src="static/spectrum.js"></script>
+        <link rel="stylesheet" href="static/spectrum.css">
+    </head>
+    <body>
+        {% block body %}{% endblock %}
+    </body>
+</html>
 
