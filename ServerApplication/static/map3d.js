@@ -46,8 +46,14 @@ function Controls(renderer, camera) {
         case 2: // Right button - Rotate
 	    this.camera.rotation.x -= mouseChange.y * 3.14 * 0.75;
 	    if (this.camera.rotation.x > 0)
-		this.camera.rotation = 0;
+		this.camera.rotation.x = 0;
+	    if (this.camera.rotation.x < -3.14)
+		this.camera.rotation.x = -3.14;
             this.camera.rotation.y += mouseChange.x * 3.14 * 0.75;
+	    if (this.camera.rotation.y > 3.14 * 0.5)
+		this.camera.rotation.y = 3.14 * 0.5;
+	    if (this.camera.rotation.y < -3.14 * 0.5)
+		this.camera.rotation.y = -3.14 * 0.5;
             break;
         }
         
