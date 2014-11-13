@@ -27,10 +27,6 @@ function Controls(renderer, camera) {
         var mouseChange = new THREE.Vector2();
         mouseChange.copy(this.mouseEnd).sub(this.mouseStart);
         
-        // this.camera.rotation.x = -3.14 * 0.5;
-        // this.camera.rotation.y = 0.0;
-        // this.camera.rotation.z = 0.0;
-        
         var speed = this.cameraControlPoint.y;
         
         switch (this.mouseMode) {
@@ -44,16 +40,16 @@ function Controls(renderer, camera) {
             break;
             
         case 2: // Right button - Rotate
-	    this.camera.rotation.x -= mouseChange.y * 3.14 * 0.75;
-	    if (this.camera.rotation.x > 0)
-		this.camera.rotation.x = 0;
-	    if (this.camera.rotation.x < -3.14)
-		this.camera.rotation.x = -3.14;
-            this.camera.rotation.y += mouseChange.x * 3.14 * 0.75;
-	    if (this.camera.rotation.y > 3.14 * 0.5)
-		this.camera.rotation.y = 3.14 * 0.5;
-	    if (this.camera.rotation.y < -3.14 * 0.5)
-		this.camera.rotation.y = -3.14 * 0.5;
+            this.camera.rotation.x -= mouseChange.y * 3.14 * 0.75;
+            if (this.camera.rotation.x > 0)
+                this.camera.rotation.x = 0;
+            if (this.camera.rotation.x < -3.14)
+                this.camera.rotation.x = -3.14;
+                this.camera.rotation.y += mouseChange.x * 3.14 * 0.75;
+            if (this.camera.rotation.y > 3.14 * 0.5)
+                this.camera.rotation.y = 3.14 * 0.5;
+            if (this.camera.rotation.y < -3.14 * 0.5)
+                this.camera.rotation.y = -3.14 * 0.5;
             break;
         }
         
@@ -65,6 +61,8 @@ function Controls(renderer, camera) {
     };
     
     this.mousewheel = function (event) {
+        event.preventDefault();
+        event.stopPropagation();
 	this.cameraControlPoint.y -= event.wheelDelta * 0.003;
     };
 
@@ -94,7 +92,7 @@ function Controls(renderer, camera) {
         event.stopPropagation();
         
         this.mouseEnd.copy(this.getMouseOnElement(this.renderer.domElement, event.pageX, event.pageY));
-	console.log(this.MouseEnd);
+        //console.log(this.mouseEnd);
     };
 
     this.mouseUp = function(event) {
@@ -142,7 +140,7 @@ function Map3D(parentElement) {
     this.onResize = function (event) {
         var rect = this.container.getBoundingClientRect();
         var screenW = rect.width;
-	var screenH = rect.height;
+        var screenH = rect.height;
         this.renderer.setSize(screenW, screenH);
         this.camera.aspect = screenW / screenH;
         this.camera.updateProjectionMatrix();
@@ -282,11 +280,11 @@ function Map3D(parentElement) {
     };
 
     this.updateHeights = function () {
-	if (this.heightData) {
+        if (this.heightData) {
             for (var name in this.heightData) {
-		this.setCountryHeight(name, this.heightData[name]);
+                this.setCountryHeight(name, this.heightData[name]);
             }
-	}
+        }
     };
     
     this.setColorData = function (data) {
@@ -297,11 +295,11 @@ function Map3D(parentElement) {
     };
     
     this.updateColors = function () {
-	if (this.colorData) {
+        if (this.colorData) {
             for (var name in this.colorData) {
-		this.setCountryColor(name, this.colorData[name]);
+                this.setCountryColor(name, this.colorData[name]);
             }
-	}
+        }
     };
 
     this.setData = function (data) {

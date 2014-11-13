@@ -66,8 +66,14 @@
 var map;
 var color_selection;
 var height_selection;
+
 $(document).ready(function () {
     var container = document.getElementById('mapdiv');
+    var wh = $(window).height();
+    var top = container.offsetTop;
+    console.log(wh);
+    console.log(top);
+    //container.style.height = $(window).height() - container.offsetTop;
     map = new Map3D(container);
     map.setDefaultHeight(0.01);
     map.setHeightRange(0.05, 1.0);
@@ -78,18 +84,15 @@ $(document).ready(function () {
         function (data) {
             //console.log(data);
             map.setMapData(data);
-            //map.setCountry('FIN', 1.0, 1.0);
-
-            //map2.setMapData(data);
         });
 });
 
 
 var colors_changed = function(color) {
-var color_min = parseInt($('#minColor').spectrum("get").toHex(), 16);
-var color_max = parseInt($('#maxColor').spectrum("get").toHex(), 16);
-map.setColorRange(color_min, color_max);
-map.updateColors();
+    var color_min = parseInt($('#minColor').spectrum("get").toHex(), 16);
+    var color_max = parseInt($('#maxColor').spectrum("get").toHex(), 16);
+    map.setColorRange(color_min, color_max);
+    map.updateColors();
 }
 
 $(function(){
@@ -130,18 +133,15 @@ var send_query = function() {
         height: height_selection
     },
     function(data) {
-        console.log(data);
+        //console.log(data);
         map.setData(data);
-
-        /*var normalized_data = normalize_data(data)
-        console.log(normalized_data);
-
-        $("#data").text(data);*/
     });
   return false;
 };
 
-function normalize_data(data) {
+// Not needed here anymore (?)
+// Normalization done in map component
+/*function normalize_data(data) {
     var normalized_data = {};
     var max_value;
     var min_value;
@@ -162,7 +162,7 @@ function normalize_data(data) {
         normalized_data[key] = ((data[key])-min_value)/(max_value-min_value);
     }
     return normalized_data;
-}
+}*/
 
 var minColorPalette = {
     showPaletteOnly: true,
