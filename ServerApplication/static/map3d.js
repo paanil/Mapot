@@ -94,7 +94,7 @@ function Controls(renderer, camera) {
         event.stopPropagation();
         
         this.mouseEnd.copy(this.getMouseOnElement(this.renderer.domElement, event.pageX, event.pageY));
-	console.log(this.MouseEnd);
+        //console.log(this.mouseEnd);
     };
 
     this.mouseUp = function(event) {
