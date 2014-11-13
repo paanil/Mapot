@@ -66,7 +66,7 @@ $(document).ready(function () {
     map.setDefaultHeight(0.01);
     map.setHeightRange(0.05, 1.0);
     map.setDefaultColor(0x222222);
-    map.setColorRange(0x666666, 0x008800);
+    colors_changed();
 
     $.getJSON('/_map_data', {},
         function (data) {
@@ -83,6 +83,7 @@ var colors_changed = function(color) {
 var color_min = parseInt($('#minColor').spectrum("get").toHex(), 16);
 var color_max = parseInt($('#maxColor').spectrum("get").toHex(), 16);
 map.setColorRange(color_min, color_max);
+map.updateColors();
 }
 
 $(".color-dropdown li a").click(function(){
