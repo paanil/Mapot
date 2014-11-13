@@ -1,14 +1,51 @@
-{% extends "header.html" %}
-{% block body %}
+
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>UNdataMap</title>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script src="/static/three.js"></script>
+        <script src="/static/stats.min.js"></script>
+        <script src="/static/map3d.js"></script>
+        <script>window.jQuery || document.write('<script src="/static/jquery.js">\x3C/script>')</script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="static/style.css">
+        <script src="static/spectrum.js"></script>
+        <link rel="stylesheet" href="static/spectrum.css">
+    </head>
+    <body>
+        
 <div>
     <div class="row">
         <div class="col-md-1">Color:</div>
         <div class="col-md-1">
             <div class ="btn-group"><a id="color" class="btn btn-default dropdown-toggle btn-color" data-toggle="dropdown" href="#">Select dataset <span class="caret"></span></a>
                 <ul class="dropdown-menu color-dropdown">
-                    {% for query in queries %}
-                    <li><a href="#" data-value="{{ query.id }}">{{ query.name }}</a></li>
-                    {% endfor %}
+                    
+                    <li><a href="#" data-value="None">None</a></li>
+                    
+                    <li><a href="#" data-value="73c227ebfb89cc3f625283630361420f">Population undernourished</a></li>
+                    
+                    <li><a href="#" data-value="f657be8208d1cb4f06baa770bd91a3ab">Internet users</a></li>
+                    
+                    <li><a href="#" data-value="a2c2bd985ce4138291bc656b03108c24">Mortality</a></li>
+                    
+                    <li><a href="#" data-value="196e179a009f64ac70db888b2f3cd18b">Crude birth rate</a></li>
+                    
+                    <li><a href="#" data-value="edbec26f885cd7843cf45d871ee7db7c">Greenhouse gas</a></li>
+                    
+                    <li><a href="#" data-value="edc0f73b200e21fad7c541e3f37bda1d">Crude death rate</a></li>
+                    
+                    <li><a href="#" data-value="4e14f71c5702f5f71ad7de50587e2409">Methane</a></li>
+                    
+                    <li><a href="#" data-value="6097f89e3092d4ccd249c9d479785c1f">Death</a></li>
+                    
+                    <li><a href="#" data-value="ac12ee4aedb176eb73ce3f6c0d1e9036">Forest</a></li>
+                    
+                    <li><a href="#" data-value="b08301af4b631524abd9b9c7d46b4411">People under povertyline</a></li>
+                    
                 </ul>
             </div>
         </div>
@@ -22,17 +59,36 @@
         </div>
         <div class="col-md-1">Min color</div>
         <div class="col-md-1">Max color</div>
-        <div class="col-md-1">Max height: <span id="currentValue">1</span>
-        </div>
+        <div class="col-md-1">Max height</div>
     </div>
     <div class="row">
         <div class="col-md-1">Height:</div>
         <div class="col-md-1">
             <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-height" data-toggle="dropdown" href="#">Select dataset <span class="caret"></span></a>
                 <ul class="dropdown-menu height-dropdown">
-                    {% for query in queries %}
-                    <li><a href="#" data-value="{{ query.id }}">{{ query.name }}</a></li>
-                    {% endfor %}
+                    
+                    <li><a href="#" data-value="None">None</a></li>
+                    
+                    <li><a href="#" data-value="73c227ebfb89cc3f625283630361420f">Population undernourished</a></li>
+                    
+                    <li><a href="#" data-value="f657be8208d1cb4f06baa770bd91a3ab">Internet users</a></li>
+                    
+                    <li><a href="#" data-value="a2c2bd985ce4138291bc656b03108c24">Mortality</a></li>
+                    
+                    <li><a href="#" data-value="196e179a009f64ac70db888b2f3cd18b">Crude birth rate</a></li>
+                    
+                    <li><a href="#" data-value="edbec26f885cd7843cf45d871ee7db7c">Greenhouse gas</a></li>
+                    
+                    <li><a href="#" data-value="edc0f73b200e21fad7c541e3f37bda1d">Crude death rate</a></li>
+                    
+                    <li><a href="#" data-value="4e14f71c5702f5f71ad7de50587e2409">Methane</a></li>
+                    
+                    <li><a href="#" data-value="6097f89e3092d4ccd249c9d479785c1f">Death</a></li>
+                    
+                    <li><a href="#" data-value="ac12ee4aedb176eb73ce3f6c0d1e9036">Forest</a></li>
+                    
+                    <li><a href="#" data-value="b08301af4b631524abd9b9c7d46b4411">People under povertyline</a></li>
+                    
                 </ul>
             </div>
         </div>
@@ -51,7 +107,7 @@
             <input type='text' id="maxColor"/>
         </div>
         <div class="col-md-1">
-            <input type="range" id="slider" name="points" min="0.1" max="10" value="1" step="0.01">
+            <input type="range" name="points" min="0" max="10">
         </div>
     </div>
     <div class="row">
@@ -66,42 +122,30 @@
 var map;
 var color_selection;
 var height_selection;
-
 $(document).ready(function () {
     var container = document.getElementById('mapdiv');
-    var wh = $(window).height();
-    var top = container.offsetTop;
-    console.log(wh);
-    console.log(top);
-    //container.style.height = $(window).height() - container.offsetTop;
     map = new Map3D(container);
     map.setDefaultHeight(0.01);
     map.setHeightRange(0.05, 1.0);
     map.setDefaultColor(0x222222);
-    colors_changed();
+    map.setColorRange(0x666666, 0x008800);
 
     $.getJSON('/_map_data', {},
         function (data) {
             //console.log(data);
             map.setMapData(data);
+            //map.setCountry('FIN', 1.0, 1.0);
+
+            //map2.setMapData(data);
         });
 });
 
 
 var colors_changed = function(color) {
-    var color_min = parseInt($('#minColor').spectrum("get").toHex(), 16);
-    var color_max = parseInt($('#maxColor').spectrum("get").toHex(), 16);
-    map.setColorRange(color_min, color_max);
-    map.updateColors();
+var color_min = parseInt($('#minColor').spectrum("get").toHex(), 16);
+var color_max = parseInt($('#maxColor').spectrum("get").toHex(), 16);
+map.setColorRange(color_min, color_max);
 }
-
-$(function(){
-    var currentValue = $('#currentValue');
-    $('#slider').change(function(){
-        currentValue.html(this.value);
-    });
-        $('#slider').change();
-});
 
 $(".color-dropdown li a").click(function(){
   var selText = $(this).text();
@@ -131,15 +175,18 @@ var send_query = function() {
         height: height_selection
     },
     function(data) {
-        //console.log(data);
+        console.log(data);
         map.setData(data);
+
+        /*var normalized_data = normalize_data(data)
+        console.log(normalized_data);
+
+        $("#data").text(data);*/
     });
   return false;
 };
 
-// Not needed here anymore (?)
-// Normalization done in map component
-/*function normalize_data(data) {
+function normalize_data(data) {
     var normalized_data = {};
     var max_value;
     var min_value;
@@ -160,7 +207,7 @@ var send_query = function() {
         normalized_data[key] = ((data[key])-min_value)/(max_value-min_value);
     }
     return normalized_data;
-}*/
+}
 
 var minColorPalette = {
     showPaletteOnly: true,
@@ -192,4 +239,6 @@ $("#maxColor").spectrum(
 );
 
 </script>
-{% endblock %}
+
+    </body>
+</html>
