@@ -46,8 +46,14 @@ function Controls(renderer, camera) {
         case 2: // Right button - Rotate
 	    this.camera.rotation.x -= mouseChange.y * 3.14 * 0.75;
 	    if (this.camera.rotation.x > 0)
-		this.camera.rotation = 0;
+		this.camera.rotation.x = 0;
+	    if (this.camera.rotation.x < -3.14)
+		this.camera.rotation.x = -3.14;
             this.camera.rotation.y += mouseChange.x * 3.14 * 0.75;
+	    if (this.camera.rotation.y > 3.14 * 0.5)
+		this.camera.rotation.y = 3.14 * 0.5;
+	    if (this.camera.rotation.y < -3.14 * 0.5)
+		this.camera.rotation.y = -3.14 * 0.5;
             break;
         }
         
@@ -124,7 +130,8 @@ function Map3D(parentElement) {
     this.defaultColor = 0x222222;
     this.heightRange = new Range(0.01, 1.0);
     this.colorRange = new Range(0x666666, 0xFFFFFF);
-    
+    this.colorData = undefined;
+    this.heightData = undefined;
     // --- Helper functions ---
     function setMeshHeight(mesh, height) {
         mesh.scale.y = height;
@@ -268,19 +275,35 @@ function Map3D(parentElement) {
     };
     
     this.setHeightData = function (data) {
-        var normalizedData = this.normalize_data(data);
-        for (var name in normalizedData) {
-            this.setCountryHeight(name, normalizedData[name]);
+        this.heightData = this.normalize_data(data);
+        for (var name in this.heightData) {
+            this.setCountryHeight(name, this.heightData[name]);
         }
+    };
+
+    this.updateHeights = function () {
+	if (this.heightData) {
+            for (var name in this.heightData) {
+		this.setCountryHeight(name, this.heightData[name]);
+            }
+	}
     };
     
     this.setColorData = function (data) {
-        var normalizedData = this.normalize_data(data);
-        for (var name in normalizedData) {
-            this.setCountryColor(name, normalizedData[name]);
+        this.colorData = this.normalize_data(data);
+        for (var name in this.colorData) {
+            this.setCountryColor(name, this.colorData[name]);
         }
     };
     
+    this.updateColors = function () {
+	if (this.colorData) {
+            for (var name in this.colorData) {
+		this.setCountryColor(name, this.colorData[name]);
+            }
+	}
+    };
+
     this.setData = function (data) {
         this.clear();
         this.setHeightData(data.height);
