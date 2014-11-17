@@ -1,3 +1,16 @@
 body {
     margin: 5px;
 }
+
+#grad {
+    height: 1em;
+    width: 70px;
+    background: -webkit-linear-gradient(left, red , blue);
+    background: -o-linear-gradient(right, red, blue);
+    background: -moz-linear-gradient(right, red, blue);
+    background: linear-gradient(to right, red , blue);
+}
+
+.inline-div {
+    display: inline-block;
+}

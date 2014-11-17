@@ -63,7 +63,7 @@ function Controls(renderer, camera) {
     this.mousewheel = function (event) {
         event.preventDefault();
         event.stopPropagation();
-	this.cameraControlPoint.y -= event.wheelDelta * 0.003;
+        this.cameraControlPoint.y -= event.wheelDelta * 0.003;
     };
 
     this.getMouseOnElement = function(elem, pageX, pageY) {
@@ -161,6 +161,8 @@ function Map3D(parentElement) {
         for(key in data){
             normalized_data[key] = ((data[key])-min_value)/(max_value-min_value);
         }
+        normalized_data["min_value"] = min_value;
+        normalized_data["max_value"] = max_value;
         return normalized_data;
     };
     
@@ -287,7 +289,19 @@ function Map3D(parentElement) {
             }
         }
     };
-    
+
+    this.getColorDataMin = function () {
+        if (typeof this.colorData !== "undefined" && this.colorData.hasOwnProperty("min_value"))
+            return this.colorData["min_value"];
+        return 0;
+    }
+
+    this.getColorDataMax = function () {
+        if (typeof this.colorData !== "undefined" && this.colorData.hasOwnProperty("max_value"))
+            return this.colorData["max_value"];
+        return 0;
+    }
+
     this.setColorData = function (data) {
         this.colorData = this.normalizeData(data);
         for (var name in this.colorData) {
