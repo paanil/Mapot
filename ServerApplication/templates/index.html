@@ -15,8 +15,11 @@
         <div class="col-md-1">
             <div class ="btn-group"><a id="color_parameters" class="btn btn-default dropdown-toggle btn-select2" data-toggle="dropdown" href="#">Parameters<span class="caret"></span></a>
                 <ul class="dropdown-menu">
-                    <li><a href="#">Divided by population</a></li>
-                    <li><a href="#">Divided by area</a></li>
+                    {% for param in params %}
+                    <li><a href="#" data-value="{{ param.id }}">{{ param.name }}</a></li>
+                    {% endfor %}
+                    <!--li><a href="#">Divided by population</a></li>
+                    <li><a href="#">Divided by area</a></li-->
                 </ul>
             </div>
         </div>
@@ -64,8 +67,6 @@
 
 <script type="text/javascript">
 var map;
-var color_selection;
-var height_selection;
 
 function onResize() {
     var container = document.getElementById('mapdiv');
@@ -119,35 +120,31 @@ $(function(){
 $(".color-dropdown li a").click(function(){
   var selText = $(this).text();
   $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
-  color_selection = $(this).attr('data-value');
-  console.log(color_selection);
-  send_query();
+  var selection = $(this).attr('data-value');
+  send_color_query(selection);
 });
 
 $(".height-dropdown li a").click(function(){
   var selText = $(this).text();
   $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
-  height_selection = $(this).attr('data-value');
-  console.log(height_selection);
-  send_query();
+  var selection = $(this).attr('data-value');
+  send_height_query(selection);
 });
 
-$(function() {
-  $('.btn-color').text().onchange = send_query();
-  $('.btn-height').text().onchange = send_query();
-});
+var send_color_query = function(selection) {
+    $.getJSON("/_data", { id: selection },
+        function(data) {
+            map.setColorData(data);
+        });
+    return false;
+};
 
-var send_query = function() {
-
-  $.getJSON("/_data", {
-        color: color_selection,
-        height: height_selection
-    },
-    function(data) {
-        //console.log(data);
-        map.setData(data);
-    });
-  return false;
+var send_height_query = function(selection) {
+    $.getJSON("/_data", { id: selection },
+        function(data) {
+            map.setHeightData(data);
+        });
+    return false;
 };
 
 var minColorPalette = {

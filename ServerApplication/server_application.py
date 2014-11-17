@@ -36,9 +36,13 @@ def get_queries():
     queries = [{"id": "None", "name": "None"}]
     for id in datasets:
         queries.append( {"id": id, "name": datasets[id]["metadata"]["name"]} )
-    #print(queries)
     return queries
-    #return datasets.keys()
+
+def get_params():
+    return [
+        {"id": "divbypop", "name": "Divided by population"},
+        {"id": "divbyarea", "name": "Divided by area"}
+    ]
 
 def index():
     return render_template("index.html")
@@ -60,28 +64,16 @@ def world_map():
 
 def data():
     global datasets
-    color = request.args.get('color', "", type=str)
-    height = request.args.get('height', "", type=str)
+    id = request.args.get('id', "", type=str)
     
-    color_data = None
-    height_data = None
-    
+    data = None
     try:
-        color_data = get_newest_data(datasets[color]["data"])
+        data = get_newest_data(datasets[id]["data"])
     except:
-        print("No data with id '" + color + "'")
-        color_data = {}
-        
-    try:
-        height_data = get_newest_data(datasets[height]["data"])
-    except:
-        print("No data with id '" + height + "'")
-        height_data = {}
-
-    #print(color_data)
-    #print(height_data)
-    
-    return flask.json.dumps({"color": color_data, "height":  height_data})
+        print("No data with id '" + id + "'")
+        data = {}
+    #print(data)
+    return flask.json.dumps(data)
 
 def get_newest_data(data):
     newest_data = {}
