@@ -67,13 +67,21 @@ var map;
 var color_selection;
 var height_selection;
 
+function onResize() {
+    var container = document.getElementById('mapdiv');
+    var rect = container.getBoundingClientRect();
+    var ww = $(window).width();
+    var wh = $(window).height();
+    var w = (ww - rect.left - 10) + "px";
+    var h = (wh - rect.top - 10) + "px";
+    console.log(w, h);
+    container.style.width = w;
+    container.style.height = h;
+    map.onResize();
+}
+
 $(document).ready(function () {
     var container = document.getElementById('mapdiv');
-    var wh = $(window).height();
-    var top = container.offsetTop;
-    console.log(wh);
-    console.log(top);
-    //container.style.height = $(window).height() - container.offsetTop;
     map = new Map3D(container);
     map.setDefaultHeight(0.01);
     map.setHeightRange(0.05, 1.0);
@@ -85,6 +93,9 @@ $(document).ready(function () {
             //console.log(data);
             map.setMapData(data);
         });
+    
+    onResize();
+    $('#mapdiv').resize(onResize);
 });
 
 
@@ -136,31 +147,6 @@ var send_query = function() {
     });
   return false;
 };
-
-// Not needed here anymore (?)
-// Normalization done in map component
-/*function normalize_data(data) {
-    var normalized_data = {};
-    var max_value;
-    var min_value;
-    for(key in data){
-        if(data.hasOwnProperty(key)){
-            if(typeof max_value !== "undefined"){
-                if(data[key] > max_value) max_value = data[key];
-                if(data[key] < min_value) min_value = data[key];
-            }
-            else{
-                max_value = data[key];
-                min_value = data[key];
-            }
-        }
-    }
-
-    for(key in data){
-        normalized_data[key] = ((data[key])-min_value)/(max_value-min_value);
-    }
-    return normalized_data;
-}*/
 
 var minColorPalette = {
     showPaletteOnly: true,
