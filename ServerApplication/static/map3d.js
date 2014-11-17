@@ -276,6 +276,9 @@ function Map3D(parentElement) {
     };
     
     this.setHeightData = function (data) {
+        for (var name in this.countries) {
+            this.setCountryHeightRaw(name, this.defaultHeight);
+        }
         this.heightData = this.normalizeData(data);
         for (var name in this.heightData) {
             this.setCountryHeight(name, this.heightData[name]);
@@ -303,6 +306,9 @@ function Map3D(parentElement) {
     }
 
     this.setColorData = function (data) {
+        for (var name in this.countries) {
+            this.setCountryColorRaw(name, this.defaultColor);
+        }
         this.colorData = this.normalizeData(data);
         for (var name in this.colorData) {
             this.setCountryColor(name, this.colorData[name]);
