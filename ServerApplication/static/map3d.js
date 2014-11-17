@@ -27,10 +27,6 @@ function Controls(renderer, camera) {
         var mouseChange = new THREE.Vector2();
         mouseChange.copy(this.mouseEnd).sub(this.mouseStart);
         
-        // this.camera.rotation.x = -3.14 * 0.5;
-        // this.camera.rotation.y = 0.0;
-        // this.camera.rotation.z = 0.0;
-        
         var speed = this.cameraControlPoint.y;
         
         switch (this.mouseMode) {
@@ -65,7 +61,9 @@ function Controls(renderer, camera) {
     };
     
     this.mousewheel = function (event) {
-        this.cameraControlPoint.y -= event.wheelDelta * 0.003;
+        event.preventDefault();
+        event.stopPropagation();
+	this.cameraControlPoint.y -= event.wheelDelta * 0.003;
     };
 
     this.getMouseOnElement = function(elem, pageX, pageY) {
