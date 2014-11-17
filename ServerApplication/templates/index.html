@@ -53,6 +53,9 @@
         <div class="col-md-1">
             <input type="range" id="slider" name="points" min="0.05" max="3" value="1" step="0.01">
         </div>
+        <div class="col-md-1" id="grad1">
+            <div class="inline-div" id="gradient_min"></div><div class="inline-div" id="grad"></div><div  class="inline-div" id="gradient_max"></div>
+        </div>
     </div>
     <div class="row">
         <div class="col-md-12">
@@ -91,9 +94,27 @@ $(document).ready(function () {
 var colors_changed = function(color) {
     var color_min = parseInt($('#minColor').spectrum("get").toHex(), 16);
     var color_max = parseInt($('#maxColor').spectrum("get").toHex(), 16);
+    var gradient_min = $('#minColor').spectrum("get").toHex();
+    var gradient_max = $('#maxColor').spectrum("get").toHex();
     map.setColorRange(color_min, color_max);
     map.updateColors();
+    update_gradient(gradient_min, gradient_max);
 }
+
+var update_color_min_max = function() {
+    var min_value = map.getColorDataMin();
+    var max_value = map.getColorDataMax();
+    $('#gradient_min').html(parseFloat(min_value).toFixed(2));
+    $('#gradient_max').html(parseFloat(max_value).toFixed(2));
+}
+
+var update_gradient = function(gradient_min, gradient_max) {
+    $('#grad').css({'background': '-webkit-linear-gradient(left, #' + gradient_min+ ' , #' + gradient_max + ')'});
+    $('#grad').css({'background': '-o-linear-gradient(right, #' + gradient_min + ' , #' + gradient_max + ')'});
+    $('#grad').css({'background': '-moz-linear-gradient(right, #' +  gradient_min + ' , #' + gradient_max + ')'});
+    $('#grad').css({'background': 'linear-gradient(to right, #' + gradient_min + ' , #' + gradient_max + ')'});
+    update_color_min_max();
+};
 
 $(function(){
     var currentValue = $('#currentValue');
@@ -135,6 +156,7 @@ var send_query = function() {
     function(data) {
         //console.log(data);
         map.setData(data);
+        update_color_min_max();
     });
   return false;
 };
