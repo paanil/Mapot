@@ -6,6 +6,17 @@ from common import util
 config = None
 datasets =  {}
 
+def divide_by_pop(data):
+    print("divide_by_pop")
+    
+def divide_by_area(data):
+    print("divide_by_area")
+
+parameters = {
+    "divbypop": ("Divided by population", divide_by_pop),
+    "divbyarea": ("Divided by area", divide_by_area)
+}
+
 def read_datasets():
     global datasets
     data_path = config.get_value("DataPath")
@@ -33,16 +44,16 @@ def init():
 
 def get_queries():
     global datasets
-    queries = [{"id": "None", "name": "None"}]
+    queries = [{"id": "none", "name": "None"}]
     for id in datasets:
         queries.append( {"id": id, "name": datasets[id]["metadata"]["name"]} )
     return queries
 
 def get_params():
-    return [
-        {"id": "divbypop", "name": "Divided by population"},
-        {"id": "divbyarea", "name": "Divided by area"}
-    ]
+    params = [{"id": "none", "name": "None"}]
+    for id in parameters:
+        params.append( {"id": id, "name": parameters[id][0]} )
+    return params
 
 def index():
     return render_template("index.html")
@@ -65,6 +76,7 @@ def world_map():
 def data():
     global datasets
     id = request.args.get('id', "", type=str)
+    param = request.args.get('param', "", type=str)
     
     data = None
     try:
@@ -72,7 +84,13 @@ def data():
     except:
         print("No data with id '" + id + "'")
         data = {}
-    #print(data)
+    
+    try:
+        param_func = parameters[param][1]
+        param_func(data)
+    except:
+        print("No parameter with id: '" + param + "'")
+    
     return flask.json.dumps(data)
 
 def get_newest_data(data):

@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-md-1">Color:</div>
         <div class="col-md-2">
-            <div class ="btn-group"><a id="color" class="btn btn-default dropdown-toggle btn-color" data-toggle="dropdown" href="#">Select dataset <span class="caret"></span></a>
+            <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-color" data-toggle="dropdown" href="#">Select dataset <span class="caret"></span></a>
                 <ul class="dropdown-menu color-dropdown">
                     {% for query in queries %}
                     <li><a href="#" data-value="{{ query.id }}">{{ query.name }}</a></li>
@@ -13,13 +13,11 @@
             </div>
         </div>
         <div class="col-md-1">
-            <div class ="btn-group"><a id="color_parameters" class="btn btn-default dropdown-toggle btn-select2" data-toggle="dropdown" href="#">Parameters<span class="caret"></span></a>
-                <ul class="dropdown-menu">
+            <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-select2" data-toggle="dropdown" href="#">Parameters<span class="caret"></span></a>
+                <ul class="dropdown-menu color-params-dropdown">
                     {% for param in params %}
                     <li><a href="#" data-value="{{ param.id }}">{{ param.name }}</a></li>
                     {% endfor %}
-                    <!--li><a href="#">Divided by population</a></li>
-                    <li><a href="#">Divided by area</a></li-->
                 </ul>
             </div>
         </div>
@@ -41,9 +39,10 @@
         </div>
         <div class="col-md-1">
             <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-select4" data-toggle="dropdown" href="#">Parameters<span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                    <li><a href="#">Divided by population</a></li>
-                    <li><a href="#">Divided by area</a></li>
+                <ul class="dropdown-menu height-params-dropdown">
+                    {% for param in params %}
+                    <li><a href="#" data-value="{{ param.id }}">{{ param.name }}</a></li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>
@@ -70,6 +69,10 @@
 
 <script type="text/javascript">
 var map;
+var color_selection;
+var color_parameters;
+var height_selection;
+var height_parameters;
 
 function onResize() {
     var container = document.getElementById('mapdiv');
@@ -141,19 +144,19 @@ $(function(){
 $(".color-dropdown li a").click(function(){
   var selText = $(this).text();
   $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
-  var selection = $(this).attr('data-value');
-  send_color_query(selection);
+  color_selection = $(this).attr('data-value');
+  send_color_query();
 });
 
-$(".height-dropdown li a").click(function(){
+$(".color-params-dropdown li a").click(function(){
   var selText = $(this).text();
   $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
-  var selection = $(this).attr('data-value');
-  send_height_query(selection);
+  color_parameters = $(this).attr('data-value');
+  send_color_query();
 });
 
-var send_color_query = function(selection) {
-    $.getJSON("/_data", { id: selection },
+var send_color_query = function() {
+    $.getJSON("/_data", { id: color_selection, param: color_parameters },
         function(data) {
             map.setColorData(data);
             update_gradient_min_max();
@@ -161,8 +164,22 @@ var send_color_query = function(selection) {
     return false;
 };
 
-var send_height_query = function(selection) {
-    $.getJSON("/_data", { id: selection },
+$(".height-dropdown li a").click(function(){
+  var selText = $(this).text();
+  $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
+  height_selection = $(this).attr('data-value');
+  send_height_query();
+});
+
+$(".height-params-dropdown li a").click(function(){
+  var selText = $(this).text();
+  $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
+  height_parameters = $(this).attr('data-value');
+  send_height_query();
+});
+
+var send_height_query = function() {
+    $.getJSON("/_data", { id: height_selection, param: height_parameters },
         function(data) {
             map.setHeightData(data);
         });
