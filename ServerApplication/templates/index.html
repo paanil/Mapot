@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-md-1">Color:</div>
         <div class="col-md-2">
-            <div class ="btn-group"><a id="color" class="btn btn-default dropdown-toggle btn-color" data-toggle="dropdown" href="#">Select dataset <span class="caret"></span></a>
+            <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-color" data-toggle="dropdown" href="#">Select dataset <span class="caret"></span></a>
                 <ul class="dropdown-menu color-dropdown">
                     {% for query in queries %}
                     <li><a href="#" data-value="{{ query.id }}">{{ query.name }}</a></li>
@@ -13,10 +13,11 @@
             </div>
         </div>
         <div class="col-md-1">
-            <div class ="btn-group"><a id="color_parameters" class="btn btn-default dropdown-toggle btn-select2" data-toggle="dropdown" href="#">Parameters<span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                    <li><a href="#">Divided by population</a></li>
-                    <li><a href="#">Divided by area</a></li>
+            <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-select2" data-toggle="dropdown" href="#">Parameters<span class="caret"></span></a>
+                <ul class="dropdown-menu color-params-dropdown">
+                    {% for param in params %}
+                    <li><a href="#" data-value="{{ param.id }}">{{ param.name }}</a></li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>
@@ -38,9 +39,10 @@
         </div>
         <div class="col-md-1">
             <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-select4" data-toggle="dropdown" href="#">Parameters<span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                    <li><a href="#">Divided by population</a></li>
-                    <li><a href="#">Divided by area</a></li>
+                <ul class="dropdown-menu height-params-dropdown">
+                    {% for param in params %}
+                    <li><a href="#" data-value="{{ param.id }}">{{ param.name }}</a></li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>
@@ -98,15 +100,25 @@
 <script type="text/javascript">
 var map;
 var color_selection;
+var color_parameters;
 var height_selection;
+var height_parameters;
+
+function onResize() {
+    var container = document.getElementById('mapdiv');
+    var rect = container.getBoundingClientRect();
+    var ww = $(window).width();
+    var wh = $(window).height();
+    var w = (ww - rect.left - 10) + "px";
+    var h = (wh - rect.top - 10) + "px";
+    console.log(w, h);
+    container.style.width = w;
+    container.style.height = h;
+    map.onResize();
+}
 
 $(document).ready(function () {
     var container = document.getElementById('mapdiv');
-    var wh = $(window).height();
-    var top = container.offsetTop;
-    console.log(wh);
-    console.log(top);
-    //container.style.height = $(window).height() - container.offsetTop;
     map = new Map3D(container);
     map.setDefaultHeight(0.01);
     map.setHeightRange(0.05, 1.0);
@@ -118,6 +130,9 @@ $(document).ready(function () {
             //console.log(data);
             map.setMapData(data);
         });
+    
+    onResize();
+    $('#mapdiv').resize(onResize);
 });
 
 
@@ -131,7 +146,7 @@ var colors_changed = function(color) {
     update_gradient(gradient_min, gradient_max);
 }
 
-var update_color_min_max = function() {
+var update_gradient_min_max = function() {
     var min_value = map.getColorDataMin();
     var max_value = map.getColorDataMax();
     $('#gradient_min').html(parseFloat(min_value).toFixed(2));
@@ -143,7 +158,7 @@ var update_gradient = function(gradient_min, gradient_max) {
     $('#grad').css({'background': '-o-linear-gradient(right, #' + gradient_min + ' , #' + gradient_max + ')'});
     $('#grad').css({'background': '-moz-linear-gradient(right, #' +  gradient_min + ' , #' + gradient_max + ')'});
     $('#grad').css({'background': 'linear-gradient(to right, #' + gradient_min + ' , #' + gradient_max + ')'});
-    update_color_min_max();
+    update_gradient_min_max();
 };
 
 $(function(){
@@ -160,61 +175,46 @@ $(".color-dropdown li a").click(function(){
   var selText = $(this).text();
   $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
   color_selection = $(this).attr('data-value');
-  console.log(color_selection);
-  send_query();
+  send_color_query();
 });
+
+$(".color-params-dropdown li a").click(function(){
+  var selText = $(this).text();
+  $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
+  color_parameters = $(this).attr('data-value');
+  send_color_query();
+});
+
+var send_color_query = function() {
+    $.getJSON("/_data", { id: color_selection, param: color_parameters },
+        function(data) {
+            map.setColorData(data);
+            update_gradient_min_max();
+        });
+    return false;
+};
 
 $(".height-dropdown li a").click(function(){
   var selText = $(this).text();
   $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
   height_selection = $(this).attr('data-value');
-  console.log(height_selection);
-  send_query();
+  send_height_query();
 });
 
-$(function() {
-  $('.btn-color').text().onchange = send_query();
-  $('.btn-height').text().onchange = send_query();
+$(".height-params-dropdown li a").click(function(){
+  var selText = $(this).text();
+  $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
+  height_parameters = $(this).attr('data-value');
+  send_height_query();
 });
 
-var send_query = function() {
-
-  $.getJSON("/_data", {
-        color: color_selection,
-        height: height_selection
-    },
-    function(data) {
-        //console.log(data);
-        map.setData(data);
-        update_color_min_max();
-    });
-  return false;
+var send_height_query = function() {
+    $.getJSON("/_data", { id: height_selection, param: height_parameters },
+        function(data) {
+            map.setHeightData(data);
+        });
+    return false;
 };
-
-// Not needed here anymore (?)
-// Normalization done in map component
-/*function normalize_data(data) {
-    var normalized_data = {};
-    var max_value;
-    var min_value;
-    for(key in data){
-        if(data.hasOwnProperty(key)){
-            if(typeof max_value !== "undefined"){
-                if(data[key] > max_value) max_value = data[key];
-                if(data[key] < min_value) min_value = data[key];
-            }
-            else{
-                max_value = data[key];
-                min_value = data[key];
-            }
-        }
-    }
-
-    for(key in data){
-        normalized_data[key] = ((data[key])-min_value)/(max_value-min_value);
-    }
-    return normalized_data;
-}*/
 
 var minColorPalette = {
     showPaletteOnly: true,

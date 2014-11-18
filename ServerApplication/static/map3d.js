@@ -63,7 +63,7 @@ function Controls(renderer, camera) {
     this.mousewheel = function (event) {
         event.preventDefault();
         event.stopPropagation();
-	this.cameraControlPoint.y -= event.wheelDelta * 0.003;
+        this.cameraControlPoint.y -= event.wheelDelta * 0.003;
     };
 
     this.getMouseOnElement = function(elem, pageX, pageY) {
@@ -130,19 +130,49 @@ function Map3D(parentElement) {
     this.colorRange = new Range(0x666666, 0xFFFFFF);
     this.colorData = undefined;
     this.heightData = undefined;
+    
     // --- Helper functions ---
     function setMeshHeight(mesh, height) {
         mesh.scale.y = height;
         mesh.updateMatrix();
     }
     
+    function lerp(x, y, t) {
+        return (x & 0xFF) * (1.0 - t) + (y & 0xFF) * t;
+    };
+    
+    this.normalizeData = function (data) {
+        var normalized_data = {};
+        var max_value;
+        var min_value;
+        for(key in data){
+            if(data.hasOwnProperty(key) && this.countries.hasOwnProperty(key)){
+                if (typeof max_value !== "undefined"){
+                    if(data[key] > max_value) max_value = data[key];
+                    if(data[key] < min_value) min_value = data[key];
+                }
+                else {
+                    max_value = data[key];
+                    min_value = data[key];
+                }
+            }
+        }
+
+        for(key in data){
+            normalized_data[key] = ((data[key])-min_value)/(max_value-min_value);
+        }
+        normalized_data["min_value"] = min_value;
+        normalized_data["max_value"] = max_value;
+        return normalized_data;
+    };
+    
     // --- Methods ---
-    this.onResize = function (event) {
-        var rect = this.container.getBoundingClientRect();
-        var screenW = rect.width;
-        var screenH = rect.height;
-        this.renderer.setSize(screenW, screenH);
-        this.camera.aspect = screenW / screenH;
+    this.onResize = function () {
+        var w = this.container.clientWidth;
+        var h = this.container.clientHeight;
+        //console.log(w, h);
+        this.renderer.setSize(w, h);
+        this.camera.aspect = w / h;
         this.camera.updateProjectionMatrix();
     };
     
@@ -209,10 +239,6 @@ function Map3D(parentElement) {
         }
     };
     
-    function lerp(x, y, t) {
-        return (x & 0xFF) * (1.0 - t) + (y & 0xFF) * t;
-    };
-    
     this.setCountryColor = function (name, color) {
         if (this.countries.hasOwnProperty(name)) {
             var mesh = this.countries[name];
@@ -248,7 +274,7 @@ function Map3D(parentElement) {
             mesh.material.setValues( { color: color } );
         }
     };
-    
+
     this.normalize_data = function (data) {
         var normalized_data = {};
         var max_value;
@@ -278,9 +304,12 @@ function Map3D(parentElement) {
         normalized_data["max_value"] = max_value;
         return normalized_data;
     };
-    
+
     this.setHeightData = function (data) {
-        this.heightData = this.normalize_data(data);
+        for (var name in this.countries) {
+            this.setCountryHeightRaw(name, this.defaultHeight);
+        }
+        this.heightData = this.normalizeData(data);
         for (var name in this.heightData) {
             this.setCountryHeight(name, this.heightData[name]);
         }
@@ -307,7 +336,10 @@ function Map3D(parentElement) {
     }
 
     this.setColorData = function (data) {
-        this.colorData = this.normalize_data(data);
+        for (var name in this.countries) {
+            this.setCountryColorRaw(name, this.defaultColor);
+        }
+        this.colorData = this.normalizeData(data);
         for (var name in this.colorData) {
             this.setCountryColor(name, this.colorData[name]);
         }
@@ -338,9 +370,10 @@ function Map3D(parentElement) {
     // --- Initialization ---
     this.stats.domElement.style.position = 'absolute';
     this.container.appendChild(this.stats.domElement);
-
+    
     this.renderer.setClearColor(0x335577);
-    this.renderer.setSize(800, 600);
+    //this.renderer.setSize(800, 600);
+    //this.renderer.domElement.style.position = 'absolute';
     this.container.appendChild(this.renderer.domElement);
 
     var ambientLight = new THREE.AmbientLight(0x080C10);
@@ -354,8 +387,8 @@ function Map3D(parentElement) {
     directionalLight2.position.set(-1.0, 1.0, 1.0);
     this.scene.add(directionalLight2);
 
-    this.onResize();
+    //this.onResize();
     
-    var _this = this;
-    window.addEventListener('resize', function (event) { _this.onResize(event); }, false);
+    //var _this = this;
+    //window.addEventListener('resize', function (event) { _this.onResize(event); }, false);
 }
