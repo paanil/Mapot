@@ -274,7 +274,37 @@ function Map3D(parentElement) {
             mesh.material.setValues( { color: color } );
         }
     };
-    
+
+    this.normalize_data = function (data) {
+        var normalized_data = {};
+        var max_value;
+        var min_value;
+        for(key in data){
+            if(data.hasOwnProperty(key) && this.countries.hasOwnProperty(key)){
+                if (typeof max_value !== "undefined"){
+                    if(data[key] > max_value) max_value = data[key];
+                    if(data[key] < min_value) min_value = data[key];
+                }
+                else {
+                    max_value = data[key];
+                    min_value = data[key];
+                }
+            }
+        }
+
+        for(key in data){
+            normalized_data[key] = ((data[key])-min_value)/(max_value-min_value);
+        }
+        //TODO: fix this
+        if(typeof min_value === "undefined") {
+            min_value = 0;
+            max_value = 0;
+        }
+        normalized_data["min_value"] = min_value;
+        normalized_data["max_value"] = max_value;
+        return normalized_data;
+    };
+
     this.setHeightData = function (data) {
         for (var name in this.countries) {
             this.setCountryHeightRaw(name, this.defaultHeight);
