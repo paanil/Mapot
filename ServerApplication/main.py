@@ -19,12 +19,13 @@ def greenhouse_gas():
 def data():
     return server_application.data()
 
-#queries = ["methane", "death", "crude_death_rate"]
-
 @app.context_processor
 def inject_queries():
     return dict(queries=server_application.get_queries())
-    #return dict(queries=queries)
+
+@app.context_processor
+def inject_parameters():
+    return dict(params=server_application.get_params())
 
 if __name__ == "__main__":
     server_application.init()

@@ -6,6 +6,17 @@ from common import util
 config = None
 datasets =  {}
 
+def divide_by_pop(data):
+    print("divide_by_pop")
+    
+def divide_by_area(data):
+    print("divide_by_area")
+
+parameters = {
+    "divbypop": ("Divided by population", divide_by_pop),
+    "divbyarea": ("Divided by area", divide_by_area)
+}
+
 def read_datasets():
     global datasets
     data_path = config.get_value("DataPath")
@@ -33,12 +44,16 @@ def init():
 
 def get_queries():
     global datasets
-    queries = [{"id": "None", "name": "None"}]
+    queries = [{"id": "none", "name": "None"}]
     for id in datasets:
         queries.append( {"id": id, "name": datasets[id]["metadata"]["name"]} )
-    #print(queries)
     return queries
-    #return datasets.keys()
+
+def get_params():
+    params = [{"id": "none", "name": "None"}]
+    for id in parameters:
+        params.append( {"id": id, "name": parameters[id][0]} )
+    return params
 
 def index():
     return render_template("index.html")
@@ -60,28 +75,23 @@ def world_map():
 
 def data():
     global datasets
-    color = request.args.get('color', "", type=str)
-    height = request.args.get('height', "", type=str)
+    id = request.args.get('id', "", type=str)
+    param = request.args.get('param', "", type=str)
     
-    color_data = None
-    height_data = None
+    data = None
+    try:
+        data = get_newest_data(datasets[id]["data"])
+    except:
+        print("No data with id '" + id + "'")
+        data = {}
     
     try:
-        color_data = get_newest_data(datasets[color]["data"])
+        param_func = parameters[param][1]
+        param_func(data)
     except:
-        print("No data with id '" + color + "'")
-        color_data = {}
-        
-    try:
-        height_data = get_newest_data(datasets[height]["data"])
-    except:
-        print("No data with id '" + height + "'")
-        height_data = {}
-
-    #print(color_data)
-    #print(height_data)
+        print("No parameter with id: '" + param + "'")
     
-    return flask.json.dumps({"color": color_data, "height":  height_data})
+    return flask.json.dumps(data)
 
 def get_newest_data(data):
     newest_data = {}

@@ -3,7 +3,6 @@ from mathutils import Vector
 import json
 import sys
 import os
-from pathlib import Path
 
 # Three.js blender export module 'export_threejs.py'
 # needs THREE_exportGeometry custom property to be defined like this:
@@ -30,15 +29,41 @@ def get_data(shp_path, python_path):
         return json.loads(f.read())
 
 
-def build_mesh(mesh, regions):
-    extrude_vec = Vector((0.0, 0.0, 1.0))
+def separate_substracting_regions(regions):
+    substracting = []
+    num_regions = len(regions)
+    for i in range(0, num_regions):
+        region = regions[i]
+        last_point = len(region) - 1
+        pt1 = region[last_point]
+        pt2 = region[0]
+        sum = (pt2[0] - pt1[0]) * (pt2[1] + pt1[1])
+        for j in range(0, last_point): # we dont want to add last edge twice
+            pt1 = region[j]
+            pt2 = region[j + 1]
+            sum = sum + (pt2[0] - pt1[0]) * (pt2[1] + pt1[1])
+        if sum < 0:
+            substracting.append(i)
+    
+    regions_sub = []
+    regions_normal = []
+    for i in range(0, num_regions):
+        if i in substracting:
+            regions_sub.append(regions[i])
+        else:
+            regions_normal.append(regions[i])
+    return (regions_normal, regions_sub)
+
+
+def build_mesh(mesh, regions, height):
+    extrude_vec = Vector((0.0, 0.0, height))
     
     verts = []
     edges = []
     
-    for pointset in regions:
+    for region in regions:
         first = len(verts)
-        for pt in pointset:
+        for pt in region:
             index = len(verts)
             verts.append((pt[0], pt[1], 0.0))
             edges.append([index, index + 1])
@@ -51,22 +76,60 @@ def build_mesh(mesh, regions):
     bpy.ops.mesh.extrude_edges_move(TRANSFORM_OT_translate={"value":extrude_vec})
     bpy.ops.mesh.edge_face_add()
     bpy.ops.mesh.select_all(action='SELECT')
+    if height > 1.0: # TODO: fix this
+        bpy.ops.mesh.normals_make_consistent(inside=False)
     bpy.ops.mesh.quads_convert_to_tris()
     bpy.ops.object.mode_set(mode = 'OBJECT')
+
+
+def boolean_substract(object, object_sub):
+    bpy.context.scene.objects.active = object
+    bpy.ops.object.modifier_add(type='BOOLEAN')
+    bpy.context.object.modifiers["Boolean"].operation = 'DIFFERENCE'
+    bpy.context.object.modifiers["Boolean"].object = object_sub
+    bpy.ops.object.modifier_apply(apply_as='DATA', modifier="Boolean")
+
+
+def delete_sub_objects(scene):
+    for object in scene.objects:
+        if object.name.endswith("_sub"):
+            object.select = True
+    bpy.ops.object.delete()
+
+    for mesh in bpy.data.meshes:
+        try:
+            bpy.data.meshes.remove(mesh)
+        except:
+            pass
 
 
 def create_scene(scene, data):
     for country in data:
         name = country[0]
         regions = country[1]
+        
+        regions_normal, regions_sub = separate_substracting_regions(regions)
 
         mesh = bpy.data.meshes.new(name)
         object = bpy.data.objects.new(name, mesh)
-
+        
         scene.objects.link(object)
         scene.objects.active = object
 
-        build_mesh(mesh, regions)
+        build_mesh(mesh, regions_normal, 1.0)
+        
+        if len(regions_sub) > 0:
+            mesh_sub = bpy.data.meshes.new(name + "_sub")
+            object_sub = bpy.data.objects.new(name + "_sub", mesh_sub)
+            
+            scene.objects.link(object_sub)
+            scene.objects.active = object_sub
+
+            build_mesh(mesh_sub, regions_sub, 1.5)
+            
+            boolean_substract(object, object_sub)
+    
+    delete_sub_objects(scene)
 
 
 def export_scene(scene, path):
