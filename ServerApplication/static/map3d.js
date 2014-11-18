@@ -269,6 +269,11 @@ function Map3D(parentElement) {
         for(key in data){
             normalized_data[key] = ((data[key])-min_value)/(max_value-min_value);
         }
+        //TODO: fix this
+        if(typeof min_value === "undefined") {
+            min_value = 0;
+            max_value = 0;
+        }
         normalized_data["min_value"] = min_value;
         normalized_data["max_value"] = max_value;
         return normalized_data;
