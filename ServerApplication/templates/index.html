@@ -113,7 +113,7 @@ var colors_changed = function(color) {
     update_gradient(gradient_min, gradient_max);
 }
 
-var update_color_min_max = function() {
+var update_gradient_min_max = function() {
     var min_value = map.getColorDataMin();
     var max_value = map.getColorDataMax();
     $('#gradient_min').html(parseFloat(min_value).toFixed(2));
@@ -125,7 +125,7 @@ var update_gradient = function(gradient_min, gradient_max) {
     $('#grad').css({'background': '-o-linear-gradient(right, #' + gradient_min + ' , #' + gradient_max + ')'});
     $('#grad').css({'background': '-moz-linear-gradient(right, #' +  gradient_min + ' , #' + gradient_max + ')'});
     $('#grad').css({'background': 'linear-gradient(to right, #' + gradient_min + ' , #' + gradient_max + ')'});
-    update_color_min_max();
+    update_gradient_min_max();
 };
 
 $(function(){
@@ -156,7 +156,7 @@ var send_color_query = function(selection) {
     $.getJSON("/_data", { id: selection },
         function(data) {
             map.setColorData(data);
-            update_color_min_max();
+            update_gradient_min_max();
         });
     return false;
 };
