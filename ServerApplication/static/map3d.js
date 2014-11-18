@@ -1,8 +1,13 @@
+// --- Helper functions ---
+function setMeshHeight(mesh, height) {
+    mesh.scale.y = height;
+    mesh.updateMatrix();
+}
 
 // ------------------------------
 // ---------- Controls ----------
 
-function Controls(renderer, camera) {
+function Controls(renderer, camera, scene, countries) {
     // --- Members ---
     this.mouseMode = -1;
     this.mouseStart = new THREE.Vector2();
@@ -11,7 +16,9 @@ function Controls(renderer, camera) {
     this.cameraControlPoint = new THREE.Vector3(0.0, 4.5, 0.0);
     this.renderer = renderer;
     this.camera = camera;
-    
+    this.scene = scene;
+    this.countries = countries;
+
     // --- Initialization ---
     var _this = this;
     
@@ -60,6 +67,26 @@ function Controls(renderer, camera) {
         this.mouseStart.copy(this.mouseEnd);
     };
     
+    this.selectObject = function (x,y) { //TODO: rays won't hit the right spot
+	mouseVector = new THREE.Vector3();
+	mouseVector.x = x;
+	mouseVector.y = y;
+	direction = new THREE.Vector3(x, y, this.camera.near).normalize();
+	direction.multiplyScalar(-1.0);
+	ray = new THREE.Raycaster(this.camera.position, direction);
+	geometry = new THREE.Geometry;
+	geometry.vertices.push(this.camera.position);
+	geometry.vertices.push(ray.ray.at(-100));
+	line = new THREE.Line(geometry, new THREE.LineBasicMaterial({color: 0xffffff}));
+	var objects = [];
+	map.scene.children.forEach(function (c) {
+	    objects.push(c);
+	});
+	intersects = ray.intersectObjects(scene.children);
+	console.log(intersects[0]);
+	setMeshHeight(intersects[0].object, 1);
+    };
+
     this.mousewheel = function (event) {
         event.preventDefault();
         event.stopPropagation();
@@ -85,6 +112,8 @@ function Controls(renderer, camera) {
         
         this.mouseStart.copy(this.getMouseOnElement(this.renderer.domElement, event.pageX, event.pageY));
         this.mouseEnd.copy(this.mouseStart);
+	mousePosition = this.getMouseOnElement(this.renderer.domElement, event.pageX, event.pageY);
+	this.selectObject(0.5 - mousePosition.x, mousePosition.y);
     };
     
     this.mouseMove = function(event) {
@@ -92,7 +121,6 @@ function Controls(renderer, camera) {
         event.stopPropagation();
         
         this.mouseEnd.copy(this.getMouseOnElement(this.renderer.domElement, event.pageX, event.pageY));
-        //console.log(this.mouseEnd);
     };
 
     this.mouseUp = function(event) {
@@ -122,19 +150,14 @@ function Map3D(parentElement) {
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(75.0, 800.0/600.0, 0.1, 100.0);
     this.camera.rotation.x = -3.14 * 0.5;
-    this.controls = new Controls(this.renderer, this.camera);
     this.countries = {};
+    this.controls = new Controls(this.renderer, this.camera, this.scene, this.countries);
     this.defaultHeight = 0.01;
     this.defaultColor = 0x222222;
     this.heightRange = new Range(0.01, 1.0);
     this.colorRange = new Range(0x666666, 0xFFFFFF);
     this.colorData = undefined;
     this.heightData = undefined;
-    // --- Helper functions ---
-    function setMeshHeight(mesh, height) {
-        mesh.scale.y = height;
-        mesh.updateMatrix();
-    }
     
     // --- Methods ---
     this.onResize = function (event) {
@@ -145,7 +168,7 @@ function Map3D(parentElement) {
         this.camera.aspect = screenW / screenH;
         this.camera.updateProjectionMatrix();
     };
-    
+
     this.setMapData = function (mapData) {
         var sceneBoundingBox = this.controls.sceneBoundingBox;
         
@@ -158,6 +181,7 @@ function Map3D(parentElement) {
             
             var geometry = loader.parse(data, "").geometry;
             geometry.computeBoundingBox();
+	    geometry.computeBoundingSphere();
             sceneBoundingBox.union(geometry.boundingBox);
             var material = new THREE.MeshLambertMaterial( { color: this.defaultColor } );
             var mesh = new THREE.Mesh(geometry, material);
@@ -293,13 +317,13 @@ function Map3D(parentElement) {
         if (typeof this.colorData !== "undefined" && this.colorData.hasOwnProperty("min_value"))
             return this.colorData["min_value"];
         return 0;
-    }
+    };
 
     this.getColorDataMax = function () {
         if (typeof this.colorData !== "undefined" && this.colorData.hasOwnProperty("max_value"))
             return this.colorData["max_value"];
         return 0;
-    }
+    };
 
     this.setColorData = function (data) {
         this.colorData = this.normalize_data(data);
