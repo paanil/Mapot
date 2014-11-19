@@ -18,6 +18,7 @@ function Controls(renderer, camera, scene, countries) {
     this.camera = camera;
     this.scene = scene;
     this.countries = countries;
+    this.mouseOver = null;
 
     // --- Initialization ---
     var _this = this;
@@ -67,24 +68,20 @@ function Controls(renderer, camera, scene, countries) {
         this.mouseStart.copy(this.mouseEnd);
     };
     
-    this.selectObject = function (x,y) { //TODO: rays won't hit the right spot
-	mouseVector = new THREE.Vector3();
-	mouseVector.x = x;
-	mouseVector.y = y;
-	direction = new THREE.Vector3(x, y, this.camera.near).normalize();
-	direction.multiplyScalar(-1.0);
+    this.selectObject = function (x,y) { 
+	direction = new THREE.Vector3(x, y, this.camera.near);
+	direction.unproject(camera);
+	direction.sub(camera.position);
+	direction.normalize();
 	ray = new THREE.Raycaster(this.camera.position, direction);
-	geometry = new THREE.Geometry;
-	geometry.vertices.push(this.camera.position);
-	geometry.vertices.push(ray.ray.at(-100));
-	line = new THREE.Line(geometry, new THREE.LineBasicMaterial({color: 0xffffff}));
-	var objects = [];
-	map.scene.children.forEach(function (c) {
-	    objects.push(c);
-	});
 	intersects = ray.intersectObjects(scene.children);
-	console.log(intersects[0]);
-	setMeshHeight(intersects[0].object, 1);
+	if (intersects[0]) {
+	    selected = intersects[0].object;
+	    if (this.mouseOver)
+		this.mouseOver.material.emissive = new THREE.Color(0x000000);
+	    selected.material.emissive = new THREE.Color(0x00ff00);
+	    this.mouseOver = selected;
+	}
     };
 
     this.mousewheel = function (event) {
@@ -93,12 +90,11 @@ function Controls(renderer, camera, scene, countries) {
         this.cameraControlPoint.y -= event.wheelDelta * 0.003;
     };
 
-    this.getMouseOnElement = function(elem, pageX, pageY) {
+    this.getMouseOnElement = function(elem, clientX, clientY) {
         var rect = elem.getBoundingClientRect();
-        return new THREE.Vector2(
-            (pageX - rect.left) / rect.width,
-            (pageY - rect.top) / rect.height
-        );
+	x = ( (clientX- rect.left) / rect.width ) * 2 - 1;
+	y = - ( (event.clientY - rect.top) / rect.height ) * 2 + 1;
+        return new THREE.Vector2(x,y);
     };
     
     this.mouseDown = function(event) {
@@ -112,15 +108,14 @@ function Controls(renderer, camera, scene, countries) {
         
         this.mouseStart.copy(this.getMouseOnElement(this.renderer.domElement, event.pageX, event.pageY));
         this.mouseEnd.copy(this.mouseStart);
-	mousePosition = this.getMouseOnElement(this.renderer.domElement, event.pageX, event.pageY);
-	this.selectObject(0.5 - mousePosition.x, mousePosition.y);
     };
     
     this.mouseMove = function(event) {
         event.preventDefault();
         event.stopPropagation();
-        
-        this.mouseEnd.copy(this.getMouseOnElement(this.renderer.domElement, event.pageX, event.pageY));
+	mousePosition = this.getMouseOnElement(this.renderer.domElement, event.clientX, event.clientY);        
+        this.mouseEnd.copy(mousePosition);
+	this.selectObject(mousePosition.x, mousePosition.y);
     };
 
     this.mouseUp = function(event) {
