@@ -29,11 +29,9 @@ def get_data(shp_path, python_path):
         return json.loads(f.read())
 
 
-def separate_substracting_regions(regions):
-    substracting = []
-    num_regions = len(regions)
-    for i in range(0, num_regions):
-        region = regions[i]
+def separate_regions(regions):
+    regions_sub = []
+    for region in regions:
         last_point = len(region) - 1
         pt1 = region[last_point]
         pt2 = region[0]
@@ -43,16 +41,9 @@ def separate_substracting_regions(regions):
             pt2 = region[j + 1]
             sum = sum + (pt2[0] - pt1[0]) * (pt2[1] + pt1[1])
         if sum < 0:
-            substracting.append(i)
-    
-    regions_sub = []
-    regions_normal = []
-    for i in range(0, num_regions):
-        if i in substracting:
-            regions_sub.append(regions[i])
-        else:
-            regions_normal.append(regions[i])
-    return (regions_normal, regions_sub)
+            regions_sub.append(region)
+            regions.remove(region)
+    return (regions, regions_sub)
 
 
 def build_mesh(mesh, regions, height):
@@ -90,25 +81,10 @@ def boolean_substract(object, object_sub):
     bpy.ops.object.modifier_apply(apply_as='DATA', modifier="Boolean")
 
 
-def delete_sub_objects(scene):
-    for object in scene.objects:
-        if object.name.endswith("_sub"):
-            object.select = True
-    bpy.ops.object.delete()
-
-    for mesh in bpy.data.meshes:
-        try:
-            bpy.data.meshes.remove(mesh)
-        except:
-            pass
-
-
 def create_scene(scene, data):
     for country in data:
         name = country[0]
-        regions = country[1]
-        
-        regions_normal, regions_sub = separate_substracting_regions(regions)
+        regions, regions_sub = separate_regions(country[1])
 
         mesh = bpy.data.meshes.new(name)
         object = bpy.data.objects.new(name, mesh)
@@ -116,7 +92,7 @@ def create_scene(scene, data):
         scene.objects.link(object)
         scene.objects.active = object
 
-        build_mesh(mesh, regions_normal, 1.0)
+        build_mesh(mesh, regions, 1.0)
         
         if len(regions_sub) > 0:
             mesh_sub = bpy.data.meshes.new(name + "_sub")
@@ -128,8 +104,11 @@ def create_scene(scene, data):
             build_mesh(mesh_sub, regions_sub, 1.5)
             
             boolean_substract(object, object_sub)
-    
-    delete_sub_objects(scene)
+            
+            bpy.ops.object.select_all(action='DESELECT')
+            object_sub.select = True
+            bpy.ops.object.delete()
+            bpy.data.meshes.remove(mesh_sub)
 
 
 def export_scene(scene, path):
