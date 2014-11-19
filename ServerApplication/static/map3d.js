@@ -225,7 +225,26 @@ function Map3D(parentElement) {
         
         this.render();
     };
-    
+
+    this.hideCountriesWithNoData = function () {
+        for (var name in this.countries) {
+            if (this.countries.hasOwnProperty(name)) {
+                if (this.colorData.hasOwnProperty(name) || this.heightData.hasOwnProperty(name)) {
+                    this.countries[name].visible = true;
+                }
+                else this.countries[name].visible = false;
+            }
+        }
+    }
+
+    this.showAllCountries = function () {
+        for (var name in this.countries) {
+            if (this.countries.hasOwnProperty(name)) {
+                 this.countries[name].visible = true;
+            }
+        }
+    }
+
     this.clear = function () {
         for (var name in this.countries) {
             if (this.countries.hasOwnProperty(name)) {
