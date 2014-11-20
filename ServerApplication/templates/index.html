@@ -99,17 +99,17 @@ var color_parameters;
 var height_selection;
 var height_parameters;
 
-function onResize() {
-    var container = document.getElementById('mapdiv');
-    var rect = container.getBoundingClientRect();
+function on_resize() {
+    var mapdiv = document.getElementById('mapdiv');
+    var rect = mapdiv.getBoundingClientRect();
     var ww = $(window).width();
     var wh = $(window).height();
     var w = (ww - rect.left - 10) + "px";
     var h = (wh - rect.top - 10) + "px";
     console.log(w, h);
-    container.style.width = w;
-    container.style.height = h;
-    map.onResize();
+    mapdiv.style.width = w;
+    mapdiv.style.height = h;
+    map.resize();
 }
 
 var update_countries_visibility = function() {
@@ -121,8 +121,8 @@ var update_countries_visibility = function() {
 }
 
 $(document).ready(function () {
-    var container = document.getElementById('mapdiv');
-    map = new Map3D(container);
+    var mapdiv = document.getElementById('mapdiv');
+    map = new Map3D(mapdiv);
     map.setDefaultHeight(0.01);
     map.setHeightRange(0.05, 1.0);
     map.setDefaultColor(0x222222);
@@ -135,8 +135,8 @@ $(document).ready(function () {
             map.setMapData(data);
         });
     
-    onResize();
-    $('#mapdiv').resize(onResize);
+    on_resize();
+    $(window).resize(on_resize);
 });
 
 var colors_changed = function(color) {

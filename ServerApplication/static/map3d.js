@@ -69,19 +69,19 @@ function Controls(renderer, camera, scene, countries) {
     };
     
     this.selectObject = function (x,y) { 
-	direction = new THREE.Vector3(x, y, this.camera.near);
-	direction.unproject(camera);
-	direction.sub(camera.position);
-	direction.normalize();
-	ray = new THREE.Raycaster(this.camera.position, direction);
-	intersects = ray.intersectObjects(scene.children);
-	if (intersects[0]) {
-	    selected = intersects[0].object;
-	    if (this.mouseOver)
-		this.mouseOver.material.emissive = new THREE.Color(0x000000);
-	    selected.material.emissive = new THREE.Color(0x00ff00);
-	    this.mouseOver = selected;
-	}
+        direction = new THREE.Vector3(x, y, this.camera.near);
+        direction.unproject(camera);
+        direction.sub(camera.position);
+        direction.normalize();
+        ray = new THREE.Raycaster(this.camera.position, direction);
+        intersects = ray.intersectObjects(scene.children);
+        if (intersects[0]) {
+            selected = intersects[0].object;
+            if (this.mouseOver)
+                this.mouseOver.material.emissive = new THREE.Color(0x000000);
+            selected.material.emissive = new THREE.Color(0x00ff00);
+            this.mouseOver = selected;
+        }
     };
 
     this.mousewheel = function (event) {
@@ -92,8 +92,8 @@ function Controls(renderer, camera, scene, countries) {
 
     this.getMouseOnElement = function(elem, clientX, clientY) {
         var rect = elem.getBoundingClientRect();
-	x = ( (clientX- rect.left) / rect.width ) * 2 - 1;
-	y = - ( (event.clientY - rect.top) / rect.height ) * 2 + 1;
+        x = ( (clientX- rect.left) / rect.width ) * 2 - 1;
+        y = - ( (event.clientY - rect.top) / rect.height ) * 2 + 1;
         return new THREE.Vector2(x,y);
     };
     
@@ -113,9 +113,9 @@ function Controls(renderer, camera, scene, countries) {
     this.mouseMove = function(event) {
         event.preventDefault();
         event.stopPropagation();
-	mousePosition = this.getMouseOnElement(this.renderer.domElement, event.clientX, event.clientY);        
+        mousePosition = this.getMouseOnElement(this.renderer.domElement, event.clientX, event.clientY);        
         this.mouseEnd.copy(mousePosition);
-	this.selectObject(mousePosition.x, mousePosition.y);
+        this.selectObject(mousePosition.x, mousePosition.y);
     };
 
     this.mouseUp = function(event) {
@@ -184,10 +184,9 @@ function Map3D(parentElement) {
     };
     
     // --- Methods ---
-    this.onResize = function () {
+    this.resize = function () {
         var w = this.container.clientWidth;
         var h = this.container.clientHeight;
-        //console.log(w, h);
         this.renderer.setSize(w, h);
         this.camera.aspect = w / h;
         this.camera.updateProjectionMatrix();
@@ -205,7 +204,7 @@ function Map3D(parentElement) {
             
             var geometry = loader.parse(data, "").geometry;
             geometry.computeBoundingBox();
-	    geometry.computeBoundingSphere();
+            geometry.computeBoundingSphere();
             sceneBoundingBox.union(geometry.boundingBox);
             var material = new THREE.MeshLambertMaterial( { color: this.defaultColor } );
             var mesh = new THREE.Mesh(geometry, material);
@@ -409,8 +408,6 @@ function Map3D(parentElement) {
     this.container.appendChild(this.stats.domElement);
     
     this.renderer.setClearColor(0x335577);
-    //this.renderer.setSize(800, 600);
-    //this.renderer.domElement.style.position = 'absolute';
     this.container.appendChild(this.renderer.domElement);
 
     var ambientLight = new THREE.AmbientLight(0x080C10);
@@ -423,9 +420,4 @@ function Map3D(parentElement) {
     var directionalLight2 = new THREE.DirectionalLight(0xD0D0FF, 1.0);
     directionalLight2.position.set(-1.0, 1.0, 1.0);
     this.scene.add(directionalLight2);
-
-    //this.onResize();
-    
-    //var _this = this;
-    //window.addEventListener('resize', function (event) { _this.onResize(event); }, false);
 }
