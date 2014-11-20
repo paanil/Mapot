@@ -57,15 +57,11 @@
         </div>
     </div>
     <div class="row">
-    <div class="col-md-12" id="grad1">
-    <div id="gradient_min"></div><div id="gradient_max"></div><div id="grad"></div>
-    </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div id="mapdiv"></div>
+        <div class="col-md-12" id="grad1">
+            <div id="gradient_min"></div><div id="gradient_max"></div><div id="grad"></div>
         </div>
     </div>
+    <div id="mapdiv"></div>
 </div>
 <div class="modal" id="testModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -104,9 +100,9 @@ function on_resize() {
     var rect = mapdiv.getBoundingClientRect();
     var ww = $(window).width();
     var wh = $(window).height();
-    var w = (ww - rect.left - 10) + "px";
-    var h = (wh - rect.top - 10) + "px";
-    console.log(w, h);
+    var w = (ww - rect.left - 5) + "px";
+    var h = (wh - rect.top - 5) + "px";
+    console.log(ww, h);
     mapdiv.style.width = w;
     mapdiv.style.height = h;
     map.resize();
