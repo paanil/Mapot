@@ -17,7 +17,7 @@ body {
 }
 
 #gradient_min {
-    float: left;
+    //float: left;
 }
 
 #gradient_max {
@@ -27,6 +27,43 @@ body {
 .modal-backdrop, .modal-backdrop.fade.in {
     opacity: 0;
 }
+
+.fieldsets {
+    white-space: nowrap;
+}
+
+.fieldset {
+    display: inline-block;
+    margin-left: 2px;
+    margin-right: 2px;
+    padding-top: 0.35em;
+    padding-bottom: 0.625em;
+    padding-left: 0.75em;
+    padding-right: 0.75em;
+    border: 2px groove (internal value);
+    //float: left;
+    vertical-align: top;
+}
+
+.help {
+vertical-align: top;
+    //float: right;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+.nowrap {
+    white-space: nowrap;
+    width: 100%;
+}
+
+.reset {
+    //display: initial;
+}
+
+
 
 
 

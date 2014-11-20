@@ -1,9 +1,12 @@
 {% extends "header.html" %}
 {% block body %}
-<div>
-    <div class="row">
-        <div class="col-md-1">Color:</div>
-        <div class="col-md-2">
+<div>UNdataMap</div>
+<div class="fieldsets">
+    <div class="fieldset">
+        <form>
+        <fieldset>
+            <legend>Height</legend>
+            <div>
             <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-color" data-toggle="dropdown" href="#">Select dataset <span class="caret"></span></a>
                 <ul class="dropdown-menu color-dropdown">
                     {% for query in queries %}
@@ -11,8 +14,8 @@
                     {% endfor %}
                 </ul>
             </div>
-        </div>
-        <div class="col-md-1">
+                </div>
+            <div>
             <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-select2" data-toggle="dropdown" href="#">Parameters<span class="caret"></span></a>
                 <ul class="dropdown-menu color-params-dropdown">
                     {% for param in params %}
@@ -20,53 +23,62 @@
                     {% endfor %}
                 </ul>
             </div>
-        </div>
-        <div class="col-md-1">Min color</div>
-        <div class="col-md-1">Max color</div>
-    </div>
-    <div class="row">
-        <div class="col-md-1">Height:</div>
-        <div class="col-md-2">
-            <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-height" data-toggle="dropdown" href="#">Select dataset <span class="caret"></span></a>
-                <ul class="dropdown-menu height-dropdown">
-                    {% for query in queries %}
-                    <li><a href="#" data-value="{{ query.id }}">{{ query.name }}</a></li>
-                    {% endfor %}
-                </ul>
             </div>
-        </div>
-        <div class="col-md-1">
-            <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-select4" data-toggle="dropdown" href="#">Parameters<span class="caret"></span></a>
-                <ul class="dropdown-menu height-params-dropdown">
-                    {% for param in params %}
-                    <li><a href="#" data-value="{{ param.id }}">{{ param.name }}</a></li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-        <div class="col-md-1">
-            <input type='text' id="minColor"/>
-        </div>
-        <div class="col-md-1">
-            <input type='text' id="maxColor"/>
-        </div>
-        <div class="col-md-1">
-            <button type="button" class="btn-modal" data-toggle="modal" data-target="#testModal">
-                Settings
-            </button>
-        </div>
+        </fieldset>
+            </form>
     </div>
-    <div class="row">
-    <div class="col-md-12" id="grad1">
-    <div id="gradient_min"></div><div id="gradient_max"></div><div id="grad"></div>
+    <div class="fieldset">
+        <form>
+            <fieldset>
+                <legend>Color</legend>
+                <div>
+                <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-height" data-toggle="dropdown" href="#">Select dataset <span class="caret"></span></a>
+                    <ul class="dropdown-menu height-dropdown">
+                        {% for query in queries %}
+                        <li><a href="#" data-value="{{ query.id }}">{{ query.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                    </div>
+                <div>
+                <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-select4" data-toggle="dropdown" href="#">Parameters<span class="caret"></span></a>
+                    <ul class="dropdown-menu height-params-dropdown">
+                        {% for param in params %}
+                        <li><a href="#" data-value="{{ param.id }}">{{ param.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                </div>
+            </fieldset>
+        </form>
     </div>
+    <div class="fieldset">
+        <form>
+            <fieldset>
+                <legend>Settings</legend>
+                <input type='text' id="minColor"/>
+                <input type='text' id="maxColor"/>
+                <button type="button" class="btn-modal" data-toggle="modal" data-target="#testModal">
+                    Settings
+                </button>
+            </fieldset>
+        </form>
     </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div id="mapdiv"></div>
-        </div>
-    </div>
+    <div class="fieldset">Help-nappula</div>
 </div>
+<div class="nowrap">
+<div class="inline-block">
+    <div class="reset">
+        <div id="gradient_max"></div><div id="gradient_min"></div><div id="grad"></div>
+    </div>
+    <div class="reset" id="mapdiv"></div>
+</div>
+<div class="help inline-block">HELPPI</div>
+    </div>
+
+
+
+
 <div class="modal" id="testModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
     <div class="modal-content">
@@ -90,7 +102,6 @@
     </div>
   </div>
 </div>
-
 
 <script type="text/javascript">
 var map;
