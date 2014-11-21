@@ -151,8 +151,8 @@ function Map3D(parentElement) {
     this.defaultColor = 0x222222;
     this.heightRange = new Range(0.01, 1.0);
     this.colorRange = new Range(0x666666, 0xFFFFFF);
-    this.colorData = undefined;
-    this.heightData = undefined;
+    this.colorData = {};
+    this.heightData = {};
     
     function lerp(x, y, t) {
         return (x & 0xFF) * (1.0 - t) + (y & 0xFF) * t;
@@ -311,7 +311,7 @@ function Map3D(parentElement) {
         }
     };
 
-    this.normalize_data = function (data) {
+    this.normalizeData = function (data) {
         var normalized_data = {};
         var max_value;
         var min_value;
@@ -352,21 +352,19 @@ function Map3D(parentElement) {
     };
 
     this.updateHeights = function () {
-        if (this.heightData) {
-            for (var name in this.heightData) {
-                this.setCountryHeight(name, this.heightData[name]);
-            }
+        for (var name in this.heightData) {
+            this.setCountryHeight(name, this.heightData[name]);
         }
     };
 
     this.getColorDataMin = function () {
-        if (typeof this.colorData !== "undefined" && this.colorData.hasOwnProperty("min_value"))
+        if (this.colorData.hasOwnProperty("min_value"))
             return this.colorData["min_value"];
         return 0;
     };
 
     this.getColorDataMax = function () {
-        if (typeof this.colorData !== "undefined" && this.colorData.hasOwnProperty("max_value"))
+        if (this.colorData.hasOwnProperty("max_value"))
             return this.colorData["max_value"];
         return 0;
     };
@@ -382,10 +380,8 @@ function Map3D(parentElement) {
     };
     
     this.updateColors = function () {
-        if (this.colorData) {
-            for (var name in this.colorData) {
-                this.setCountryColor(name, this.colorData[name]);
-            }
+        for (var name in this.colorData) {
+            this.setCountryColor(name, this.colorData[name]);
         }
     };
 

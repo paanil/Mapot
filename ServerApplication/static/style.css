@@ -1,5 +1,7 @@
-body {
-    margin: 5px;
+
+#mapdiv {
+    margin: 0;
+    padding: 0;
 }
 
 #grad {
@@ -29,25 +31,41 @@ body {
 }
 
 .fieldsets {
+    width: 100%;
     white-space: nowrap;
 }
 
 .fieldset {
     display: inline-block;
-    margin-left: 2px;
+    /*margin-left: 2px;
     margin-right: 2px;
     padding-top: 0.35em;
     padding-bottom: 0.625em;
     padding-left: 0.75em;
     padding-right: 0.75em;
-    border: 2px groove (internal value);
-    //float: left;
+    border: 2px groove (internal value);*/
+    //width: 25%;
+    float: left;
+    margin: 0;
+    padding: 0;
+    border: 0;
     vertical-align: top;
 }
 
-.help {
-vertical-align: top;
-    //float: right;
+#last-fieldset {
+    text-align: right;
+    margin-left: auto;
+    vertical-align: bottom;
+    float: none;
+}
+
+#help-button {
+    display: inline-block;
+    margin-right: 2em;
+}
+
+#help {
+    vertical-align: top;
 }
 
 .inline-block {
@@ -56,10 +74,4 @@ vertical-align: top;
 
 .nowrap {
     white-space: nowrap;
-    width: 100%;
 }
-
-.reset {
-    //display: initial;
-}
-

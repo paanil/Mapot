@@ -4,50 +4,55 @@
 <div class="fieldsets">
     <div class="fieldset">
         <form>
-        <fieldset>
-            <legend>Height</legend>
-            <div>
-            <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-color" data-toggle="dropdown" href="#">Select dataset <span class="caret"></span></a>
-                <ul class="dropdown-menu color-dropdown">
-                    {% for query in queries %}
-                    <li><a href="#" data-value="{{ query.id }}">{{ query.name }}</a></li>
-                    {% endfor %}
-                </ul>
-            </div>
+            <fieldset>
+                <legend>Height</legend>
+                <div>
+                    <select id="height-select">
+                        <option selected disabled style="display: none">Select dataset</option>
+                        {% for query in queries %}
+                        <option value="{{ query.id }}">{{ query.name }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-            <div>
-            <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-select2" data-toggle="dropdown" href="#">Parameters<span class="caret"></span></a>
-                <ul class="dropdown-menu color-params-dropdown">
-                    {% for param in params %}
-                    <li><a href="#" data-value="{{ param.id }}">{{ param.name }}</a></li>
-                    {% endfor %}
-                </ul>
-            </div>
-            </div>
-        </fieldset>
-            </form>
+                <div>
+                    <select id="height-param-select">
+                        <option selected disabled style="display: none">Parameter</option>
+                        {% for param in params %}
+                        <option value="{{ param.id }}">{{ param.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>Max height: <span id="currentValue">1</span>
+                </div>
+                <div>
+                    <input type="range" id="slider" name="points" min="0.05" max="3" value="1" step="0.01">
+                </div>
+            </fieldset>
+        </form>
     </div>
     <div class="fieldset">
         <form>
             <fieldset>
                 <legend>Color</legend>
                 <div>
-                <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-height" data-toggle="dropdown" href="#">Select dataset <span class="caret"></span></a>
-                    <ul class="dropdown-menu height-dropdown">
+                    <select id="color-select">
+                        <option selected disabled style="display: none">Select dataset</option>
                         {% for query in queries %}
-                        <li><a href="#" data-value="{{ query.id }}">{{ query.name }}</a></li>
+                        <option value="{{ query.id }}">{{ query.name }}</option>
                         {% endfor %}
-                    </ul>
+                    </select>
                 </div>
-                    </div>
                 <div>
-                <div class ="btn-group"><a class="btn btn-default dropdown-toggle btn-select4" data-toggle="dropdown" href="#">Parameters<span class="caret"></span></a>
-                    <ul class="dropdown-menu height-params-dropdown">
+                    <select id="color-param-select">
+                        <option selected disabled style="display: none">Parameter</option>
                         {% for param in params %}
-                        <li><a href="#" data-value="{{ param.id }}">{{ param.name }}</a></li>
+                        <option value="{{ param.id }}">{{ param.name }}</option>
                         {% endfor %}
-                    </ul>
+                    </select>
                 </div>
+                <div>
+                    <input type='text' id="minColor"/>
+                    <input type='text' id="maxColor"/>
                 </div>
             </fieldset>
         </form>
@@ -56,51 +61,24 @@
         <form>
             <fieldset>
                 <legend>Settings</legend>
-                <input type='text' id="minColor"/>
-                <input type='text' id="maxColor"/>
-                <button type="button" class="btn-modal" data-toggle="modal" data-target="#testModal">
-                    Settings
-                </button>
+                <div>
+                    <input type="checkbox" name="hide" value="hide" id="hide_countries">Don't show countries with no data on the map<br>
+                </div>
             </fieldset>
         </form>
     </div>
-    <div class="fieldset">Help-nappula</div>
+    <div id="last-fieldset" class="fieldset">
+        <div id="help-button">Help-nappula</div>
+    </div>
 </div>
 <div class="nowrap">
-<div class="inline-block">
-    <div class="reset">
-        <div id="gradient_max"></div><div id="gradient_min"></div><div id="grad"></div>
-    </div>
-    <div class="reset" id="mapdiv"></div>
-</div>
-<div class="help inline-block">HELPPI</div>
-    </div>
-
-
-
-
-<div class="modal" id="testModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h2 class="modal-title" id="myModalLabel">Settings</h2>
-      </div>
-      <div class="modal-body">
-        <div class="modal-slider">
-            <div>Max height: <span id="currentValue">1</span>
-            <input type="range" id="slider" name="points" min="0.05" max="3" value="1" step="0.01">
-        </div>
+    <div class="inline-block">
         <div>
-            <input type="checkbox" name="hide" value="hide" id="hide_countries">Don't show countries with no data on the map<br>
+            <div id="gradient_max"></div><div id="gradient_min"></div><div id="grad"></div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
+        <div id="mapdiv"></div>
     </div>
-  </div>
+    <div id="help" class="help inline-block" style="width: 20em">HELPPI</div>
 </div>
 
 <script type="text/javascript">
@@ -113,11 +91,13 @@ var height_parameters;
 function on_resize() {
     var mapdiv = document.getElementById('mapdiv');
     var rect = mapdiv.getBoundingClientRect();
+    //$('#help').css('display', 'none');
+    var helpW = $('#help').width();
     var ww = $(window).width();
     var wh = $(window).height();
-    var w = (ww - rect.left - 5) + "px";
-    var h = (wh - rect.top - 5) + "px";
-    console.log(ww, h);
+    var w = (ww - rect.left - helpW - 50) + "px";
+    var h = (wh - rect.top - 10) + "px";
+    console.log(ww, wh, helpW);
     mapdiv.style.width = w;
     mapdiv.style.height = h;
     map.resize();
@@ -182,21 +162,17 @@ $(function(){
         map.setHeightRange(0.05, this.value);
         map.updateHeights();
     });
-        $('#slider').change();
+    $('#slider').change();
 });
 
-$(".color-dropdown li a").click(function(){
-  var selText = $(this).text();
-  $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
-  color_selection = $(this).attr('data-value');
-  send_color_query();
+$("#color-select").change(function () {
+    color_selection = $(this).val();
+    send_color_query();
 });
 
-$(".color-params-dropdown li a").click(function(){
-  var selText = $(this).text();
-  $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
-  color_parameters = $(this).attr('data-value');
-  send_color_query();
+$("#color-param-select").change(function () {
+    color_parameters = $(this).val();
+    send_color_query();
 });
 
 var send_color_query = function() {
@@ -209,18 +185,15 @@ var send_color_query = function() {
     return false;
 };
 
-$(".height-dropdown li a").click(function(){
-  var selText = $(this).text();
-  $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
-  height_selection = $(this).attr('data-value');
-  send_height_query();
+
+$("#height-select").change(function () {
+    height_selection = $(this).val();
+    send_height_query();
 });
 
-$(".height-params-dropdown li a").click(function(){
-  var selText = $(this).text();
-  $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
-  height_parameters = $(this).attr('data-value');
-  send_height_query();
+$("#height-param-select").change(function () {
+    height_parameters = $(this).val();
+    send_height_query();
 });
 
 var send_height_query = function() {
@@ -261,9 +234,9 @@ $("#maxColor").spectrum(
     maxColorPalette
 );
 
-$('#myModal').modal({
+/*$('#myModal').modal({
     draggable: true
-})
+})*/
 
 </script>
 {% endblock %}
