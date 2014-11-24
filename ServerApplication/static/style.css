@@ -1,12 +1,16 @@
 
+body {
+    margin: 5px;
+    overflow: hidden;
+}
+
 #mapdiv {
     margin: 0;
     padding: 0;
 }
 
 #grad {
-    height: 1em;
-    //width: 100%;
+    height: 1.5em;
     /*background: -webkit-linear-gradient(left, red , blue);
       background: -o-linear-gradient(right, red, blue);
       background: -moz-linear-gradient(right, red, blue);
@@ -14,64 +18,81 @@
     overflow: hidden;
 }
 
-#grad1 {
-    white-space: nowrap;
+.grad-text {
+    color: #fff;
+    text-shadow: 1px 1px 2px #000;
 }
 
-#gradient_min {
-    //float: left;
+#grad-min {
+    padding-top: 0.25em;
+    padding-left: 0.25em;
+    float: left;
 }
 
-#gradient_max {
+#grad-max {
+    padding-top: 0.25em;
+    padding-right: 0.25em;
     float: right;
 }
 
-.modal-backdrop, .modal-backdrop.fade.in {
-    opacity: 0;
-}
+#gradient {}
 
 .fieldsets {
     width: 100%;
     white-space: nowrap;
+    position: relative;
 }
 
 .fieldset {
-    display: inline-block;
-    /*margin-left: 2px;
-    margin-right: 2px;
-    padding-top: 0.35em;
-    padding-bottom: 0.625em;
-    padding-left: 0.75em;
-    padding-right: 0.75em;
-    border: 2px groove (internal value);*/
-    //width: 25%;
-    float: left;
     margin: 0;
     padding: 0;
     border: 0;
     vertical-align: top;
+    display: inline-block;
+}
+
+fieldset {
+    height: 100%;
 }
 
 #last-fieldset {
-    text-align: right;
-    margin-left: auto;
-    vertical-align: bottom;
     float: none;
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+}
+
+#help-container {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    vertical-align: top;
+    width: 20em;
+    float: right;
 }
 
 #help-button {
+    background: #ddd;
+    padding: 0.2em 0.5em;
+    /*border: 2px solid black;
+    border-bottom: 0px;*/
     display: inline-block;
-    margin-right: 2em;
 }
 
 #help {
+    background: #ddd;
+    margin-left: 5px;
+    padding: 0.5em;
+    white-space: initial;
+    /*border: 2px solid black;*/
     vertical-align: top;
 }
 
-.inline-block {
-    display: inline-block;
+.nowrap {
+    clear: left;
+    white-space: nowrap;
 }
 
-.nowrap {
-    white-space: nowrap;
+.block {
+    display: block;
 }

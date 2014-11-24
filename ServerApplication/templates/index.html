@@ -3,82 +3,89 @@
 <div>UNdataMap</div>
 <div class="fieldsets">
     <div class="fieldset">
-        <form>
-            <fieldset>
-                <legend>Height</legend>
-                <div>
-                    <select id="height-select">
-                        <option selected disabled style="display: none">Select dataset</option>
-                        {% for query in queries %}
-                        <option value="{{ query.id }}">{{ query.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
-                    <select id="height-param-select">
-                        <option selected disabled style="display: none">Parameter</option>
-                        {% for param in params %}
-                        <option value="{{ param.id }}">{{ param.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>Max height: <span id="currentValue">1</span>
-                </div>
-                <div>
-                    <input type="range" id="slider" name="points" min="0.05" max="3" value="1" step="0.01">
-                </div>
-            </fieldset>
-        </form>
+        <fieldset>
+            <legend>Height</legend>
+            <div>
+                <select id="height-select">
+                    <option selected disabled style="display: none">Select dataset</option>
+                    {% for query in queries %}
+                    <option value="{{ query.id }}">{{ query.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <select id="height-param-select">
+                    <option selected disabled style="display: none">Parameter</option>
+                    {% for param in params %}
+                    <option value="{{ param.id }}">{{ param.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>Max height: <span id="currentValue">1</span>
+            </div>
+            <div>
+                <input type="range" id="slider" name="points" min="0.05" max="3" value="1" step="0.01">
+            </div>
+        </fieldset>
     </div>
-    <div class="fieldset">
-        <form>
-            <fieldset>
-                <legend>Color</legend>
-                <div>
-                    <select id="color-select">
-                        <option selected disabled style="display: none">Select dataset</option>
-                        {% for query in queries %}
-                        <option value="{{ query.id }}">{{ query.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
-                    <select id="color-param-select">
-                        <option selected disabled style="display: none">Parameter</option>
-                        {% for param in params %}
-                        <option value="{{ param.id }}">{{ param.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div>
-                    <input type='text' id="minColor"/>
-                    <input type='text' id="maxColor"/>
-                </div>
-            </fieldset>
-        </form>
+    <div class="fieldset height100">
+        <fieldset>
+            <legend>Color</legend>
+            <select id="color-select" class="block">
+                <option selected disabled style="display: none">Select dataset</option>
+                {% for query in queries %}
+                <option value="{{ query.id }}">{{ query.name }}</option>
+                {% endfor %}
+            </select>
+            <select id="color-param-select" class="block">
+                <option selected disabled style="display: none">Parameter</option>
+                {% for param in params %}
+                <option value="{{ param.id }}">{{ param.name }}</option>
+                {% endfor %}
+            </select>
+            <div>
+                <input type='text' id="minColor"/>
+                <input type='text' id="maxColor"/>
+            </div>
+        </fieldset>
     </div>
-    <div class="fieldset">
-        <form>
-            <fieldset>
-                <legend>Settings</legend>
-                <div>
-                    <input type="checkbox" name="hide" value="hide" id="hide_countries">Don't show countries with no data on the map<br>
-                </div>
-            </fieldset>
-        </form>
+    <div class="fieldset height100">
+        <fieldset>
+            <legend>Settings</legend>
+            <div>
+                <input type="checkbox" name="hide" value="hide" id="hide_countries">Don't show countries with no data on the map<br>
+            </div>
+        </fieldset>
     </div>
     <div id="last-fieldset" class="fieldset">
-        <div id="help-button">Help-nappula</div>
+        <a id="help-button" href="#">Hide help</a>
     </div>
 </div>
-<div class="nowrap">
-    <div class="inline-block">
-        <div>
-            <div id="gradient_max"></div><div id="gradient_min"></div><div id="grad"></div>
+<div id="container" class="nowrap">
+    <div id="help-container">
+        <div id="help">
+            <p>HELPPI
+            asdfasdfasdfasdf asdfasdfasf asdfasdfasdfasdf
+            asdfasdfasdfasdf asdfasdfasf asdfasdfasdfasdf
+            asdfasdfasdfasdf asdfasdfasf asdfasdfasdfasdf
+            asdfasdfasdfasdf asdfasdfasf asdfasdfasdfasdf
+            asdfasdfasdfasdf asdfasdfasf asdfasdfasdfasdf
+            asdfasdfasdfasdf asdfasdfasf asdfasdfasdfasdf
+            asdfasdfasdfasdf asdfasdfasf asdfasdfasdfasdf
+            asdfasdfasdfasdf asdfasdfasf asdfasdfasdfasdf
+            asdfasdfasdfasdf asdfasdfasf asdfasdfasdfasdf
+            asdfasdfasdfasdf asdfasdfasf asdfasdfasdfasdf</p>
+        </div>
+    </div>
+    <div id="map-container">
+        <div id="gradient">
+            <div id="grad">
+                <div id="grad-min" class="grad-text"></div>
+                <div id="grad-max" class="grad-text"></div>
+            </div>
         </div>
         <div id="mapdiv"></div>
     </div>
-    <div id="help" class="help inline-block" style="width: 20em">HELPPI</div>
 </div>
 
 <script type="text/javascript">
@@ -91,13 +98,14 @@ var height_parameters;
 function on_resize() {
     var mapdiv = document.getElementById('mapdiv');
     var rect = mapdiv.getBoundingClientRect();
-    //$('#help').css('display', 'none');
-    var helpW = $('#help').width();
+    $("#help-container").width(0);
+    $("#help-container").hide(0);
+    var help_left = $("#help-container").offset().left;
     var ww = $(window).width();
     var wh = $(window).height();
-    var w = (ww - rect.left - helpW - 50) + "px";
-    var h = (wh - rect.top - 10) + "px";
-    console.log(ww, wh, helpW);
+    var w = (help_left - rect.left) + "px";
+    var h = (wh - rect.top - 5) + "px";
+    //console.log(ww, wh, help_left);
     mapdiv.style.width = w;
     mapdiv.style.height = h;
     map.resize();
@@ -143,8 +151,8 @@ var colors_changed = function(color) {
 var update_gradient_min_max = function() {
     var min_value = map.getColorDataMin();
     var max_value = map.getColorDataMax();
-    $('#gradient_min').html(parseFloat(min_value).toFixed(2));
-    $('#gradient_max').html(parseFloat(max_value).toFixed(2));
+    $('#grad-min').html(parseFloat(min_value).toFixed(2));
+    $('#grad-max').html(parseFloat(max_value).toFixed(2));
 }
 
 var update_gradient = function(gradient_min, gradient_max) {
@@ -233,10 +241,6 @@ maxColorPalette.color = "#f00";
 $("#maxColor").spectrum(
     maxColorPalette
 );
-
-/*$('#myModal').modal({
-    draggable: true
-})*/
 
 </script>
 {% endblock %}
