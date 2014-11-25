@@ -5,30 +5,23 @@
     <div class="fieldset">
         <fieldset>
             <legend>Height</legend>
-            <div>
-                <select id="height-select">
-                    <option selected disabled style="display: none">Select dataset</option>
-                    {% for query in queries %}
-                    <option value="{{ query.id }}">{{ query.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div>
-                <select id="height-param-select">
-                    <option selected disabled style="display: none">Parameter</option>
-                    {% for param in params %}
-                    <option value="{{ param.id }}">{{ param.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div>Max height: <span id="currentValue">1</span>
-            </div>
-            <div>
-                <input type="range" id="slider" name="points" min="0.05" max="3" value="1" step="0.01">
-            </div>
+            <select id="height-select" class="block">
+                <option selected disabled style="display: none">Select dataset</option>
+                {% for query in queries %}
+                <option value="{{ query.id }}">{{ query.name }}</option>
+                {% endfor %}
+            </select>
+            <select id="height-param-select" class="block">
+                <option selected disabled style="display: none">Parameter</option>
+                {% for param in params %}
+                <option value="{{ param.id }}">{{ param.name }}</option>
+                {% endfor %}
+            </select>
+            <div>Max height: <span id="currentValue">1</span></div>
+            <input id="slider" class="block" type="range" name="points" min="0.05" max="3" value="1" step="0.01">
         </fieldset>
     </div>
-    <div class="fieldset height100">
+    <div class="fieldset">
         <fieldset>
             <legend>Color</legend>
             <select id="color-select" class="block">
@@ -49,19 +42,18 @@
             </div>
         </fieldset>
     </div>
-    <div class="fieldset height100">
+    <div class="fieldset">
         <fieldset>
             <legend>Settings</legend>
             <div>
-                <input type="checkbox" name="hide" value="hide" id="hide_countries">Don't show countries with no data on the map<br>
+                <input id="hide_countries" type="checkbox" name="hide" value="hide">
+                Don't show countries with no data on the map<br>
             </div>
         </fieldset>
     </div>
-    <div id="last-fieldset" class="fieldset">
-        <a id="help-button" href="#">Hide help</a>
-    </div>
+    <a id="help-button" href="#">Hide help</a>
 </div>
-<div id="container" class="nowrap">
+<div id="container">
     <div id="help-container">
         <div id="help">
             <p>HELPPI
@@ -78,11 +70,9 @@
         </div>
     </div>
     <div id="map-container">
-        <div id="gradient">
-            <div id="grad">
-                <div id="grad-min" class="grad-text"></div>
-                <div id="grad-max" class="grad-text"></div>
-            </div>
+        <div id="grad">
+            <div id="grad-min" class="grad-text"></div>
+            <div id="grad-max" class="grad-text"></div>
         </div>
         <div id="mapdiv"></div>
     </div>
@@ -96,18 +86,25 @@ var height_selection;
 var height_parameters;
 
 function on_resize() {
-    var mapdiv = document.getElementById('mapdiv');
-    var rect = mapdiv.getBoundingClientRect();
-    $("#help-container").width(0);
-    $("#help-container").hide(0);
-    var help_left = $("#help-container").offset().left;
-    var ww = $(window).width();
-    var wh = $(window).height();
-    var w = (help_left - rect.left) + "px";
-    var h = (wh - rect.top - 5) + "px";
-    //console.log(ww, wh, help_left);
-    mapdiv.style.width = w;
-    mapdiv.style.height = h;
+    var window_w = $(window).width();
+    var window_h = $(window).height();
+    
+    var mapdiv = $("#mapdiv");
+    var mapdiv_left = mapdiv.offset().left;
+    var mapdiv_top = mapdiv.offset().top;
+    
+    var w = (window_w - mapdiv_left - 5) + "px";
+    var h = (window_h - mapdiv_top - 5) + "px";
+    
+    var help = $("#help-container");
+    var help_left = help.offset().left;
+    
+    if (help.is(":visible")) {
+        w = (help_left - mapdiv_left) + "px";
+    }
+    
+    mapdiv.width(w);
+    mapdiv.height(h);
     map.resize();
 }
 
@@ -119,6 +116,20 @@ var update_countries_visibility = function() {
         }
 }
 
+function toggle_help() {
+    var help = $("#help-container");
+    if (help.is(":visible")) {
+        help.width(0);
+        help.hide();
+        $("#help-button").html("Show help");
+    } else {
+        help.width("20em");
+        help.show();
+        $("#help-button").html("Hide help");
+    }
+    on_resize();
+}
+
 $(document).ready(function () {
     var mapdiv = document.getElementById('mapdiv');
     map = new Map3D(mapdiv);
@@ -127,6 +138,7 @@ $(document).ready(function () {
     map.setDefaultColor(0x222222);
     colors_changed();
     $("#hide_countries").change(update_countries_visibility);
+    $("#help-button").click(toggle_help);
 
     $.getJSON('/_map_data', {},
         function (data) {

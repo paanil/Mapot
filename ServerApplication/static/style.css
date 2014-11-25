@@ -4,9 +4,36 @@ body {
     overflow: hidden;
 }
 
-#mapdiv {
+.block {
+    display: block;
+}
+
+.fieldsets {
+    width: 100%;
+    white-space: nowrap;
+    position: relative;
+}
+
+.fieldset {
     margin: 0;
     padding: 0;
+    vertical-align: top;
+    display: inline-block;
+}
+
+#help-button {
+    background: #ddd;
+    padding: 0.2em 0.5em;
+    /*border: 2px solid black;
+    border-bottom: 0px;*/
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+}
+
+#container {
+    clear: left;
+    white-space: nowrap;
 }
 
 #grad {
@@ -35,31 +62,9 @@ body {
     float: right;
 }
 
-#gradient {}
-
-.fieldsets {
-    width: 100%;
-    white-space: nowrap;
-    position: relative;
-}
-
-.fieldset {
+#mapdiv {
     margin: 0;
     padding: 0;
-    border: 0;
-    vertical-align: top;
-    display: inline-block;
-}
-
-fieldset {
-    height: 100%;
-}
-
-#last-fieldset {
-    float: none;
-    position: absolute;
-    right: 0px;
-    bottom: 0px;
 }
 
 #help-container {
@@ -71,14 +76,6 @@ fieldset {
     float: right;
 }
 
-#help-button {
-    background: #ddd;
-    padding: 0.2em 0.5em;
-    /*border: 2px solid black;
-    border-bottom: 0px;*/
-    display: inline-block;
-}
-
 #help {
     background: #ddd;
     margin-left: 5px;
@@ -86,13 +83,4 @@ fieldset {
     white-space: initial;
     /*border: 2px solid black;*/
     vertical-align: top;
-}
-
-.nowrap {
-    clear: left;
-    white-space: nowrap;
-}
-
-.block {
-    display: block;
 }
