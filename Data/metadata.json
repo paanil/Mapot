@@ -1,12 +1,11 @@
 {
-    "crude_birth_rate": "Crude birth rate",
-    "crude_death_rate": "Crude death rate",
-    "death": "Death",
-    "forest": "Forest",
-    "greenhouse_gas": "Greenhouse gas",
-    "internet_users": "Internet users",
-    "methane": "Methane",
-    "mortality": "Mortality",
-    "people_under_povertyline": "People under povertyline",
-    "population_undernourished": "Population undernourished"
+    "crude_birth_rate": {"name": "Crude birth rate", "unit": "per 1000 people"},
+    "crude_death_rate": {"name": "Crude death rate", "unit": "per 1000 people"},
+    "death": {"name": "Death", "unit": "in thousands"},
+    "forest": {"name": "Forest", "unit": "% of land area"},
+    "greenhouse_gas": {"name": "Greenhouse gas", "unit": "gigagrams of CO2"},
+    "internet_users": {"name": "Internet users", "unit": "% of population"},
+    "methane": {"name": "Methane", "unit": "gigagrams of CO2"},
+    "people_under_povertyline": {"name": "People under povertyline", "unit": "% of population"},
+    "population_undernourished":{"name": "Population undernourished", "unit": "% of population"}
 }
