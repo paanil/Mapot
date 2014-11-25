@@ -85,7 +85,7 @@ def collect_data(file_path, metadata):
         area = series.get("REF_AREA")
         metadata["unit"] = series.get("UNIT")
         obs_dict = {}
-        
+
         for obs in et_findall(series, "Obs"):
             year = int(obs.get("TIME_PERIOD"))
             value = float(obs.get("OBS_VALUE"))
@@ -95,13 +95,13 @@ def collect_data(file_path, metadata):
             if metadata["unit"] is None:
                 metadata["unit"] = obs.get("UNIT")
             obs_dict[year] = value
-        
+
         if len(obs_dict) > 0:
             data[area] = obs_dict
-            
+
     if not os.path.isdir(config.get_value("DataPath")):
         os.makedirs(config.get_value("DataPath"))
-    
+
     data_file = config.get_value("DataPath") + name + ".json"
 
     util.write_json(data_file, {"metadata": metadata, "data": data})
@@ -109,20 +109,21 @@ def collect_data(file_path, metadata):
 
 def main(path):
     #TODO: path not used anymore
-    
+
     data_path = config.get_value("DataPath")
     metadata = util.read_json(data_path + "metadata.json")
     if metadata is None:
         print("Failed to read metadata")
         return
-     
+
     #print(metadata)
-    
+
     for key in metadata:
         query_path = "queries/" + key + ".xml"
-        name = metadata[key]
-        id = hashlib.md5(name.encode('ascii', 'ignore')).hexdigest()
-        collect_data(query_path, {"name": name, "id": id} )
+        meta = metadata[key]
+        id = hashlib.md5(meta["name"].encode('ascii', 'ignore')).hexdigest()
+        meta["id"] = id
+        collect_data(query_path, meta)
 
     #if isfile(path):
     #    collect_data(path)
