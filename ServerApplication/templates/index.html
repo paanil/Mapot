@@ -54,6 +54,8 @@
             <legend>Settings</legend>
             <div>
                 <input type="checkbox" name="hide" value="hide" id="hide_countries">Don't show countries with no data on the map<br>
+                <input type='text' id="NoDataColor"/>
+                <input type='text' id="BackgroundColor"/>
             </div>
         </fieldset>
     </div>
@@ -117,6 +119,16 @@ var update_countries_visibility = function() {
         } else {
             map.showAllCountries();
         }
+}
+
+var update_background_color = function() {
+    var background_color = parseInt($('#BackgroundColor').spectrum("get").toHex(), 16);
+    map.changeBackgroundColor(background_color);
+}
+
+var update_dataless_countries_color = function() {
+    var color_no_data = parseInt($('#NoDataColor').spectrum("get").toHex(), 16);
+    map.ColorChangedCountriesWithNoData(color_no_data);
 }
 
 $(document).ready(function () {
@@ -240,6 +252,22 @@ maxColorPalette.color = "#f00";
 
 $("#maxColor").spectrum(
     maxColorPalette
+);
+
+NoDataColorPalette = minColorPalette;
+NoDataColorPalette.color = "#ccc";
+NoDataColorPalette.change = update_dataless_countries_color;
+
+$("#NoDataColor").spectrum(
+    NoDataColorPalette
+);
+
+BackgroundColorPalette = minColorPalette;
+BackgroundColorPalette.color = "#45818e";
+BackgroundColorPalette.change = update_background_color;
+
+$("#BackgroundColor").spectrum(
+    BackgroundColorPalette
 );
 
 </script>
