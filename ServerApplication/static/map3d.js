@@ -7,7 +7,7 @@ function setMeshHeight(mesh, height) {
 // ------------------------------
 // ---------- Controls ----------
 
-function Controls(renderer, camera, scene, countries) {
+function Controls(renderer, camera, scene, countries, container) {
     // --- Members ---
     this.mouseMode = -1;
     this.mouseStart = new THREE.Vector2();
@@ -19,6 +19,7 @@ function Controls(renderer, camera, scene, countries) {
     this.scene = scene;
     this.countries = countries;
     this.mouseOver = null;
+    this.infoDiv = document.createElement('div');
 
     // --- Initialization ---
     var _this = this;
@@ -29,6 +30,11 @@ function Controls(renderer, camera, scene, countries) {
     this.renderer.domElement.addEventListener('mouseup', function (event) { _this.mouseUp(event); }, false);
     this.renderer.domElement.addEventListener( 'mousewheel', function (event) {_this.mousewheel(event); }, false );
     this.renderer.domElement.addEventListener( 'DOMMouseScroll', function (event) {_this.mousewheel(event); }, false ); // For firefox
+    container.appendChild(this.infoDiv);
+    this.infoDiv.style.position = 'absolute';
+    this.infoDiv.style.top = '300px';
+    this.infoDiv.style.background = '#fff';
+    this.infoDiv.innerHTML = 'testi';
     
     // --- Methods ---
     this.update = function() {
@@ -75,13 +81,29 @@ function Controls(renderer, camera, scene, countries) {
         direction.normalize();
         ray = new THREE.Raycaster(this.camera.position, direction);
         intersects = ray.intersectObjects(scene.children);
+        if (this.mouseOver) {
+            this.mouseOver.material.emissive = new THREE.Color(0x000000);
+	    this.mouseOver = null;
+	}
         if (intersects[0]) {
-            selected = intersects[0].object;
-            if (this.mouseOver)
-                this.mouseOver.material.emissive = new THREE.Color(0x000000);
-            selected.material.emissive = new THREE.Color(0x00ff00);
-            this.mouseOver = selected;
+            this.mouseOver = intersects[0].object;
+            this.mouseOver.material.emissive = new THREE.Color(0x00ff00);
+	    center = this.mouseOver.geometry.boundingBox.center();
+	    center.y = 0;
+	    screenPosition = this.fromWorldToScreen(center);
+	    this.infoDiv.style.left = screenPosition.x + 'px';
+	    this.infoDiv.style.top = screenPosition.y + 'px';
         }
+    };
+
+    this.fromWorldToScreen = function (point) {
+	point.project(camera);
+	x = (point.x + 1) / 2;
+	y = (point.y + 1) / 2;
+	var rect = this.renderer.domElement.getBoundingClientRect();
+	x = x * rect.width;
+	y = (1-y) * rect.height;
+	return new THREE.Vector2(x, y);	
     };
 
     this.mousewheel = function (event) {
@@ -93,7 +115,7 @@ function Controls(renderer, camera, scene, countries) {
     this.getMouseOnElement = function(elem, clientX, clientY) {
         var rect = elem.getBoundingClientRect();
         x = ( (clientX- rect.left) / rect.width ) * 2 - 1;
-        y = - ( (event.clientY - rect.top) / rect.height ) * 2 + 1;
+        y = - ( (clientY - rect.top) / rect.height ) * 2 + 1;
         return new THREE.Vector2(x,y);
     };
     
@@ -146,7 +168,7 @@ function Map3D(parentElement) {
     this.camera = new THREE.PerspectiveCamera(75.0, 800.0/600.0, 0.1, 100.0);
     this.camera.rotation.x = -3.14 * 0.5;
     this.countries = {};
-    this.controls = new Controls(this.renderer, this.camera, this.scene, this.countries);
+    this.controls = new Controls(this.renderer, this.camera, this.scene, this.countries, this.container);
     this.defaultHeight = 0.01;
     this.defaultColor = 0x222222;
     this.heightRange = new Range(0.01, 1.0);
@@ -229,7 +251,7 @@ function Map3D(parentElement) {
                 else this.countries[name].visible = false;
             }
         }
-    }
+    };
 
     this.showAllCountries = function () {
         for (var name in this.countries) {
@@ -237,7 +259,7 @@ function Map3D(parentElement) {
                  this.countries[name].visible = true;
             }
         }
-    }
+    };
 
     this.clear = function () {
         for (var name in this.countries) {
@@ -416,4 +438,23 @@ function Map3D(parentElement) {
     var directionalLight2 = new THREE.DirectionalLight(0xD0D0FF, 1.0);
     directionalLight2.position.set(-1.0, 1.0, 1.0);
     this.scene.add(directionalLight2);
+
+    // canvas = document.createElement('canvas');
+    // context = canvas.getContext('2d');
+    // context.font = "20px Arial";
+
+    // context.fillStyle = "#FFFFFF";
+    // context.fillRect(0,0,150,20);
+    // context.fillStyle = "#000000";
+    // context.fillText('Hello, world!', 10, 17);
+    
+    // texture = new THREE.Texture(canvas);
+    // texture.needsUpdate = true;
+	
+    // var spriteMaterial = new THREE.SpriteMaterial( { map: texture, useScreenCoordinates: true } );
+	
+    // sprite = new THREE.Sprite( spriteMaterial );
+    // sprite.scale.set(1,1,1.0);
+    // sprite.position.set( 0, 2, 0 );
+    // this.scene.add( sprite );
 }
