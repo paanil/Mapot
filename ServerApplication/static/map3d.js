@@ -231,10 +231,25 @@ function Map3D(parentElement) {
         }
     }
 
+    this.changeBackgroundColor = function (color) {
+        this.renderer.setClearColor(color);
+    }
+
     this.showAllCountries = function () {
         for (var name in this.countries) {
             if (this.countries.hasOwnProperty(name)) {
                  this.countries[name].visible = true;
+            }
+        }
+    }
+
+    this.ColorChangedCountriesWithNoData = function (color) {
+        this.defaultColor = color;
+            for (var name in this.countries) {
+                if (this.countries.hasOwnProperty(name)) {
+                    if (!this.colorData.hasOwnProperty(name)) {
+                       this.setCountryColorRaw(name, color)
+                }
             }
         }
     }

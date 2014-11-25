@@ -48,6 +48,9 @@
             <div>
                 <input id="hide_countries" type="checkbox" name="hide" value="hide">
                 Don't show countries with no data on the map<br>
+                
+                <input type='text' id="NoDataColor"/>
+                <input type='text' id="BackgroundColor"/>
             </div>
         </fieldset>
     </div>
@@ -128,6 +131,16 @@ function toggle_help() {
         $("#help-button").html("Hide help");
     }
     on_resize();
+}
+
+var update_background_color = function() {
+    var background_color = parseInt($('#BackgroundColor').spectrum("get").toHex(), 16);
+    map.changeBackgroundColor(background_color);
+}
+
+var update_dataless_countries_color = function() {
+    var color_no_data = parseInt($('#NoDataColor').spectrum("get").toHex(), 16);
+    map.ColorChangedCountriesWithNoData(color_no_data);
 }
 
 $(document).ready(function () {
@@ -232,6 +245,7 @@ var minColorPalette = {
     togglePaletteLessText: 'less',
     color: "#ff0",
     change: colors_changed,
+    clickoutFiresChange: true,
     palette: [
         ["#000","#444","#666","#999","#ccc","#eee","#f3f3f3","#fff"],
         ["#f00","#f90","#ff0","#0f0","#0ff","#00f","#90f","#f0f"],
@@ -252,6 +266,22 @@ maxColorPalette.color = "#f00";
 
 $("#maxColor").spectrum(
     maxColorPalette
+);
+
+NoDataColorPalette = minColorPalette;
+NoDataColorPalette.color = "#ccc";
+NoDataColorPalette.change = update_dataless_countries_color;
+
+$("#NoDataColor").spectrum(
+    NoDataColorPalette
+);
+
+BackgroundColorPalette = minColorPalette;
+BackgroundColorPalette.color = "#45818e";
+BackgroundColorPalette.change = update_background_color;
+
+$("#BackgroundColor").spectrum(
+    BackgroundColorPalette
 );
 
 </script>
