@@ -47,10 +47,15 @@
             <legend>Settings</legend>
             <div>
                 <input id="hide_countries" type="checkbox" name="hide" value="hide">
-                Don't show countries with no data on the map<br>
-                
-                <input type='text' id="NoDataColor"/>
-                <input type='text' id="BackgroundColor"/>
+                Hide countries with no data on the map<br>
+                <div>
+                    <input type='text' id="NoDataColor"/>
+                    Color for countries with no data
+                </div>
+                <div>
+                    <input type='text' id="BackgroundColor"/>
+                    Background color
+                </div>
             </div>
         </fieldset>
     </div>
@@ -150,6 +155,8 @@ $(document).ready(function () {
     map.setHeightRange(0.05, 1.0);
     map.setDefaultColor(0x222222);
     colors_changed();
+    update_background_color();
+    update_dataless_countries_color();
     $("#hide_countries").change(update_countries_visibility);
     $("#help-button").click(toggle_help);
 
@@ -247,11 +254,11 @@ var minColorPalette = {
     change: colors_changed,
     clickoutFiresChange: true,
     palette: [
-        ["#000","#444","#666","#999","#ccc","#eee","#f3f3f3","#fff"],
+        ["#000","#222222","#666","#999","#ccc","#eee","#f3f3f3","#fff"],
         ["#f00","#f90","#ff0","#0f0","#0ff","#00f","#90f","#f0f"],
         ["#ea9999","#f9cb9c","#ffe599","#b6d7a8","#a2c4c9","#9fc5e8","#b4a7d6","#d5a6bd"],
         ["#e06666","#f6b26b","#ffd966","#93c47d","#76a5af","#6fa8dc","#8e7cc3","#c27ba0"],
-        ["#c00","#e69138","#f1c232","#6aa84f","#45818e","#3d85c6","#674ea7","#a64d79"],
+        ["#c00","#e69138","#f1c232","#6aa84f","#45818e","#335577","#674ea7","#a64d79"],
         ["#900","#b45f06","#bf9000","#38761d","#134f5c","#0b5394","#351c75","#741b47"],
         ["#600","#783f04","#7f6000","#274e13","#0c343d","#073763","#20124d","#4c1130"]
     ]
@@ -269,7 +276,7 @@ $("#maxColor").spectrum(
 );
 
 NoDataColorPalette = minColorPalette;
-NoDataColorPalette.color = "#ccc";
+NoDataColorPalette.color = "#222222";
 NoDataColorPalette.change = update_dataless_countries_color;
 
 $("#NoDataColor").spectrum(
@@ -277,7 +284,7 @@ $("#NoDataColor").spectrum(
 );
 
 BackgroundColorPalette = minColorPalette;
-BackgroundColorPalette.color = "#45818e";
+BackgroundColorPalette.color = "#335577";
 BackgroundColorPalette.change = update_background_color;
 
 $("#BackgroundColor").spectrum(
