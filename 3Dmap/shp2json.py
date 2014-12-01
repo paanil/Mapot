@@ -36,19 +36,26 @@ def get_shapes_and_attributes_of_countries(attribute_indices: [int], shapefile_p
     countries = []
     for sr in shp_records:
         polygons = separate_polygons(sr.shape)
-        polygons = [[project(x) for x in xs] for xs in polygons]
+        polygons = [[project(point) for point in polygon] for polygon in polygons]
         attributes = [sr.record[int(i)] for i in attribute_indices]
         countries.append((attributes,polygons))
     return countries
 
-def get_shapes_of_countries(id_index: int, shapefile_path: str):
+def get_shapes_of_countries(id_index: int, name_index: int, shapefile_path: str):
     """ """
-    countries = get_shapes_and_attributes_of_countries([id_index], shapefile_path)
-    return  [(c[0][0],c[1]) for c in countries if c[0][0] != "ATA"] #TODO: Do something smarter to leave Antarctice out
+    countries = get_shapes_and_attributes_of_countries([id_index, name_index], shapefile_path)
+    return  [(c[0][0], c[0][1], c[1]) for c in countries if c[0][0] != "ATA"] #TODO: Do something smarter to leave Antarctice out
+
+def list_fields(shapefile_path: str):
+    sf = shapefile.Reader(shapefile_path)
+    fields = []
+    for field in sf.fields:
+        fields.append(("index=" + str(sf.fields.index(field) - 1), field[0]))
+    return fields
     
 if len(sys.argv) < 2:
     print("Give .shp file as argument")
 
 else:
-    data = get_shapes_of_countries(44, sys.argv[1])
+    data = get_shapes_of_countries(44, 17, sys.argv[1])
     print(json.dumps(data))
