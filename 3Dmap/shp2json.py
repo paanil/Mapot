@@ -44,7 +44,7 @@ def get_shapes_and_attributes_of_countries(attribute_indices: [int], shapefile_p
 def get_shapes_of_countries(id_index: int, name_index: int, shapefile_path: str):
     """ """
     countries = get_shapes_and_attributes_of_countries([id_index, name_index], shapefile_path)
-    return  [(c[0][0], c[0][1], c[1]) for c in countries if c[0][0] != "ATA"] #TODO: Do something smarter to leave Antarctice out
+    return  [(c[0][0], str(c[0][1]), c[1]) for c in countries if c[0][0] != "ATA"] #TODO: Do something smarter to leave Antarctice out
 
 def list_fields(shapefile_path: str):
     sf = shapefile.Reader(shapefile_path)

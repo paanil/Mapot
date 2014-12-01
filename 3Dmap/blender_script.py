@@ -117,10 +117,11 @@ def create_scene(scene, data):
             bpy.ops.object.delete()
             bpy.data.meshes.remove(mesh_sub)
         
-        id_name_dict[id] = name
+        id_name_dict[object.name] = name
 
 
 def export_scene(scene, path):
+    global id_name_dict
     data = []
 
     for object in scene.objects:
