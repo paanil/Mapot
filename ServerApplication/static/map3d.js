@@ -83,27 +83,28 @@ function Controls(renderer, camera, scene, countries, container) {
         intersects = ray.intersectObjects(scene.children);
         if (this.mouseOver) {
             this.mouseOver.material.emissive = new THREE.Color(0x000000);
-	    this.mouseOver = null;
-	}
+            this.mouseOver = null;
+        }
         if (intersects[0]) {
             this.mouseOver = intersects[0].object;
             this.mouseOver.material.emissive = new THREE.Color(0x00ff00);
-	    center = this.mouseOver.geometry.boundingBox.center();
-	    center.y = 0;
-	    screenPosition = this.fromWorldToScreen(center);
-	    this.infoDiv.style.left = screenPosition.x + 'px';
-	    this.infoDiv.style.top = screenPosition.y + 'px';
+            center = this.mouseOver.geometry.boundingBox.center();
+            center.y = 0;
+            screenPosition = this.fromWorldToScreen(center);
+            this.infoDiv.style.left = screenPosition.x + 'px';
+            this.infoDiv.style.top = screenPosition.y + 'px';
+            this.infoDiv.innerHTML = this.mouseOver.name;
         }
     };
 
     this.fromWorldToScreen = function (point) {
-	point.project(camera);
-	x = (point.x + 1) / 2;
-	y = (point.y + 1) / 2;
-	var rect = this.renderer.domElement.getBoundingClientRect();
-	x = x * rect.width;
-	y = (1-y) * rect.height;
-	return new THREE.Vector2(x, y);	
+        point.project(camera);
+        x = (point.x + 1) / 2;
+        y = (point.y + 1) / 2;
+        var rect = this.renderer.domElement.getBoundingClientRect();
+        x = x * rect.width;
+        y = (1-y) * rect.height;
+        return new THREE.Vector2(x, y);
     };
 
     this.mousewheel = function (event) {
@@ -221,8 +222,9 @@ function Map3D(parentElement) {
         for (var index in mapData) {
             country = mapData[index];
             
-            var name = country[0];
-            var data = country[1];
+            var id = country[0];
+            var name = country[1];
+            var data = country[2];
             
             var geometry = loader.parse(data, "").geometry;
             geometry.computeBoundingBox();
@@ -231,9 +233,10 @@ function Map3D(parentElement) {
             var material = new THREE.MeshLambertMaterial( { color: this.defaultColor } );
             var mesh = new THREE.Mesh(geometry, material);
             setMeshHeight(mesh, this.defaultHeight);
+            mesh.name = name;
             
             this.scene.add(mesh);
-            this.countries[name] = mesh;
+            this.countries[id] = mesh;
         }
         
         sceneBoundingBox.min.y = 1.2;
@@ -243,12 +246,12 @@ function Map3D(parentElement) {
     };
 
     this.hideCountriesWithNoData = function () {
-        for (var name in this.countries) {
-            if (this.countries.hasOwnProperty(name)) {
-                if (this.colorData.hasOwnProperty(name) || this.heightData.hasOwnProperty(name)) {
-                    this.countries[name].visible = true;
+        for (var id in this.countries) {
+            if (this.countries.hasOwnProperty(id)) {
+                if (this.colorData.hasOwnProperty(id) || this.heightData.hasOwnProperty(id)) {
+                    this.countries[id].visible = true;
                 }
-                else this.countries[name].visible = false;
+                else this.countries[id].visible = false;
             }
         }
     };
@@ -258,28 +261,28 @@ function Map3D(parentElement) {
     }
 
     this.showAllCountries = function () {
-        for (var name in this.countries) {
-            if (this.countries.hasOwnProperty(name)) {
-                 this.countries[name].visible = true;
+        for (var id in this.countries) {
+            if (this.countries.hasOwnProperty(id)) {
+                 this.countries[id].visible = true;
             }
         }
     };
 
     this.ColorChangedCountriesWithNoData = function (color) {
         this.defaultColor = color;
-            for (var name in this.countries) {
-                if (this.countries.hasOwnProperty(name)) {
-                    if (!this.colorData.hasOwnProperty(name)) {
-                       this.setCountryColorRaw(name, color)
+            for (var id in this.countries) {
+                if (this.countries.hasOwnProperty(id)) {
+                    if (!this.colorData.hasOwnProperty(id)) {
+                       this.setCountryColorRaw(id, color)
                 }
             }
         }
     }
 
     this.clear = function () {
-        for (var name in this.countries) {
-            if (this.countries.hasOwnProperty(name)) {
-                var mesh = this.countries[name];
+        for (var id in this.countries) {
+            if (this.countries.hasOwnProperty(id)) {
+                var mesh = this.countries[id];
                 setMeshHeight(mesh, this.defaultHeight);
                 mesh.material.setValues( { color: this.defaultColor } );
             }
@@ -304,17 +307,17 @@ function Map3D(parentElement) {
         this.colorRange.max = max;
     };
     
-    this.setCountryHeight = function (name, height) {
-        if (this.countries.hasOwnProperty(name)) {
-            var mesh = this.countries[name];
+    this.setCountryHeight = function (id, height) {
+        if (this.countries.hasOwnProperty(id)) {
+            var mesh = this.countries[id];
             var distance = this.heightRange.max - this.heightRange.min;
             setMeshHeight(mesh, this.heightRange.min + distance * height);
         }
     };
     
-    this.setCountryColor = function (name, color) {
-        if (this.countries.hasOwnProperty(name)) {
-            var mesh = this.countries[name];
+    this.setCountryColor = function (id, color) {
+        if (this.countries.hasOwnProperty(id)) {
+            var mesh = this.countries[id];
             
             var color0 = this.colorRange.min;
             var color1 = this.colorRange.max;
@@ -329,21 +332,21 @@ function Map3D(parentElement) {
         }
     };
     
-    this.setCountry = function (name, height, color) {
+    this.setCountry = function (id, height, color) {
         this.setCountryHeight(height);
         this.setCountryColor(color);
     };
     
-    this.setCountryHeightRaw = function (name, height) {
-        if (this.countries.hasOwnProperty(name)) {
-            var mesh = this.countries[name];
+    this.setCountryHeightRaw = function (id, height) {
+        if (this.countries.hasOwnProperty(id)) {
+            var mesh = this.countries[id];
             setMeshHeight(mesh, height);
         }
     };
     
-    this.setCountryColorRaw = function (name, color) {
-        if (this.countries.hasOwnProperty(name)) {
-            var mesh = this.countries[name];
+    this.setCountryColorRaw = function (id, color) {
+        if (this.countries.hasOwnProperty(id)) {
+            var mesh = this.countries[id];
             mesh.material.setValues( { color: color } );
         }
     };
@@ -379,18 +382,18 @@ function Map3D(parentElement) {
     };
 
     this.setHeightData = function (data) {
-        for (var name in this.countries) {
-            this.setCountryHeightRaw(name, this.defaultHeight);
+        for (var id in this.countries) {
+            this.setCountryHeightRaw(id, this.defaultHeight);
         }
         this.heightData = this.normalizeData(data);
-        for (var name in this.heightData) {
-            this.setCountryHeight(name, this.heightData[name]);
+        for (var id in this.heightData) {
+            this.setCountryHeight(id, this.heightData[id]);
         }
     };
 
     this.updateHeights = function () {
-        for (var name in this.heightData) {
-            this.setCountryHeight(name, this.heightData[name]);
+        for (var id in this.heightData) {
+            this.setCountryHeight(id, this.heightData[id]);
         }
     };
 
@@ -407,18 +410,18 @@ function Map3D(parentElement) {
     };
 
     this.setColorData = function (data) {
-        for (var name in this.countries) {
-            this.setCountryColorRaw(name, this.defaultColor);
+        for (var id in this.countries) {
+            this.setCountryColorRaw(id, this.defaultColor);
         }
         this.colorData = this.normalizeData(data);
-        for (var name in this.colorData) {
-            this.setCountryColor(name, this.colorData[name]);
+        for (var id in this.colorData) {
+            this.setCountryColor(id, this.colorData[id]);
         }
     };
     
     this.updateColors = function () {
-        for (var name in this.colorData) {
-            this.setCountryColor(name, this.colorData[name]);
+        for (var id in this.colorData) {
+            this.setCountryColor(id, this.colorData[id]);
         }
     };
 

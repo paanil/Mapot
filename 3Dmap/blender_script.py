@@ -81,13 +81,20 @@ def boolean_substract(object, object_sub):
     bpy.ops.object.modifier_apply(apply_as='DATA', modifier="Boolean")
 
 
-def create_scene(scene, data):
-    for country in data:
-        name = country[0]
-        regions, regions_sub = separate_regions(country[1])
+id_name_dict = None
 
-        mesh = bpy.data.meshes.new(name)
-        object = bpy.data.objects.new(name, mesh)
+
+def create_scene(scene, data):
+    global id_name_dict
+    id_name_dict = {}
+    
+    for country in data:
+        id = country[0]
+        name = country[1]
+        regions, regions_sub = separate_regions(country[2])
+
+        mesh = bpy.data.meshes.new(id)
+        object = bpy.data.objects.new(id, mesh)
         
         scene.objects.link(object)
         scene.objects.active = object
@@ -95,8 +102,8 @@ def create_scene(scene, data):
         build_mesh(mesh, regions, 1.0)
         
         if len(regions_sub) > 0:
-            mesh_sub = bpy.data.meshes.new(name + "_sub")
-            object_sub = bpy.data.objects.new(name + "_sub", mesh_sub)
+            mesh_sub = bpy.data.meshes.new(id + "_sub")
+            object_sub = bpy.data.objects.new(id + "_sub", mesh_sub)
             
             scene.objects.link(object_sub)
             scene.objects.active = object_sub
@@ -109,13 +116,17 @@ def create_scene(scene, data):
             object_sub.select = True
             bpy.ops.object.delete()
             bpy.data.meshes.remove(mesh_sub)
+        
+        id_name_dict[id] = name
 
 
 def export_scene(scene, path):
     data = []
 
     for object in scene.objects:
-        file = object.name + ".js"
+        id = object.name
+        name = id_name_dict[id]
+        file = id + ".js" # objects are not actually written in separate files
 
         text = export_threejs.generate_mesh_string([object], scene,
             True,   # option_vertices
@@ -138,8 +149,7 @@ def export_scene(scene, path):
             False,  # option_frame_index_as_time
             1)[0]   # option_frame_step
 
-        #data[object.name] = json.loads(text)
-        data.append((object.name, json.loads(text)))
+        data.append((id, name, json.loads(text)))
 
         dir, _ = os.path.split(path)
         if not os.path.isdir(dir):
