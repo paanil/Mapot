@@ -74,26 +74,100 @@ function Controls(renderer, camera, scene, countries, container) {
         this.mouseStart.copy(this.mouseEnd);
     };
     
-    this.selectObject = function (x,y) { 
-        direction = new THREE.Vector3(x, y, this.camera.near);
+    this.selectObject = function (x, y) { 
+        var p = this.getMouseOnElement(x, y);
+        direction = new THREE.Vector3(p.x, p.y, this.camera.near);
         direction.unproject(camera);
         direction.sub(camera.position);
         direction.normalize();
+        
+        var right = new THREE.Vector3();
+        right.crossVectors(direction, this.camera.up);
+        right.normalize();
+        var up = new THREE.Vector3();
+        up.crossVectors(direction, right);
+        up.normalize();
+        var origin = new THREE.Vector3();
+        var r = new THREE.Vector3();
+        var u = new THREE.Vector3();
+        
+        
+        var selected = null;
+        
         ray = new THREE.Raycaster(this.camera.position, direction);
         intersects = ray.intersectObjects(scene.children);
+        if (intersects[0])
+            selected = intersects[0].object;
+            
+        if (!selected) {
+            var numCasts = 10;
+            var distance = 0.02;
+            
+            var objects = [];
+            for (var i = 0; i < numCasts; i++) {
+                var angle = ((Math.PI * 2) / numCasts) * i;
+                
+                r.copy(right);
+                r.multiplyScalar(Math.cos(angle) * distance);
+                u.copy(up);
+                u.multiplyScalar(Math.sin(angle) * distance);
+                
+                origin.copy(this.camera.position);
+                origin.add(r);
+                origin.add(u);
+                
+                ray = new THREE.Raycaster(origin, direction);
+                intersects = ray.intersectObjects(scene.children);
+                if (intersects[0])
+                    objects.push(intersects[0].object);
+            }
+            
+            if (objects.length > 0) {
+                var counts = {};
+                for (var i in objects) {
+                    var obj = objects[i];
+                    if (counts.hasOwnProperty(obj.name)) {
+                        counts[obj.name].count += 1;
+                    } else {
+                        counts[obj.name] = { "count": 1, "object": obj };
+                    }
+                }
+                
+                var maxCount = 0;
+                for (var name in counts) {
+                    if (counts.hasOwnProperty(name)) {
+                        if (counts[name].count > maxCount) {
+                            maxCount = counts[name].count;
+                            selected = counts[name].object;
+                        }
+                    }
+                }
+                
+                //console.log(selected.name);
+            }
+        }
+        
         if (this.mouseOver) {
             this.mouseOver.material.emissive = new THREE.Color(0x000000);
             this.mouseOver = null;
         }
-        if (intersects[0]) {
-            this.mouseOver = intersects[0].object;
+        if (selected) {
+            this.mouseOver = selected;
             this.mouseOver.material.emissive = new THREE.Color(0x00ff00);
-            center = this.mouseOver.geometry.boundingBox.center();
+            /*center = this.mouseOver.geometry.boundingBox.center();
             center.y = 0;
             screenPosition = this.fromWorldToScreen(center);
             this.infoDiv.style.left = screenPosition.x + 'px';
-            this.infoDiv.style.top = screenPosition.y + 'px';
+            this.infoDiv.style.top = screenPosition.y + 'px';*/
+            
+            var elem = this.renderer.domElement;
+            var rect = elem.getBoundingClientRect();
+            this.infoDiv.style.left = (x - rect.left + 20) + 'px';
+            this.infoDiv.style.top = (y - rect.top + 20) + 'px';
             this.infoDiv.innerHTML = this.mouseOver.name;
+            this.infoDiv.style.display = 'initial';
+        } else {
+            this.infoDiv.style.display = 'none';
         }
     };
 
@@ -113,7 +187,8 @@ function Controls(renderer, camera, scene, countries, container) {
         this.cameraControlPoint.y -= event.wheelDelta * 0.003;
     };
 
-    this.getMouseOnElement = function(elem, clientX, clientY) {
+    this.getMouseOnElement = function(clientX, clientY) {
+        var elem = this.renderer.domElement;
         var rect = elem.getBoundingClientRect();
         x = ( (clientX- rect.left) / rect.width ) * 2 - 1;
         y = - ( (clientY - rect.top) / rect.height ) * 2 + 1;
@@ -129,16 +204,16 @@ function Controls(renderer, camera, scene, countries, container) {
         
         this.mouseMode = event.button;
         
-        this.mouseStart.copy(this.getMouseOnElement(this.renderer.domElement, event.pageX, event.pageY));
+        this.mouseStart.copy(this.getMouseOnElement(event.pageX, event.pageY));
         this.mouseEnd.copy(this.mouseStart);
     };
     
     this.mouseMove = function(event) {
         event.preventDefault();
         event.stopPropagation();
-        mousePosition = this.getMouseOnElement(this.renderer.domElement, event.clientX, event.clientY);        
+        mousePosition = this.getMouseOnElement(event.clientX, event.clientY);        
         this.mouseEnd.copy(mousePosition);
-        this.selectObject(mousePosition.x, mousePosition.y);
+        this.selectObject(event.clientX, event.clientY);
     };
 
     this.mouseUp = function(event) {
@@ -164,7 +239,7 @@ function Map3D(parentElement) {
     // --- Members ---
     this.container = parentElement;
     this.stats = new Stats();
-    this.renderer = new THREE.WebGLRenderer({antialias: false});
+    this.renderer = new THREE.WebGLRenderer({antialias: true});
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(75.0, 800.0/600.0, 0.1, 100.0);
     this.camera.rotation.x = -3.14 * 0.5;
@@ -312,6 +387,8 @@ function Map3D(parentElement) {
             var mesh = this.countries[id];
             var distance = this.heightRange.max - this.heightRange.min;
             setMeshHeight(mesh, this.heightRange.min + distance * height);
+        } else {
+            console.log("No country with id", id);
         }
     };
     
@@ -329,6 +406,8 @@ function Map3D(parentElement) {
             var c = (r << 16) | (g << 8) | b;
             
             mesh.material.setValues( { color: c } );
+        } else {
+            console.log("No country with id", id);
         }
     };
     
