@@ -43,21 +43,27 @@
         </fieldset>
     </div>
     <div class="fieldset">
-        <fieldset>
-            <legend>Settings</legend>
-            <div>
-                <input id="hide_countries" type="checkbox" name="hide" value="hide">
-                Hide countries with no data on the map<br>
-                <div>
-                    <input type='text' id="NoDataColor"/>
-                    Color for countries with no data
-                </div>
-                <div>
-                    <input type='text' id="BackgroundColor"/>
-                    Background color
-                </div>
-            </div>
-        </fieldset>
+      <fieldset>
+        <legend>Settings</legend>
+        <div>
+	  <div>
+            <input id="hide_countries" type="checkbox" name="hide" value="hide">
+            Hide countries with no data
+	  </div>
+	  <div>
+            <input id="hd_map" type="checkbox">
+            High definition map
+	  </div>
+          <div>
+            <input type='text' id="NoDataColor"/>
+            Color for countries with no data
+          </div>
+          <div>
+            <input type='text' id="BackgroundColor"/>
+            Background color
+          </div>
+        </div>
+      </fieldset>
     </div>
     <a id="help-button" href="#">Hide help</a>
 </div>
@@ -149,26 +155,42 @@ var update_dataless_countries_color = function() {
 }
 
 $(document).ready(function () {
-    var mapdiv = document.getElementById('mapdiv');
-    map = new Map3D(mapdiv);
-    map.setDefaultHeight(0.01);
-    map.setHeightRange(0.05, 1.0);
-    map.setDefaultColor(0x222222);
-    colors_changed();
-    update_background_color();
-    update_dataless_countries_color();
-    $("#hide_countries").change(update_countries_visibility);
-    $("#help-button").click(toggle_help);
+   var mapdiv = document.getElementById('mapdiv');
+   map = new Map3D(mapdiv);
+   map.setDefaultHeight(0.01);
+   map.setHeightRange(0.05, 1.0);
+   map.setDefaultColor(0x222222);
+   colors_changed();
+   update_background_color();
+   update_dataless_countries_color();
+   $("#hide_countries").change(update_countries_visibility);
+   $("#help-button").click(toggle_help);
+   $("#hd_map").change(function () {loadMap($("#hd_map").is(":checked"))});
+   console.log($("#hd_map"));
+   /* $.getJSON('/static/world_map_hd.json', {},
+   function (data) {
+   map.setMapData(data);
+   }); */
+   
+   loadMap(false);
 
-    $.getJSON('/_map_data', {},
-        function (data) {
-            //console.log(data);
-            map.setMapData(data);
-        });
-    
-    on_resize();
-    $(window).resize(on_resize);
+   on_resize();
+   $(window).resize(on_resize);
 });
+
+var loadMap = function (hd) {
+   if (!hd) {
+    $.getJSON('/static/world_map.json', {},
+        function (data) {
+            map.setMapData(data);
+     });  
+   } else {
+    $.getJSON('/static/world_map_hd.json', {},
+        function (data) {
+            map.setMapData(data);
+     });
+   }
+};
 
 var colors_changed = function(color) {
     var color_min = parseInt($('#minColor').spectrum("get").toHex(), 16);

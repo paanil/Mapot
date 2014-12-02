@@ -25,7 +25,7 @@ def build_map_data(blender_path, python_path, mapdata_url, map_file_name, shape_
     unzip(zip_file_path, extract_path)
     blender_script_path = os.path.join(current_dir, "blender_script.py")
     shape_file_path = os.path.join(extract_path, shape_file_name)
-    mapdata_path = os.path.abspath(os.path.join(current_dir, "..", "Data", map_file_name))
+    mapdata_path = os.path.abspath(os.path.join(current_dir, "..", "ServerApplication", "static", map_file_name))
     return_value = os.system(blender_path + " -b -P " + blender_script_path + " -- " + shape_file_path + " " + mapdata_path + " " + python_path)
     if return_value is not 0:
         print("Blender failed")
