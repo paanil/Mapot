@@ -403,10 +403,23 @@ function Map3D(parentElement, vertShader, fragShader) {
         }
     }
 
+    this.clearScene = function () {
+	var children = this.scene.children.slice(0);
+	for (var index in children) {
+	    var child = children[index];
+	    if (child instanceof THREE.Mesh) {
+		this.scene.remove(child);
+	    }
+	}
+    };
+
     this.setMapData = function (mapData) {
         var sceneBoundingBox = this.controls.sceneBoundingBox;
-        
+
+	this.clearScene();
+
         var loader = new THREE.JSONLoader;
+	this.countries = {};
         for (var index in mapData) {
             country = mapData[index];
             
@@ -449,7 +462,7 @@ function Map3D(parentElement, vertShader, fragShader) {
 
     this.changeBackgroundColor = function (color) {
         this.renderer.setClearColor(color);
-    }
+    };
 
     this.showAllCountries = function () {
         for (var id in this.countries) {
@@ -464,11 +477,11 @@ function Map3D(parentElement, vertShader, fragShader) {
             for (var id in this.countries) {
                 if (this.countries.hasOwnProperty(id)) {
                     if (!this.colorData.hasOwnProperty(id)) {
-                       this.setCountryColorRaw(id, color)
+                       this.setCountryColorRaw(id, color);
                 }
             }
         }
-    }
+    };
 
     this.clear = function () {
         for (var id in this.countries) {
