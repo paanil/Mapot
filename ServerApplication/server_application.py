@@ -30,6 +30,7 @@ def read_datasets():
         file = data_path + key + ".json"
         data = util.read_json(file)
         try:
+            data["metadata"]["unit"] = meta[key]["unit"]
             metadata = data["metadata"]
             id = metadata["id"]
             datasets[id] = data
@@ -90,14 +91,18 @@ def data():
         param_func(data)
     except:
         print("No parameter with id: '" + param + "'")
-    
+
+    data["unit"] = datasets[id]["metadata"]["unit"]
+    data["name"] = datasets[id]["metadata"]["name"]
+
     return flask.json.dumps(data)
 
 def get_newest_data(data):
-    newest_data = {}
+    newest_data = {"values": {}, "times": {}}
     for key in data:
         country = data[key]
         max_year = max(country.keys(), key=int)
-        newest_data[key] = country[max_year]
+        newest_data["values"][key] = country[max_year]
+        newest_data["times"][key] = max_year
 
     return newest_data
