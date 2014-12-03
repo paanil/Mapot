@@ -92,6 +92,39 @@
     </div>
 </div>
 
+<script id="vert-shader" type="x-shader/x-vertex">
+    varying vec3 v_normal;
+    
+    void main()
+    {
+        v_normal = normal;
+        vec4 pos = modelViewMatrix * vec4(position, 1.0);
+        gl_Position = projectionMatrix * pos;
+    }
+</script>
+
+<script id="frag-shader" type="x-shader/x-fragment">
+    uniform vec3 color;
+    
+    uniform vec3 directionalLightDirection[MAX_DIR_LIGHTS];
+    uniform vec3 directionalLightColor[MAX_DIR_LIGHTS];
+    
+    varying vec3 v_normal;
+    
+    void main()
+    {
+        vec3 light = vec3(0.0);
+        for (int i = 0; i < MAX_DIR_LIGHTS; i++)
+        {
+            vec3 normal = normalize(v_normal);
+            float n_dot_l = dot(normal, directionalLightDirection[i]);
+            n_dot_l = clamp(n_dot_l, 0.0, 1.0);
+            light += n_dot_l * directionalLightColor[i];
+        }
+        gl_FragColor = vec4(color * light, 1.0);
+    }
+</script>
+
 <script type="text/javascript">
 var map;
 var color_selection;
@@ -155,8 +188,8 @@ var update_dataless_countries_color = function() {
 }
 
 $(document).ready(function () {
-   var mapdiv = document.getElementById('mapdiv');
-   map = new Map3D(mapdiv);
+   var mapdiv = document.getElementById("mapdiv");
+   map = new Map3D(mapdiv, $("#vert-shader").text(), $("#frag-shader").text());
    map.setDefaultHeight(0.01);
    map.setHeightRange(0.05, 1.0);
    map.setDefaultColor(0x222222);
@@ -166,11 +199,6 @@ $(document).ready(function () {
    $("#hide_countries").change(update_countries_visibility);
    $("#help-button").click(toggle_help);
    $("#hd_map").change(function () {loadMap($("#hd_map").is(":checked"))});
-   console.log($("#hd_map"));
-   /* $.getJSON('/static/world_map_hd.json', {},
-   function (data) {
-   map.setMapData(data);
-   }); */
    
    loadMap(false);
 
