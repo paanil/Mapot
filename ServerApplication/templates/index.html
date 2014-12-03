@@ -65,7 +65,7 @@
         </div>
       </fieldset>
     </div>
-    <a id="help-button" href="#">Hide help</a>
+    <a id="help-button" href="javascript:toggle_help()">Hide help</a>
 </div>
 <div id="container">
     <div id="help-container">
@@ -127,44 +127,80 @@
 
 <script type="text/javascript">
 var map;
+var color_data = { "values": {}, "name": "", "unit": "" };
 var color_selection;
 var color_parameters;
+var height_data = { "values": {}, "name": "", "unit": "" };
 var height_selection;
 var height_parameters;
 
 function on_resize() {
-    var window_w = $(window).width();
-    var window_h = $(window).height();
+    var window_w = document.documentElement.clientWidth;//$(window).width();
+    var window_h = document.documentElement.clientHeight;//$(window).height();
     
     var mapdiv = $("#mapdiv");
     var mapdiv_left = mapdiv.offset().left;
     var mapdiv_top = mapdiv.offset().top;
     
-    var w = (window_w - mapdiv_left - 5) + "px";
-    var h = (window_h - mapdiv_top - 5) + "px";
+    var w = window_w - mapdiv_left - 5;
+    var h = window_h - mapdiv_top - 5;
     
     var help = $("#help-container");
     var help_left = help.offset().left;
     
     if (help.is(":visible")) {
-        w = (help_left - mapdiv_left) + "px";
+        w = help_left - mapdiv_left;
     }
     
-    mapdiv.width(w);
-    mapdiv.height(h);
+    if (w < 600 || h < 350) {
+        $("body").css("overflow", "scroll");
+        if (w < 600) {
+            w = Math.min(600, window_w - 10);
+        }
+        if (h < 350) {
+            h = Math.min(350, window_h - 10);
+        }
+    } else {
+        $("body").css("overflow", "hidden");
+    }
+    
+    mapdiv.width(w + "px");
+    mapdiv.height(h + "px");
     map.resize();
 }
 
 function on_mouse_over(countryID, countryName) {
-    return "<h4>" + countryName + "</h4>" + "<p>testi</p>";
+    var info = "<h4>" + countryName + "</h4>";
+
+    if (height_data.values.hasOwnProperty(countryID)) {
+        var height_value = height_data.values[countryID];
+        info +=
+            "<p>Height</p>" +
+            "<ul><li>Dataset: " + height_data.name +
+            "</li><li>Unit: " + height_data.unit +
+            "</li><li>Value: " + height_value +
+            "</li></ul>";
+    }
+    
+    if (color_data.values.hasOwnProperty(countryID)) {
+        var color_value = color_data.values[countryID];
+        info +=
+            "<p>Color</p>" +
+            "<ul><li>Dataset: " + color_data.name +
+            "</li><li>Unit: " + color_data.unit +
+            "</li><li>Value: " + color_value +
+            "</li></ul>"
+    }
+    
+    return info;
 }
 
 var update_countries_visibility = function() {
-   if (document.getElementById('hide_countries').checked) {
-            map.hideCountriesWithNoData();
-        } else {
-            map.showAllCountries();
-        }
+    if (document.getElementById('hide_countries').checked) {
+        map.hideCountriesWithNoData();
+    } else {
+        map.showAllCountries();
+    }
 }
 
 function toggle_help() {
@@ -202,7 +238,7 @@ $(document).ready(function () {
    update_background_color();
    update_dataless_countries_color();
    $("#hide_countries").change(update_countries_visibility);
-   $("#help-button").click(toggle_help);
+   //$("#help-button").click(toggle_help);
    $("#hd_map").change(function () {loadMap($("#hd_map").is(":checked"))});
    
    loadMap(false);
@@ -273,6 +309,7 @@ $("#color-param-select").change(function () {
 var send_color_query = function() {
     $.getJSON("/_data", { id: color_selection, param: color_parameters },
         function(data) {
+            color_data = data;
             map.setColorData(data.values);
             update_countries_visibility();
             update_gradient_min_max();
@@ -294,6 +331,7 @@ $("#height-param-select").change(function () {
 var send_height_query = function() {
     $.getJSON("/_data", { id: height_selection, param: height_parameters },
         function(data) {
+            height_data = data;
             map.setHeightData(data.values);
             update_countries_visibility();
         });

@@ -37,10 +37,11 @@ function Controls(map) {
     this.map.renderer.domElement.addEventListener( 'mousewheel', function (event) {_this.mousewheel(event); }, false );
     this.map.renderer.domElement.addEventListener( 'DOMMouseScroll', function (event) {_this.mousewheel(event); }, false ); // For firefox
     
-    this.map.container.appendChild(this.infoDiv);
+    document.body.appendChild(this.infoDiv);
     this.infoDiv.style.position = 'absolute';
     this.infoDiv.style.background = '#fff';
     this.infoDiv.id = 'map3d-info';
+    this.infoDiv.style["white-space"] = "nowrap";
     
     // --- Methods ---
     this.update = function() {
@@ -80,18 +81,20 @@ function Controls(map) {
         this.mouseStart.copy(this.mouseEnd);
     };
     
-    this.onMouseOver = function (object) {
+    this.onMouseOver = function () {
         for (var id in this.map.countries) {
             if (this.map.countries.hasOwnProperty(id)) {
-                if (this.map.countries[id] === object)
-                    return this.mouseOverHandler(id, object.name);
+                if (this.map.countries[id] === this.mouseOver) {
+                    info = this.mouseOverHandler(id, this.mouseOver.name);
+                    return info;
+                }
             }
         }
         return null;
     }
     
-    this.selectObject = function (x, y) { 
-        var p = this.getMouseOnElement(x, y);
+    this.selectObject = function (event) { 
+        var p = this.getMouseOnElement(event.clientX, event.clientY);
         direction = new THREE.Vector3(p.x, p.y, this.map.camera.near);
         direction.unproject(this.map.camera);
         direction.sub(this.map.camera.position);
@@ -169,21 +172,44 @@ function Controls(map) {
             this.mouseOver = selected;
             this.mouseOver.material.emissive = new THREE.Color(0x00ff00);
             
-            var info = this.onMouseOver(selected);
+            var info = this.onMouseOver();
             if (info) {
-                var elem = this.map.renderer.domElement;
-                var rect = elem.getBoundingClientRect();
-                this.infoDiv.style.left = (x - rect.left + 20) + 'px';
-                this.infoDiv.style.top = (y - rect.top + 20) + 'px';
+                var scrollLeft = document.body.scrollLeft;
+                var scrollTop = document.body.scrollTop;
+                
+                //var x = event.pageX;
+                //var y = event.pageY;
+                var x = event.clientX + scrollLeft;
+                var y = event.clientY + scrollTop;
+                
+                //var elem = this.map.renderer.domElement;
+                //var rect = elem.getBoundingClientRect();
+                var docWidth = document.documentElement.clientWidth;
+                var docHeight = document.documentElement.clientHeight;
+                
+                this.infoDiv.style.left = (x + 20) + 'px';
+                this.infoDiv.style.top = (y + 20) + 'px';
+                
                 this.infoDiv.innerHTML = info;
                 this.infoDiv.style.display = 'initial';
+                
+                var rect2 = this.infoDiv.getBoundingClientRect();
+                if (rect2.right > docWidth) {
+                    this.infoDiv.style.left = (x - rect2.width - 20) + 'px';
+                }
+                if (rect2.bottom > docHeight) {
+                    this.infoDiv.style.top = (docHeight - rect2.height + scrollTop) + 'px';//(y - rect2.height - 20) + 'px';//
+                }
+                
+                //this.infoDiv.innerHTML = info;
+                //this.infoDiv.style.display = 'initial';
             }
         } else {
             this.infoDiv.style.display = 'none';
         }
     };
 
-    this.fromWorldToScreen = function (point) {
+    /*this.fromWorldToScreen = function (point) {
         point.project(this.map.camera);
         x = (point.x + 1) / 2;
         y = (point.y + 1) / 2;
@@ -191,7 +217,7 @@ function Controls(map) {
         x = x * rect.width;
         y = (1-y) * rect.height;
         return new THREE.Vector2(x, y);
-    };
+    };*/
 
     this.mousewheel = function (event) {
         event.preventDefault();
@@ -202,7 +228,7 @@ function Controls(map) {
     this.getMouseOnElement = function(clientX, clientY) {
         var elem = this.map.renderer.domElement;
         var rect = elem.getBoundingClientRect();
-        x = ( (clientX- rect.left) / rect.width ) * 2 - 1;
+        x = ( (clientX - rect.left) / rect.width ) * 2 - 1;
         y = - ( (clientY - rect.top) / rect.height ) * 2 + 1;
         return new THREE.Vector2(x,y);
     };
@@ -216,7 +242,7 @@ function Controls(map) {
         
         this.mouseMode = event.button;
         
-        this.mouseStart.copy(this.getMouseOnElement(event.pageX, event.pageY));
+        this.mouseStart.copy(this.getMouseOnElement(event.clientX, event.clientY));
         this.mouseEnd.copy(this.mouseStart);
     };
     
@@ -225,7 +251,7 @@ function Controls(map) {
         event.stopPropagation();
         mousePosition = this.getMouseOnElement(event.clientX, event.clientY);        
         this.mouseEnd.copy(mousePosition);
-        this.selectObject(event.clientX, event.clientY);
+        this.selectObject(event);
     };
 
     this.mouseUp = function(event) {
