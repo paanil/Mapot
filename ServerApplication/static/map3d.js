@@ -15,34 +15,32 @@ function setMeshColor(mesh, color) {
 // ------------------------------
 // ---------- Controls ----------
 
-function Controls(renderer, camera, scene, countries, container) {
+function Controls(map) {
     // --- Members ---
     this.mouseMode = -1;
     this.mouseStart = new THREE.Vector2();
     this.mouseEnd = new THREE.Vector2();
     this.sceneBoundingBox = new THREE.Box3();
     this.cameraControlPoint = new THREE.Vector3(0.0, 4.5, 0.0);
-    this.renderer = renderer;
-    this.camera = camera;
-    this.scene = scene;
-    this.countries = countries;
+    this.map = map;
     this.mouseOver = null;
+    this.mouseOverHandler = function (countryID, countryName) {};
     this.infoDiv = document.createElement('div');
 
     // --- Initialization ---
     var _this = this;
     
-    this.renderer.domElement.addEventListener('contextmenu', function (event) { event.preventDefault(); }, false);
-    this.renderer.domElement.addEventListener('mousedown', function (event) { _this.mouseDown(event); }, false);
-    this.renderer.domElement.addEventListener('mousemove', function (event) { _this.mouseMove(event); }, false);
-    this.renderer.domElement.addEventListener('mouseup', function (event) { _this.mouseUp(event); }, false);
-    this.renderer.domElement.addEventListener( 'mousewheel', function (event) {_this.mousewheel(event); }, false );
-    this.renderer.domElement.addEventListener( 'DOMMouseScroll', function (event) {_this.mousewheel(event); }, false ); // For firefox
-    container.appendChild(this.infoDiv);
+    this.map.renderer.domElement.addEventListener('contextmenu', function (event) { event.preventDefault(); }, false);
+    this.map.renderer.domElement.addEventListener('mousedown', function (event) { _this.mouseDown(event); }, false);
+    this.map.renderer.domElement.addEventListener('mousemove', function (event) { _this.mouseMove(event); }, false);
+    this.map.renderer.domElement.addEventListener('mouseup', function (event) { _this.mouseUp(event); }, false);
+    this.map.renderer.domElement.addEventListener( 'mousewheel', function (event) {_this.mousewheel(event); }, false );
+    this.map.renderer.domElement.addEventListener( 'DOMMouseScroll', function (event) {_this.mousewheel(event); }, false ); // For firefox
+    
+    this.map.container.appendChild(this.infoDiv);
     this.infoDiv.style.position = 'absolute';
-    this.infoDiv.style.top = '300px';
     this.infoDiv.style.background = '#fff';
-    this.infoDiv.innerHTML = 'testi';
+    this.infoDiv.id = 'map3d-info';
     
     // --- Methods ---
     this.update = function() {
@@ -62,35 +60,45 @@ function Controls(renderer, camera, scene, countries, container) {
             break;
             
         case 2: // Right button - Rotate
-            this.camera.rotation.x += mouseChange.y * 3.14 * 0.75;
-            if (this.camera.rotation.x > 0)
-                this.camera.rotation.x = 0;
-            if (this.camera.rotation.x < -3.14)
-                this.camera.rotation.x = -3.14;
-                this.camera.rotation.y -= mouseChange.x * 3.14 * 0.75;
-            if (this.camera.rotation.y > 3.14 * 0.5)
-                this.camera.rotation.y = 3.14 * 0.5;
-            if (this.camera.rotation.y < -3.14 * 0.5)
-                this.camera.rotation.y = -3.14 * 0.5;
+            this.map.camera.rotation.x += mouseChange.y * 3.14 * 0.75;
+            if (this.map.camera.rotation.x > 0)
+                this.map.camera.rotation.x = 0;
+            if (this.map.camera.rotation.x < -3.14)
+                this.map.camera.rotation.x = -3.14;
+                this.map.camera.rotation.y -= mouseChange.x * 3.14 * 0.75;
+            if (this.map.camera.rotation.y > 3.14 * 0.5)
+                this.map.camera.rotation.y = 3.14 * 0.5;
+            if (this.map.camera.rotation.y < -3.14 * 0.5)
+                this.map.camera.rotation.y = -3.14 * 0.5;
             break;
         }
         
         this.sceneBoundingBox.clampPoint(this.cameraControlPoint, this.cameraControlPoint);
-        this.camera.position.copy(this.cameraControlPoint);
-        this.camera.position.y = 0.5;
-        this.camera.position.add(this.camera.getWorldDirection().multiplyScalar(-this.cameraControlPoint.y));
+        this.map.camera.position.copy(this.cameraControlPoint);
+        this.map.camera.position.y = 0.5;
+        this.map.camera.position.add(this.map.camera.getWorldDirection().multiplyScalar(-this.cameraControlPoint.y));
         this.mouseStart.copy(this.mouseEnd);
     };
     
+    this.onMouseOver = function (object) {
+        for (var id in this.map.countries) {
+            if (this.map.countries.hasOwnProperty(id)) {
+                if (this.map.countries[id] === object)
+                    return this.mouseOverHandler(id, object.name);
+            }
+        }
+        return null;
+    }
+    
     this.selectObject = function (x, y) { 
         var p = this.getMouseOnElement(x, y);
-        direction = new THREE.Vector3(p.x, p.y, this.camera.near);
-        direction.unproject(camera);
-        direction.sub(camera.position);
+        direction = new THREE.Vector3(p.x, p.y, this.map.camera.near);
+        direction.unproject(this.map.camera);
+        direction.sub(this.map.camera.position);
         direction.normalize();
         
         var right = new THREE.Vector3();
-        right.crossVectors(direction, this.camera.up);
+        right.crossVectors(direction, this.map.camera.up);
         right.normalize();
         var up = new THREE.Vector3();
         up.crossVectors(direction, right);
@@ -102,8 +110,8 @@ function Controls(renderer, camera, scene, countries, container) {
         
         var selected = null;
         
-        ray = new THREE.Raycaster(this.camera.position, direction);
-        intersects = ray.intersectObjects(scene.children);
+        ray = new THREE.Raycaster(this.map.camera.position, direction);
+        intersects = ray.intersectObjects(this.map.scene.children);
         if (intersects[0])
             selected = intersects[0].object;
             
@@ -120,12 +128,12 @@ function Controls(renderer, camera, scene, countries, container) {
                 u.copy(up);
                 u.multiplyScalar(Math.sin(angle) * distance);
                 
-                origin.copy(this.camera.position);
+                origin.copy(this.map.camera.position);
                 origin.add(r);
                 origin.add(u);
                 
                 ray = new THREE.Raycaster(origin, direction);
-                intersects = ray.intersectObjects(scene.children);
+                intersects = ray.intersectObjects(this.map.scene.children);
                 if (intersects[0])
                     objects.push(intersects[0].object);
             }
@@ -150,8 +158,6 @@ function Controls(renderer, camera, scene, countries, container) {
                         }
                     }
                 }
-                
-                //console.log(selected.name);
             }
         }
         
@@ -162,28 +168,26 @@ function Controls(renderer, camera, scene, countries, container) {
         if (selected) {
             this.mouseOver = selected;
             this.mouseOver.material.emissive = new THREE.Color(0x00ff00);
-            /*center = this.mouseOver.geometry.boundingBox.center();
-            center.y = 0;
-            screenPosition = this.fromWorldToScreen(center);
-            this.infoDiv.style.left = screenPosition.x + 'px';
-            this.infoDiv.style.top = screenPosition.y + 'px';*/
             
-            var elem = this.renderer.domElement;
-            var rect = elem.getBoundingClientRect();
-            this.infoDiv.style.left = (x - rect.left + 20) + 'px';
-            this.infoDiv.style.top = (y - rect.top + 20) + 'px';
-            this.infoDiv.innerHTML = this.mouseOver.name;
-            this.infoDiv.style.display = 'initial';
+            var info = this.onMouseOver(selected);
+            if (info) {
+                var elem = this.map.renderer.domElement;
+                var rect = elem.getBoundingClientRect();
+                this.infoDiv.style.left = (x - rect.left + 20) + 'px';
+                this.infoDiv.style.top = (y - rect.top + 20) + 'px';
+                this.infoDiv.innerHTML = info;
+                this.infoDiv.style.display = 'initial';
+            }
         } else {
             this.infoDiv.style.display = 'none';
         }
     };
 
     this.fromWorldToScreen = function (point) {
-        point.project(camera);
+        point.project(this.map.camera);
         x = (point.x + 1) / 2;
         y = (point.y + 1) / 2;
-        var rect = this.renderer.domElement.getBoundingClientRect();
+        var rect = this.map.renderer.domElement.getBoundingClientRect();
         x = x * rect.width;
         y = (1-y) * rect.height;
         return new THREE.Vector2(x, y);
@@ -196,7 +200,7 @@ function Controls(renderer, camera, scene, countries, container) {
     };
 
     this.getMouseOnElement = function(clientX, clientY) {
-        var elem = this.renderer.domElement;
+        var elem = this.map.renderer.domElement;
         var rect = elem.getBoundingClientRect();
         x = ( (clientX- rect.left) / rect.width ) * 2 - 1;
         y = - ( (clientY - rect.top) / rect.height ) * 2 + 1;
@@ -252,7 +256,7 @@ function Map3D(parentElement, vertShader, fragShader) {
     this.camera = new THREE.PerspectiveCamera(75.0, 800.0/600.0, 0.1, 100.0);
     this.camera.rotation.x = -3.14 * 0.5;
     this.countries = {};
-    this.controls = new Controls(this.renderer, this.camera, this.scene, this.countries, this.container);
+    this.controls = new Controls(this);
     this.defaultHeight = 0.01;
     this.defaultColor = 0x222222;
     this.heightRange = new Range(0.01, 1.0);
@@ -307,6 +311,10 @@ function Map3D(parentElement, vertShader, fragShader) {
         this.camera.aspect = w / h;
         this.camera.updateProjectionMatrix();
     };
+    
+    this.setMouseOverHandler = function (handler) {
+        this.controls.mouseOverHandler = handler;
+    }
     
     this.computeNormals = function (smooth) {
         if (smooth) {
@@ -404,22 +412,22 @@ function Map3D(parentElement, vertShader, fragShader) {
     }
 
     this.clearScene = function () {
-	var children = this.scene.children.slice(0);
-	for (var index in children) {
-	    var child = children[index];
-	    if (child instanceof THREE.Mesh) {
-		this.scene.remove(child);
-	    }
-	}
+        var children = this.scene.children.slice(0);
+        for (var index in children) {
+            var child = children[index];
+            if (child instanceof THREE.Mesh) {
+                this.scene.remove(child);
+            }
+        }
     };
 
     this.setMapData = function (mapData) {
         var sceneBoundingBox = this.controls.sceneBoundingBox;
 
-	this.clearScene();
+        this.clearScene();
 
         var loader = new THREE.JSONLoader;
-	this.countries = {};
+        this.countries = {};
         for (var index in mapData) {
             country = mapData[index];
             
@@ -673,9 +681,9 @@ function Map3D(parentElement, vertShader, fragShader) {
     
     // texture = new THREE.Texture(canvas);
     // texture.needsUpdate = true;
-	
+        
     // var spriteMaterial = new THREE.SpriteMaterial( { map: texture, useScreenCoordinates: true } );
-	
+        
     // sprite = new THREE.Sprite( spriteMaterial );
     // sprite.scale.set(1,1,1.0);
     // sprite.position.set( 0, 2, 0 );

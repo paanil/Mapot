@@ -155,6 +155,10 @@ function on_resize() {
     map.resize();
 }
 
+function on_mouse_over(countryID, countryName) {
+    return "<h4>" + countryName + "</h4>" + "<p>testi</p>";
+}
+
 var update_countries_visibility = function() {
    if (document.getElementById('hide_countries').checked) {
             map.hideCountriesWithNoData();
@@ -193,6 +197,7 @@ $(document).ready(function () {
    map.setDefaultHeight(0.01);
    map.setHeightRange(0.05, 1.0);
    map.setDefaultColor(0x222222);
+   map.setMouseOverHandler(on_mouse_over);
    colors_changed();
    update_background_color();
    update_dataless_countries_color();

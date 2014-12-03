@@ -152,3 +152,12 @@ input[type='range'] {
     padding: 0;
     position: relative;
 }
+
+#map3d-info {
+    padding: 0.5em;
+}
+
+#map3d-info h4, #map3d-info p {
+    margin: 0;
+    padding: 0;
+}
