@@ -240,7 +240,7 @@ $("#color-param-select").change(function () {
 var send_color_query = function() {
     $.getJSON("/_data", { id: color_selection, param: color_parameters },
         function(data) {
-            map.setColorData(data);
+            map.setColorData(data.values);
             update_countries_visibility();
             update_gradient_min_max();
         });
@@ -261,7 +261,7 @@ $("#height-param-select").change(function () {
 var send_height_query = function() {
     $.getJSON("/_data", { id: height_selection, param: height_parameters },
         function(data) {
-            map.setHeightData(data);
+            map.setHeightData(data.values);
             update_countries_visibility();
         });
     return false;
