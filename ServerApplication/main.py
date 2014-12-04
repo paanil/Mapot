@@ -29,4 +29,5 @@ def inject_parameters():
 
 if __name__ == "__main__":
     server_application.init()
+    app.debug = True
     app.run()
