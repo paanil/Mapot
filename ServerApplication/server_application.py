@@ -8,19 +8,21 @@ datasets =  {}
 total_population = None
 
 def divide_by_pop(data):
-    if total_population != None:
+    print("divide_by_pop")
+    print(total_population)
+    if total_population == None:
         print("Total population data not available")
         return data
     values = data["values"]
     times = data["times"]
     new_data = {"values": {}, "times": {}}
     for country_id in values:
-        if country_id not in total_population:
+        if country_id not in total_population.keys():
             print("No population for", country_id)
             continue
         time = times[country_id]
         country_pop = total_population[country_id]
-        if time not in country_pop:
+        if time not in country_pop.keys():
             print("No population for", country_id, times)
             continue
         new_data["values"][country_id] = float(values[country_id]) / float(country_pop[time])
@@ -38,7 +40,7 @@ parameters = {
 
 def read_datasets():
     global datasets
-    global total_population;
+    global total_population
     data_path = config.get_value("DataPath")
     
     meta = util.read_json(data_path + "metadata.json")
@@ -50,7 +52,6 @@ def read_datasets():
         file = data_path + key + ".json"
         data = util.read_json(file)
         try:
-            #data["metadata"]["unit"] = meta[key]["unit"] # check if this is done in data collector
             metadata = data["metadata"]
             if metadata["name"] == "Total population":
                 total_population = data;

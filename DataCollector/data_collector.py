@@ -1,7 +1,7 @@
 import http.client
 import xml.etree.ElementTree as ET
 import json
-from os.path import basename, splitext#, isfile, isdir, join, split
+from os.path import basename, splitext, isfile#, isfile, isdir, split
 #from glob import glob
 from common import util
 import os
@@ -79,11 +79,10 @@ def collect_data(file_path, metadata):
     dataset = et_find(root, "DataSet")
 
     data = {}
-    #metadata = {}
 
     for series in et_findall(dataset, "Series"):
         area = series.get("REF_AREA")
-        metadata["unit"] = series.get("UNIT")
+        metadata["unit_raw"] = series.get("UNIT")
         obs_dict = {}
 
         for obs in et_findall(series, "Obs"):
@@ -92,8 +91,8 @@ def collect_data(file_path, metadata):
             if math.isnan(value):
                 print("NaN value skipped")
                 continue
-            if metadata["unit"] is None:
-                metadata["unit"] = obs.get("UNIT")
+            if metadata["unit_raw"] is None:
+                metadata["unit_raw"] = obs.get("UNIT")
             obs_dict[year] = value
 
         if len(obs_dict) > 0:
@@ -107,9 +106,7 @@ def collect_data(file_path, metadata):
     util.write_json(data_file, {"metadata": metadata, "data": data})
     return True
 
-def main(path):
-    #TODO: path not used anymore
-
+def main(collect_all):
     data_path = config.get_value("DataPath")
     metadata = util.read_json(data_path + "metadata.json")
     if metadata is None:
@@ -117,8 +114,10 @@ def main(path):
         return
 
     #print(metadata)
-
+    
     for key in metadata:
+        if not collect_all and isfile(data_path + key + ".json"):
+            continue
         query_path = "queries/" + key + ".xml"
         meta = metadata[key]
         id = hashlib.md5(meta["name"].encode('ascii', 'ignore')).hexdigest()
