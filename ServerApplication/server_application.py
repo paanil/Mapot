@@ -1,5 +1,6 @@
 import json
 import flask
+from datetime import date
 from flask import render_template, request
 from common import util
 
@@ -111,7 +112,7 @@ def data():
     
     data = None
     try:
-        data = get_newest_data(datasets[id]["data"])
+        data = get_most_current_data(datasets[id]["data"])
     except:
         print("No data with id '" + id + "'")
         data = {}
@@ -136,3 +137,20 @@ def get_newest_data(data):
         newest_data["times"][key] = max_year
 
     return newest_data
+
+def get_most_current_data(data):
+    current_data = {"values": {}, "times": {}}
+    this_year = date.today().year
+    print(this_year)
+    for key in data:
+        country = data[key]
+        years = map(int, country.keys())
+        most_current = years.__next__()
+        for year in years:
+            if (abs(year - this_year) < abs(most_current - this_year)):
+                most_current = year
+        print(most_current)
+        current_data["values"][key] = country[str(most_current)]
+        current_data["times"][key] = str(most_current)
+
+    return current_data
