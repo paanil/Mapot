@@ -45,9 +45,16 @@ def init():
 
 def get_queries():
     global datasets
-    queries = [{"id": "none", "name": "None"}]
+    queries = []
     for id in datasets:
-        queries.append( {"id": id, "name": datasets[id]["metadata"]["name"]} )
+        selected = False
+        name = datasets[id]["metadata"]["name"]
+        if name == "Total population":
+            selected = True
+        queries.append( {"id": id, "name": name, "selected": selected} )
+        
+    queries = sorted(queries, key=lambda query: query["name"]) 
+    queries.insert(0, {"id": "none", "name": "None", "selected": False})
     return queries
 
 def get_params():
