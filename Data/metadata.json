@@ -8,5 +8,5 @@
     "methane": {"name": "Methane", "unit": "gigagrams of CO2"},
     "people_under_povertyline": {"name": "People under povertyline", "unit": "% of population"},
     "population_undernourished":{"name": "Population undernourished", "unit": "% of population"},
-    "total_population":{"name": "Total population", "unit": "number of people"}
+    "total_population":{"name": "Total population", "unit": "number of people in thousands"}
 }
