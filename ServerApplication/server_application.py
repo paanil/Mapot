@@ -10,7 +10,8 @@ total_population = None
 
 def divide_by_pop(data):
     print("divide_by_pop")
-    print(total_population)
+    return data
+    """print(total_population)
     if total_population == None:
         print("Total population data not available")
         return data
@@ -28,7 +29,7 @@ def divide_by_pop(data):
             continue
         new_data["values"][country_id] = float(values[country_id]) / float(country_pop[time])
         new_data["times"][country_id] = time
-    return new_data
+    return new_data"""
     
 def divide_by_area(data):
     print("divide_by_area")
@@ -54,10 +55,10 @@ def read_datasets():
         data = util.read_json(file)
         try:
             metadata = data["metadata"]
-            if metadata["name"] == "Total population":
-                total_population = data;
             id = metadata["id"]
             datasets[id] = data
+            #if metadata["name"] == "Total population":
+            #    total_population = data;
         except:
             print("Failed to read dataset '" + key + "'")
 
@@ -89,21 +90,6 @@ def get_params():
 
 def index():
     return render_template("index.html")
-
-def greenhouse_gas_data():
-    data_path = config.get_value("DataPath")
-    f_name = data_path + "greenhouse_gas.json"
-    data = util.read_json(f_name)
-    if data is None:
-        flask.abort(500)
-    return json.dumps(data)
-
-def world_map():
-    data_path = config.get_value("DataPath")
-    data = util.read_file(data_path + "world_map.json")
-    if data is None:
-        flask.abort(500)
-    return data
 
 def data():
     global datasets
