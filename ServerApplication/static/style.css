@@ -4,7 +4,6 @@ body {
     background-color:#aab;
     background-image: linear-gradient(#999, #ddd);
     font-family: serif;
-    z-index: -10;
 }
 
 h1 {
@@ -39,7 +38,7 @@ fieldset {
     border: 1px solid black;
     border-radius: 4px;
     box-shadow: 1px 1px 2px #555;
-    background-color: rgba(255,255,255,0.9);
+    background-color: white;
 }
 
 legend {
@@ -65,7 +64,7 @@ input[type='range'] {
 }
 
 #help-button {
-    background-color: rgba(255,255,255,0.9);
+    background-color: white;
     padding: 0.2em 0.5em;
     position: absolute;
     right: 0px;
@@ -105,11 +104,11 @@ input[type='range'] {
     width: 20em;
     float: right;
     position: relative;
-    z-index: 2;
+    z-index: 1;
 }
 
 #help {
-    background-color: rgba(255,255,255,1.0);
+    background-color: white;
     margin-left: 5px;
     padding: 0.5em;
     white-space: initial;
@@ -124,7 +123,6 @@ input[type='range'] {
 #container {
     clear: left;
     white-space: nowrap;
-    z-index: 1;
 }
 
 #grad {
@@ -155,7 +153,6 @@ input[type='range'] {
 
 #map-container {
     position: relative;
-    z-index: 1;
 }
 
 #mapdiv {
@@ -168,7 +165,7 @@ input[type='range'] {
     border: 1px solid black;
     border-radius: 4px;
     position: absolute;
-    z-index: 4;
+    z-index: 2;
 }
 
 #map3d-info h4, #map3d-info p {
