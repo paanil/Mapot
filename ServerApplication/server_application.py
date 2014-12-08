@@ -4,6 +4,8 @@ from datetime import date
 from flask import render_template, request
 from common import util
 
+app = flask.Flask(__name__)
+
 config = None
 datasets =  {}
 total_population = None
@@ -68,6 +70,7 @@ def init():
     config.read("config.json")
     read_datasets()
 
+@app.context_processor
 def get_queries():
     global datasets
     queries = []
@@ -80,17 +83,20 @@ def get_queries():
         
     queries = sorted(queries, key=lambda query: query["name"]) 
     queries.insert(0, {"id": "none", "name": "None", "selected": False})
-    return queries
+    return dict(queries=queries)
 
+@app.context_processor
 def get_params():
     params = [{"id": "none", "name": "None"}]
     for id in parameters:
         params.append( {"id": id, "name": parameters[id][0]} )
-    return params
+    return dict(params=params)
 
+@app.route("/")
 def index():
     return render_template("index.html")
 
+@app.route("/_data")
 def data():
     global datasets
     id = request.args.get('id', "", type=str)
@@ -140,3 +146,10 @@ def get_most_current_data(data):
         current_data["times"][key] = str(most_current)
 
     return current_data
+
+    
+if __name__ == "__main__":
+    init()
+    app.debug = True
+    app.run()
+    
