@@ -34,8 +34,8 @@ function Controls(map) {
     this.map.renderer.domElement.addEventListener('mousedown', function (event) { _this.mouseDown(event); }, false);
     this.map.renderer.domElement.addEventListener('mousemove', function (event) { _this.mouseMove(event); }, false);
     this.map.renderer.domElement.addEventListener('mouseup', function (event) { _this.mouseUp(event); }, false);
-    this.map.renderer.domElement.addEventListener( 'mousewheel', function (event) {_this.mousewheel(event); }, false );
-    this.map.renderer.domElement.addEventListener( 'DOMMouseScroll', function (event) {_this.mousewheel(event); }, false ); // For firefox
+    this.map.renderer.domElement.addEventListener('mousewheel', function (event) { _this.mousewheel(event); }, false);
+    this.map.renderer.domElement.addEventListener('DOMMouseScroll', function (event) { _this.mousewheelFF(event); }, false); // For firefox
     
     document.body.appendChild(this.infoDiv);
     this.infoDiv.style.position = 'absolute';
@@ -207,6 +207,12 @@ function Controls(map) {
         event.stopPropagation();
         this.cameraControlPoint.y -= event.wheelDelta * 0.003;
     };
+    
+    this.mousewheelFF = function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.cameraControlPoint.y -= event.detail * 0.3;
+    }
 
     this.getMousePosition = function(clientX, clientY) {
         var elem = this.map.renderer.domElement;
@@ -309,35 +315,25 @@ function Map3D(parentElement, vertShader, fragShader) {
         return (x & 0xFF) * (1.0 - t) + (y & 0xFF) * t;
     };
     
-    this.normalizeData = function (data) {
-        var normalized_data = {};
-        var max_value;
-        var min_value;
-        for(key in data){
-            if(data.hasOwnProperty(key) && this.countries.hasOwnProperty(key)){
-                if (typeof max_value !== "undefined"){
-                    if(data[key] > max_value) max_value = data[key];
-                    if(data[key] < min_value) min_value = data[key];
-                }
-                else {
-                    max_value = data[key];
-                    min_value = data[key];
-                }
-            }
-        }
+    function computeFlatNormals(geometry) {
+        geometry.computeFaceNormals();
 
-        for(key in data){
-            normalized_data[key] = ((data[key])-min_value)/(max_value-min_value);
+        for (var i = 0; i < geometry.faces.length; i++) {
+            face = geometry.faces[i];
+                
+            face.vertexNormals[0] = face.normal.clone();
+            face.vertexNormals[1] = face.normal.clone();
+            face.vertexNormals[2] = face.normal.clone();
+            
+            face.vertexNormals[0].y += 0.25;
+            face.vertexNormals[1].y += 0.25;
+            face.vertexNormals[2].y += 0.25;
+            
+            face.vertexNormals[0].normalize();
+            face.vertexNormals[1].normalize();
+            face.vertexNormals[2].normalize();
         }
-        //TODO: fix this
-        if(typeof min_value === "undefined") {
-            min_value = 0;
-            max_value = 0;
-        }
-        normalized_data["min_value"] = min_value;
-        normalized_data["max_value"] = max_value;
-        return normalized_data;
-    };
+    }
     
     // --- Methods ---
     this.resize = function () {
@@ -356,28 +352,8 @@ function Map3D(parentElement, vertShader, fragShader) {
         for (var id in this.countries) {
             if (this.countries.hasOwnProperty(id)) {
                 var mesh = this.countries[id];
-                this.computeFlatNormals(mesh.geometry);
+                computeFlatNormals(mesh.geometry);
             }
-        }
-    }
-    
-    this.computeFlatNormals = function (geometry) {
-        geometry.computeFaceNormals();
-
-        for (var i = 0; i < geometry.faces.length; i++) {
-            face = geometry.faces[i];
-                
-            face.vertexNormals[0] = face.normal.clone();
-            face.vertexNormals[1] = face.normal.clone();
-            face.vertexNormals[2] = face.normal.clone();
-            
-            face.vertexNormals[0].y += 0.25;
-            face.vertexNormals[1].y += 0.25;
-            face.vertexNormals[2].y += 0.25;
-            
-            face.vertexNormals[0].normalize();
-            face.vertexNormals[1].normalize();
-            face.vertexNormals[2].normalize();
         }
     }
 
@@ -426,14 +402,42 @@ function Map3D(parentElement, vertShader, fragShader) {
         
         this.render();
     };
+    
+    this.normalizeData = function (data) {
+        var normalized_data = {};
+        var max_value;
+        var min_value;
+        for(key in data){
+            if(data.hasOwnProperty(key) && this.countries.hasOwnProperty(key)){
+                if (typeof max_value !== "undefined"){
+                    if(data[key] > max_value) max_value = data[key];
+                    if(data[key] < min_value) min_value = data[key];
+                }
+                else {
+                    max_value = data[key];
+                    min_value = data[key];
+                }
+            }
+        }
+
+        for(key in data){
+            normalized_data[key] = ((data[key])-min_value)/(max_value-min_value);
+        }
+        //TODO: fix this
+        if(typeof min_value === "undefined") {
+            min_value = 0;
+            max_value = 0;
+        }
+        normalized_data["min_value"] = min_value;
+        normalized_data["max_value"] = max_value;
+        return normalized_data;
+    };
 
     this.hideCountriesWithNoData = function () {
         for (var id in this.countries) {
             if (this.countries.hasOwnProperty(id)) {
-                if (this.colorData.hasOwnProperty(id) || this.heightData.hasOwnProperty(id)) {
-                    this.countries[id].visible = true;
-                }
-                else this.countries[id].visible = false;
+                var visible = (this.colorData.hasOwnProperty(id) || this.heightData.hasOwnProperty(id));
+                this.countries[id].visible = visible;
             }
         }
     };
@@ -452,11 +456,9 @@ function Map3D(parentElement, vertShader, fragShader) {
 
     this.ColorChangedCountriesWithNoData = function (color) {
         this.defaultColor = color;
-            for (var id in this.countries) {
-                if (this.countries.hasOwnProperty(id)) {
-                    if (!this.colorData.hasOwnProperty(id)) {
-                       this.setCountryColorRaw(id, color);
-                }
+        for (var id in this.countries) {
+            if (!this.colorData.hasOwnProperty(id)) {
+               this.setCountryColorRaw(id, color);
             }
         }
     };
@@ -495,7 +497,7 @@ function Map3D(parentElement, vertShader, fragShader) {
             var distance = this.heightRange.max - this.heightRange.min;
             setMeshHeight(mesh, this.heightRange.min + distance * height);
         } else {
-            console.log("No country with id", id);
+            //console.log("No country with id", id);
         }
     };
     
@@ -514,7 +516,7 @@ function Map3D(parentElement, vertShader, fragShader) {
             
             setMeshColor(mesh, c);
         } else {
-            console.log("No country with id", id);
+            //console.log("No country with id", id);
         }
     };
     
@@ -589,7 +591,9 @@ function Map3D(parentElement, vertShader, fragShader) {
     
     this.render = function () {
         var _this = this;
-        requestAnimationFrame(function () { _this.render(); });
+        setTimeout( function () {
+                requestAnimationFrame(function () { _this.render(); });
+            }, 1000.0/30.0);
         this.controls.update();
         this.renderer.render(this.scene, this.camera);
         //this.stats.update();
