@@ -1,13 +1,13 @@
 import http.client
 import xml.etree.ElementTree as ET
 import json
-from os.path import basename, splitext, isfile#, isfile, isdir, split
-#from glob import glob
+from os.path import basename, splitext, isfile, isdir
 from common import util
 import os
-#import errno
+import sys
 import hashlib
 import math
+from optparse import OptionParser
 
 config = None
 
@@ -98,7 +98,7 @@ def collect_data(file_path, metadata):
         if len(obs_dict) > 0:
             data[area] = obs_dict
 
-    if not os.path.isdir(config.get_value("DataPath")):
+    if not isdir(config.get_value("DataPath")):
         os.makedirs(config.get_value("DataPath"))
 
     data_file = config.get_value("DataPath") + name + ".json"
@@ -106,28 +106,28 @@ def collect_data(file_path, metadata):
     util.write_json(data_file, {"metadata": metadata, "data": data})
     return True
 
-def main(collect_all):
+
+if __name__ == '__main__':
+    parser = OptionParser()
+    parser.add_option("-n", "--only-new-queries", action="store_false", dest="collect_all", default=True,
+                      help="Collects only datasets not found in Data/ folder")
+    args, _ = parser.parse_args()
+    
+    init()
+    
     data_path = config.get_value("DataPath")
     metadata = util.read_json(data_path + "metadata.json")
+    
     if metadata is None:
         print("Failed to read metadata")
-        return
-
-    #print(metadata)
-    
-    for key in metadata:
-        if not collect_all and isfile(data_path + key + ".json"):
-            continue
-        query_path = "queries/" + key + ".xml"
-        meta = metadata[key]
-        id = hashlib.md5(meta["name"].encode('ascii', 'ignore')).hexdigest()
-        meta["id"] = id
-        collect_data(query_path, meta)
-
-    #if isfile(path):
-    #    collect_data(path)
-    #elif isdir(path):
-    #    for file in glob(join(path, "*.xml")): #TODO: threading
-    #        collect_data(file)
-    #else:
-    #    print("Could not open " + path)
+    else:
+        #print(metadata)
+        
+        for key in metadata:
+            if not args.collect_all and isfile(data_path + key + ".json"):
+                continue
+            query_path = "queries/" + key + ".xml"
+            meta = metadata[key]
+            id = hashlib.md5(meta["name"].encode('ascii', 'ignore')).hexdigest()
+            meta["id"] = id
+            collect_data(query_path, meta)

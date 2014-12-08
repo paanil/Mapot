@@ -94,7 +94,7 @@ function Controls(map) {
     }
     
     this.selectObject = function (event) { 
-        var p = this.getMouseOnElement(event.clientX, event.clientY);
+        var p = this.getMousePosition(event.clientX, event.clientY);
         direction = new THREE.Vector3(p.x, p.y, this.map.camera.near);
         direction.unproject(this.map.camera);
         direction.sub(this.map.camera.position);
@@ -168,7 +168,7 @@ function Controls(map) {
             this.mouseOver.material.emissive = new THREE.Color(0x000000);
             this.mouseOver = null;
         }
-        if (selected) {
+        if (selected && this.mouseMode === -1) {
             this.mouseOver = selected;
             this.mouseOver.material.emissive = new THREE.Color(0x00ff00);
             
@@ -177,13 +177,9 @@ function Controls(map) {
                 var scrollLeft = document.body.scrollLeft;
                 var scrollTop = document.body.scrollTop;
                 
-                //var x = event.pageX;
-                //var y = event.pageY;
                 var x = event.clientX + scrollLeft;
                 var y = event.clientY + scrollTop;
                 
-                //var elem = this.map.renderer.domElement;
-                //var rect = elem.getBoundingClientRect();
                 var docWidth = document.documentElement.clientWidth;
                 var docHeight = document.documentElement.clientHeight;
                 
@@ -198,26 +194,13 @@ function Controls(map) {
                     this.infoDiv.style.left = (x - rect2.width - 20) + 'px';
                 }
                 if (rect2.bottom > docHeight) {
-                    this.infoDiv.style.top = (docHeight - rect2.height + scrollTop) + 'px';//(y - rect2.height - 20) + 'px';//
+                    this.infoDiv.style.top = (docHeight - rect2.height + scrollTop) + 'px';
                 }
-                
-                //this.infoDiv.innerHTML = info;
-                //this.infoDiv.style.display = 'initial';
             }
         } else {
             this.infoDiv.style.display = 'none';
         }
     };
-
-    /*this.fromWorldToScreen = function (point) {
-        point.project(this.map.camera);
-        x = (point.x + 1) / 2;
-        y = (point.y + 1) / 2;
-        var rect = this.map.renderer.domElement.getBoundingClientRect();
-        x = x * rect.width;
-        y = (1-y) * rect.height;
-        return new THREE.Vector2(x, y);
-    };*/
 
     this.mousewheel = function (event) {
         event.preventDefault();
@@ -225,7 +208,7 @@ function Controls(map) {
         this.cameraControlPoint.y -= event.wheelDelta * 0.003;
     };
 
-    this.getMouseOnElement = function(clientX, clientY) {
+    this.getMousePosition = function(clientX, clientY) {
         var elem = this.map.renderer.domElement;
         var rect = elem.getBoundingClientRect();
         x = ( (clientX - rect.left) / rect.width ) * 2 - 1;
@@ -242,14 +225,14 @@ function Controls(map) {
         
         this.mouseMode = event.button;
         
-        this.mouseStart.copy(this.getMouseOnElement(event.clientX, event.clientY));
+        this.mouseStart.copy(this.getMousePosition(event.clientX, event.clientY));
         this.mouseEnd.copy(this.mouseStart);
     };
     
     this.mouseMove = function(event) {
         event.preventDefault();
         event.stopPropagation();
-        mousePosition = this.getMouseOnElement(event.clientX, event.clientY);        
+        mousePosition = this.getMousePosition(event.clientX, event.clientY);        
         this.mouseEnd.copy(mousePosition);
         this.selectObject(event);
     };
@@ -276,7 +259,6 @@ function Range(min, max) {
 function Map3D(parentElement, vertShader, fragShader) {
     // --- Members ---
     this.container = parentElement;
-    this.stats = new Stats();
     this.renderer = new THREE.WebGLRenderer({antialias: true});
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(75.0, 800.0/600.0, 0.1, 100.0);
@@ -299,6 +281,29 @@ function Map3D(parentElement, vertShader, fragShader) {
         fragmentShader: fragShader,
         lights: true
     } );
+    
+    // --- Initialization ---
+    
+    /* Uncomment following lines to enable FPS-counter.
+     * Stats.js library must be included for these to work.
+     * https://github.com/mrdoob/stats.js/
+     */
+    //this.stats = new Stats();
+    //this.stats.domElement.style.position = 'absolute';
+    //this.container.appendChild(this.stats.domElement);
+    
+    this.renderer.setClearColor(0x335577);
+    this.container.appendChild(this.renderer.domElement);
+
+    var directionalLight1 = new THREE.DirectionalLight(0xFFFFFF, 0.8);
+    directionalLight1.position.set(1.0, 1.0, -1.0);
+    this.scene.add(directionalLight1);
+
+    var directionalLight2 = new THREE.DirectionalLight(0xFFFFFF, 0.8);
+    directionalLight2.position.set(-1.0, 1.0, 1.0);
+    this.scene.add(directionalLight2);
+    
+    //------------------------------
     
     function lerp(x, y, t) {
         return (x & 0xFF) * (1.0 - t) + (y & 0xFF) * t;
@@ -324,6 +329,11 @@ function Map3D(parentElement, vertShader, fragShader) {
         for(key in data){
             normalized_data[key] = ((data[key])-min_value)/(max_value-min_value);
         }
+        //TODO: fix this
+        if(typeof min_value === "undefined") {
+            min_value = 0;
+            max_value = 0;
+        }
         normalized_data["min_value"] = min_value;
         normalized_data["max_value"] = max_value;
         return normalized_data;
@@ -342,20 +352,11 @@ function Map3D(parentElement, vertShader, fragShader) {
         this.controls.mouseOverHandler = handler;
     }
     
-    this.computeNormals = function (smooth) {
-        if (smooth) {
-            for (var id in this.countries) {
-                if (this.countries.hasOwnProperty(id)) {
-                    var mesh = this.countries[id];
-                    this.computeSmoothNormals(mesh.geometry);
-                }
-            }
-        } else {
-            for (var id in this.countries) {
-                if (this.countries.hasOwnProperty(id)) {
-                    var mesh = this.countries[id];
-                    this.computeFlatNormals(mesh.geometry);
-                }
+    this.computeNormals = function () {
+        for (var id in this.countries) {
+            if (this.countries.hasOwnProperty(id)) {
+                var mesh = this.countries[id];
+                this.computeFlatNormals(mesh.geometry);
             }
         }
     }
@@ -363,8 +364,8 @@ function Map3D(parentElement, vertShader, fragShader) {
     this.computeFlatNormals = function (geometry) {
         geometry.computeFaceNormals();
 
-        for ( f = 0, fl = geometry.faces.length; f < fl; f ++ ) {
-            face = geometry.faces[ f ];
+        for (var i = 0; i < geometry.faces.length; i++) {
+            face = geometry.faces[i];
                 
             face.vertexNormals[0] = face.normal.clone();
             face.vertexNormals[1] = face.normal.clone();
@@ -377,63 +378,6 @@ function Map3D(parentElement, vertShader, fragShader) {
             face.vertexNormals[0].normalize();
             face.vertexNormals[1].normalize();
             face.vertexNormals[2].normalize();
-        }
-    }
-    
-    this.computeSmoothNormals = function (geometry) {
-        var cb = new THREE.Vector3(), ab = new THREE.Vector3();
-
-        for (var f = 0, fl = geometry.faces.length; f < fl; f++) {
-            var face = geometry.faces[f];
-
-            var vA = geometry.vertices[face.a];
-            var vB = geometry.vertices[face.b];
-            var vC = geometry.vertices[face.c];
-
-            cb.subVectors(vC, vB);
-            ab.subVectors(vA, vB);
-            cb.cross(ab);
-
-            face.normal.copy(cb);
-        }
-
-        var vertices = new Array( geometry.vertices.length );
-        
-        for (var v = 0, vl = geometry.vertices.length; v < vl; v++) {
-            vertices[v] = new THREE.Vector3();
-        }
-
-        for (var f = 0, fl = geometry.faces.length; f < fl; f++) {
-            var face = geometry.faces[ f ];
-            
-            var normal = face.normal.clone();
-            face.normal.normalize();
-            
-            if (face.normal.y < 0.5) {
-                vertices[face.a].add(normal);
-                vertices[face.b].add(normal);
-                vertices[face.c].add(normal);
-            } else {
-                face.vertexNormals[0] = face.normal.clone();
-                face.vertexNormals[1] = face.normal.clone();
-                face.vertexNormals[2] = face.normal.clone();
-            }
-        }
-        
-        for (var v = 0, vl = geometry.vertices.length; v < vl; v++) {
-            vertices[v].normalize();
-            vertices[v].y += 0.25;
-            vertices[v].normalize();
-        }
-
-        for (var f = 0, fl = geometry.faces.length; f < fl; f++) {
-            var face = geometry.faces[f];
-            
-            if (face.normal.y < 0.5) {
-                face.vertexNormals[0] = vertices[face.a].clone();
-                face.vertexNormals[1] = vertices[face.b].clone();
-                face.vertexNormals[2] = vertices[face.c].clone();
-            }
         }
     }
 
@@ -475,7 +419,7 @@ function Map3D(parentElement, vertShader, fragShader) {
             this.countries[id] = mesh;
         }
         
-        this.computeNormals(false);
+        this.computeNormals();
         
         sceneBoundingBox.min.y = 1.2;
         sceneBoundingBox.max.y = 3.5;
@@ -592,37 +536,7 @@ function Map3D(parentElement, vertShader, fragShader) {
             setMeshColor(mesh, color);
         }
     };
-
-    this.normalizeData = function (data) {
-        var normalized_data = {};
-        var max_value;
-        var min_value;
-        for(key in data){
-            if(data.hasOwnProperty(key) && this.countries.hasOwnProperty(key)){
-                if (typeof max_value !== "undefined"){
-                    if(data[key] > max_value) max_value = data[key];
-                    if(data[key] < min_value) min_value = data[key];
-                }
-                else {
-                    max_value = data[key];
-                    min_value = data[key];
-                }
-            }
-        }
-
-        for(key in data){
-            normalized_data[key] = ((data[key])-min_value)/(max_value-min_value);
-        }
-        //TODO: fix this
-        if(typeof min_value === "undefined") {
-            min_value = 0;
-            max_value = 0;
-        }
-        normalized_data["min_value"] = min_value;
-        normalized_data["max_value"] = max_value;
-        return normalized_data;
-    };
-
+    
     this.setHeightData = function (data) {
         for (var id in this.countries) {
             this.setCountryHeightRaw(id, this.defaultHeight);
@@ -678,40 +592,6 @@ function Map3D(parentElement, vertShader, fragShader) {
         requestAnimationFrame(function () { _this.render(); });
         this.controls.update();
         this.renderer.render(this.scene, this.camera);
-        this.stats.update();
+        //this.stats.update();
     };
-    
-    // --- Initialization ---
-    this.stats.domElement.style.position = 'absolute';
-    this.container.appendChild(this.stats.domElement);
-    
-    this.renderer.setClearColor(0x335577);
-    this.container.appendChild(this.renderer.domElement);
-
-    var directionalLight1 = new THREE.DirectionalLight(0xFFD0D0, 1.0);
-    directionalLight1.position.set(1.0, 1.0, -1.0);
-    this.scene.add(directionalLight1);
-
-    var directionalLight2 = new THREE.DirectionalLight(0xD0D0FF, 1.0);
-    directionalLight2.position.set(-1.0, 1.0, 1.0);
-    this.scene.add(directionalLight2);
-
-    // canvas = document.createElement('canvas');
-    // context = canvas.getContext('2d');
-    // context.font = "20px Arial";
-
-    // context.fillStyle = "#FFFFFF";
-    // context.fillRect(0,0,150,20);
-    // context.fillStyle = "#000000";
-    // context.fillText('Hello, world!', 10, 17);
-    
-    // texture = new THREE.Texture(canvas);
-    // texture.needsUpdate = true;
-        
-    // var spriteMaterial = new THREE.SpriteMaterial( { map: texture, useScreenCoordinates: true } );
-        
-    // sprite = new THREE.Sprite( spriteMaterial );
-    // sprite.scale.set(1,1,1.0);
-    // sprite.position.set( 0, 2, 0 );
-    // this.scene.add( sprite );
 }
