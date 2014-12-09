@@ -7,6 +7,7 @@
     "internet_users": {"name": "Internet users", "unit": "% of population"},
     "methane": {"name": "Methane", "unit": "gigagrams of CO2"},
     "people_under_povertyline": {"name": "People under povertyline", "unit": "% of population"},
-    "population_undernourished":{"name": "Population undernourished", "unit": "% of population"},
-    "total_population":{"name": "Total population", "unit": "number of people in thousands"}
+    "population_undernourished": {"name": "Population undernourished", "unit": "% of population"},
+    "total_population": {"name": "Total population", "unit": "number of people in thousands"},
+    "surface_area": {"name": "Surface area", "unit": "square kilometers"}
 }
