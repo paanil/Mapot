@@ -13,12 +13,14 @@ surface_area = None
 
 def get_value_with_closest_time(values, time):
     delta = 10000
+    value = 0
     T = int(time)
     for t in values:
         d = abs(int(t) - T)
         if d < delta:
             delta = d
-    return values[str(delta + T)]
+            value = values[t]
+    return value
 
 def divide(data, by):
     values = data["values"]
