@@ -16,30 +16,39 @@
         <option value="{{ param.id }}">{{ param.name }}</option>
         {% endfor %}
       </select>
-      <div>Max height: <span id="currentValue">1</span></div>
-      <input id="slider" class="block" type="range" name="points" min="0.05" max="3" value="1" step="0.01">
+      <div class="hover">
+        <div>Max height: <span id="currentValue">1</span></div>
+        <input id="slider" class="block" type="range" name="points" min="0.05" max="3" value="1" step="0.01" >
+        <div class="tooltip">Height for maximum value</div>
+     </div>
     </fieldset>
   </div>
-  <div class="fieldset">
-    <fieldset>
-      <legend>Color</legend>
-      <select id="color-select" class="block">
-        {% for query in queries %}
-        <option {% if query.selected %} selected {% endif %} value="{{ query.id }}">{{ query.name }}</option>
-        {% endfor %}
-      </select>
-      <select id="color-param-select" class="block">
-	<option selected disabled style="display: none">Parameter</option>
-        {% for param in params %}
-        <option value="{{ param.id }}">{{ param.name }}</option>
-        {% endfor %}
-      </select>
-      <div>
-        <input type='text' id="minColor"/>
-        <input type='text' id="maxColor"/>
-      </div>
-    </fieldset>
-  </div>
+    <div class="fieldset">
+        <fieldset>
+            <legend>Color</legend>
+            <select id="color-select" class="block">
+                {% for query in queries %}
+                <option {% if query.selected %} selected {% endif %} value="{{ query.id }}">{{ query.name }}</option>
+                {% endfor %}
+            </select>
+            <select id="color-param-select" class="block">
+                <option selected disabled style="display: none">Parameter</option>
+                {% for param in params %}
+                <option value="{{ param.id }}">{{ param.name }}</option>
+                {% endfor %}
+            </select>
+            <div class="color">
+                <div class="hover color">
+                    <input type="text" id="minColor"/>
+                    <div class="tooltip">Color for minimum value</div>
+                </div>
+                <div class="hover color">
+                    <input type="text" id="maxColor"/>
+                    <div class="tooltip">Color for maximum value</div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
   <div class="fieldset">
     <fieldset>
       <legend>Settings</legend>
