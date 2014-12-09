@@ -4,14 +4,15 @@
         <meta charset="utf-8">
         <title>UNdataMap</title>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-        <script src="/static/three.js"></script>
-        <!--script src="http://cdnjs.cloudflare.com/ajax/libs/stats.js/r11/Stats.min.js"></script-->
-        <script src="/static/map3d.js"></script>
         <script>window.jQuery || document.write('<script src="{{
             url_for('static', filename='jquery.js') }}">\x3C/script>')</script>
-        <link rel="stylesheet" href="static/style.css">
+        <script src="/static/three.js"></script>
+        <!--script src="http://cdnjs.cloudflare.com/ajax/libs/stats.js/r11/Stats.min.js"></script-->
         <script src="static/spectrum.js"></script>
         <link rel="stylesheet" href="static/spectrum.css">
+        <script src="/static/map3d.js"></script>
+        <!--script src="/static/undatamap.js"></script-->
+        <link rel="stylesheet" href="static/style.css">
     </head>
     <body>
         {% block body %}{% endblock %}
