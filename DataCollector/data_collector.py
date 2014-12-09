@@ -79,6 +79,9 @@ def collect_data(file_path, metadata):
     dataset = et_find(root, "DataSet")
 
     data = {}
+    scale = 1.0
+    if "scale" in metadata:
+        scale = float(metadata["scale"])
 
     for series in et_findall(dataset, "Series"):
         area = series.get("REF_AREA")
@@ -93,7 +96,7 @@ def collect_data(file_path, metadata):
                 continue
             if metadata["unit_raw"] is None:
                 metadata["unit_raw"] = obs.get("UNIT")
-            obs_dict[year] = value
+            obs_dict[year] = value * scale
 
         if len(obs_dict) > 0:
             data[area] = obs_dict

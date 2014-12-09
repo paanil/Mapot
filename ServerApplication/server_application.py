@@ -42,14 +42,18 @@ def divide_by_pop(data):
     if total_population == None:
         print("Total population data not available")
         return data
-    return divide(data, total_population)
+    new_data = divide(data, total_population)
+    new_data["unit"] = data["unit"] + " divided by population"
+    return new_data
     
 def divide_by_area(data):
     print("divide_by_area")
     if surface_area == None:
         print("Surface area data not available")
         return data
-    return divide(data, surface_area)
+    new_data = divide(data, surface_area)
+    new_data["unit"] = data["unit"] + " divided by area"
+    return new_data
 
 parameters = {
     "divbypop": ("Divided by population", divide_by_pop),
@@ -130,14 +134,14 @@ def data():
             print("No data with id '" + id + "'")
             data = {"values": {}, "times": {}}
         
+        data["unit"] = datasets[id]["metadata"]["unit"]
+        data["name"] = datasets[id]["metadata"]["name"]
+        
         try:
             param_func = parameters[param][1]
             data = param_func(data)
         except:
             print("No parameter with id: '" + param + "'")
-
-        data["unit"] = datasets[id]["metadata"]["unit"]
-        data["name"] = datasets[id]["metadata"]["name"]
 
     return flask.json.dumps(data)
 

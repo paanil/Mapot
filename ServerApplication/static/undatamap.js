@@ -37,6 +37,10 @@ function on_resize() {
   map.resize();
 }
 
+function pretty_number(number) {
+    return number.toLocaleString("en-US");
+}
+
 function on_mouse_over(countryID, countryName) {
   var info = "<h4>" + countryName + "</h4>";
 
@@ -46,7 +50,7 @@ function on_mouse_over(countryID, countryName) {
     "<p>Height</p>" +
            "<ul><li>Dataset: " + height_data.name +
            "</li><li>Unit: " + height_data.unit +
-           "</li><li>Value: " + height_value +
+           "</li><li>Value: " + pretty_number(height_value) +
            "</li><li>Time: " + height_data.times[countryID] +
            "</li></ul>";
   }
@@ -57,7 +61,7 @@ function on_mouse_over(countryID, countryName) {
     "<p>Color</p>" +
            "<ul><li>Dataset: " + color_data.name +
            "</li><li>Unit: " + color_data.unit +
-           "</li><li>Value: " + color_value +
+           "</li><li>Value: " + pretty_number(color_value) +
            "</li><li>Time: " + color_data.times[countryID] +
            "</li></ul>"
   }
