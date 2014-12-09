@@ -9,33 +9,45 @@ app = flask.Flask(__name__)
 config = None
 datasets =  {}
 total_population = None
+surface_area = None
+
+def get_value_with_closest_time(values, time):
+    delta = 10000
+    T = int(time)
+    for t in values:
+        d = abs(int(t) - T)
+        if d < delta:
+            delta = d
+    return values[str(delta + T)]
+
+def divide(data, by):
+    values = data["values"]
+    times = data["times"]
+    by_data = by["data"]
+    new_data = {"values": {}, "times": {}}
+    for country_id in values:
+        if country_id not in by_data:
+            print("No", by["metadata"]["name"], "for", country_id)
+            continue
+        time = times[country_id]
+        divider = get_value_with_closest_time(by_data[country_id], time)
+        new_data["values"][country_id] = float(values[country_id]) / float(divider)
+        new_data["times"][country_id] = time
+    return new_data
 
 def divide_by_pop(data):
     print("divide_by_pop")
-    return data
-    """print(total_population)
     if total_population == None:
         print("Total population data not available")
         return data
-    values = data["values"]
-    times = data["times"]
-    new_data = {"values": {}, "times": {}}
-    for country_id in values:
-        if country_id not in total_population.keys():
-            print("No population for", country_id)
-            continue
-        time = times[country_id]
-        country_pop = total_population[country_id]
-        if time not in country_pop.keys():
-            print("No population for", country_id, times)
-            continue
-        new_data["values"][country_id] = float(values[country_id]) / float(country_pop[time])
-        new_data["times"][country_id] = time
-    return new_data"""
+    return divide(data, total_population)
     
 def divide_by_area(data):
     print("divide_by_area")
-    return data
+    if surface_area == None:
+        print("Surface area data not available")
+        return data
+    return divide(data, surface_area)
 
 parameters = {
     "divbypop": ("Divided by population", divide_by_pop),
@@ -45,6 +57,7 @@ parameters = {
 def read_datasets():
     global datasets
     global total_population
+    global surface_area
     data_path = config.get_value("DataPath")
     
     meta = util.read_json(data_path + "metadata.json")
@@ -59,8 +72,10 @@ def read_datasets():
             metadata = data["metadata"]
             id = metadata["id"]
             datasets[id] = data
-            #if metadata["name"] == "Total population":
-            #    total_population = data;
+            if metadata["name"] == "Total population":
+                total_population = data;
+            elif metadata["name"] == "Surface area":
+                surface_area = data;
         except:
             print("Failed to read dataset '" + key + "'")
 
@@ -103,20 +118,24 @@ def data():
     param = request.args.get('param', "", type=str)
     
     data = None
-    try:
-        data = get_most_current_data(datasets[id]["data"])
-    except:
-        print("No data with id '" + id + "'")
-        data = {}
     
-    try:
-        param_func = parameters[param][1]
-        data = param_func(data)
-    except:
-        print("No parameter with id: '" + param + "'")
+    if id == "none":
+        data = { "values": {}, "times": {}, "unit": "", "name": "" }
+    else:
+        try:
+            data = get_most_current_data(datasets[id]["data"])
+        except:
+            print("No data with id '" + id + "'")
+            data = {"values": {}, "times": {}}
+        
+        try:
+            param_func = parameters[param][1]
+            data = param_func(data)
+        except:
+            print("No parameter with id: '" + param + "'")
 
-    data["unit"] = datasets[id]["metadata"]["unit"]
-    data["name"] = datasets[id]["metadata"]["name"]
+        data["unit"] = datasets[id]["metadata"]["unit"]
+        data["name"] = datasets[id]["metadata"]["name"]
 
     return flask.json.dumps(data)
 
@@ -133,7 +152,7 @@ def get_newest_data(data):
 def get_most_current_data(data):
     current_data = {"values": {}, "times": {}}
     this_year = date.today().year
-    print(this_year)
+    #print(this_year)
     for key in data:
         country = data[key]
         years = map(int, country.keys())
@@ -141,7 +160,7 @@ def get_most_current_data(data):
         for year in years:
             if (abs(year - this_year) < abs(most_current - this_year)):
                 most_current = year
-        print(most_current)
+        #print(most_current)
         current_data["values"][key] = country[str(most_current)]
         current_data["times"][key] = str(most_current)
 

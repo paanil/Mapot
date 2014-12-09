@@ -47,7 +47,7 @@ function on_mouse_over(countryID, countryName) {
            "<ul><li>Dataset: " + height_data.name +
            "</li><li>Unit: " + height_data.unit +
            "</li><li>Value: " + height_value +
-           "</li><li>Time: " + color_data.times[countryID] +
+           "</li><li>Time: " + height_data.times[countryID] +
            "</li></ul>";
   }
   

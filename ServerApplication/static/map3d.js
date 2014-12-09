@@ -417,9 +417,13 @@ function Map3D(parentElement, vertShader, fragShader) {
                 }
             }
         }
+        
+        if (max_value - min_value < 0.00001)
+            min_value = 0.0;
 
         for(key in data){
-            normalized_data[key] = ((data[key])-min_value)/(max_value-min_value);
+            if(data.hasOwnProperty(key))
+                normalized_data[key] = ((data[key])-min_value)/(max_value-min_value);
         }
         //TODO: fix this
         if(typeof min_value === "undefined") {
