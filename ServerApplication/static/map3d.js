@@ -26,6 +26,7 @@ function Controls(map) {
     this.mouseOver = null;
     this.mouseOverHandler = function (countryID, countryName) {};
     this.infoDiv = document.createElement('div');
+    this.lastMouseMove = Date.now();
 
     // --- Initialization ---
     var _this = this;
@@ -241,6 +242,7 @@ function Controls(map) {
         mousePosition = this.getMousePosition(event.clientX, event.clientY);        
         this.mouseEnd.copy(mousePosition);
         this.selectObject(event);
+	this.lastMouseMove = Date.now();
     };
 
     this.mouseUp = function(event) {
@@ -294,9 +296,9 @@ function Map3D(parentElement, vertShader, fragShader) {
      * Stats.js library must be included for these to work.
      * https://github.com/mrdoob/stats.js/
      */
-    //this.stats = new Stats();
-    //this.stats.domElement.style.position = 'absolute';
-    //this.container.appendChild(this.stats.domElement);
+    // this.stats = new Stats();
+    // this.stats.domElement.style.position = 'absolute';
+    // this.container.appendChild(this.stats.domElement);
     
     this.renderer.setClearColor(0x335577);
     this.container.appendChild(this.renderer.domElement);
@@ -591,11 +593,16 @@ function Map3D(parentElement, vertShader, fragShader) {
     
     this.render = function () {
         var _this = this;
-        setTimeout( function () {
-                requestAnimationFrame(function () { _this.render(); });
-            }, 1000.0/30.0);
+	var renderFunction = function () { _this.render(); };
+	if (this.controls.lastMouseMove + 500 > Date.now())
+	    requestAnimationFrame(renderFunction);
+	else {
+            setTimeout(function () { requestAnimationFrame(renderFunction); },
+		       500);    
+	}
+
         this.controls.update();
         this.renderer.render(this.scene, this.camera);
-        //this.stats.update();
+        // this.stats.update();
     };
 }
