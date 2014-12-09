@@ -12,6 +12,30 @@ function setMeshColor(mesh, color) {
     mesh.material.uniforms.color.value.z = threeColor.b;*/
 }
 
+function lerp(x, y, t) {
+    return (x & 0xFF) * (1.0 - t) + (y & 0xFF) * t;
+};
+
+function computeFlatNormals(geometry) {
+    geometry.computeFaceNormals();
+
+    for (var i = 0; i < geometry.faces.length; i++) {
+        face = geometry.faces[i];
+            
+        face.vertexNormals[0] = face.normal.clone();
+        face.vertexNormals[1] = face.normal.clone();
+        face.vertexNormals[2] = face.normal.clone();
+        
+        face.vertexNormals[0].y += 0.25;
+        face.vertexNormals[1].y += 0.25;
+        face.vertexNormals[2].y += 0.25;
+        
+        face.vertexNormals[0].normalize();
+        face.vertexNormals[1].normalize();
+        face.vertexNormals[2].normalize();
+    }
+}
+
 // ------------------------------
 // ---------- Controls ----------
 
@@ -310,32 +334,6 @@ function Map3D(parentElement, vertShader, fragShader) {
     var directionalLight2 = new THREE.DirectionalLight(0xFFFFFF, 0.8);
     directionalLight2.position.set(-1.0, 1.0, 1.0);
     this.scene.add(directionalLight2);
-    
-    //------------------------------
-    
-    function lerp(x, y, t) {
-        return (x & 0xFF) * (1.0 - t) + (y & 0xFF) * t;
-    };
-    
-    function computeFlatNormals(geometry) {
-        geometry.computeFaceNormals();
-
-        for (var i = 0; i < geometry.faces.length; i++) {
-            face = geometry.faces[i];
-                
-            face.vertexNormals[0] = face.normal.clone();
-            face.vertexNormals[1] = face.normal.clone();
-            face.vertexNormals[2] = face.normal.clone();
-            
-            face.vertexNormals[0].y += 0.25;
-            face.vertexNormals[1].y += 0.25;
-            face.vertexNormals[2].y += 0.25;
-            
-            face.vertexNormals[0].normalize();
-            face.vertexNormals[1].normalize();
-            face.vertexNormals[2].normalize();
-        }
-    }
     
     // --- Methods ---
     this.resize = function () {
