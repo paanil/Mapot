@@ -101,26 +101,6 @@ var update_dataless_countries_color = function() {
   map.ColorChangedCountriesWithNoData(color_no_data);
 }
 
-$(document).ready(function () {
-  var mapdiv = document.getElementById("mapdiv");
-  map = new Map3D(mapdiv, $("#vert-shader").text(), $("#frag-shader").text());
-  map.setDefaultHeight(0.01);
-  map.setHeightRange(0.05, 1.0);
-  map.setDefaultColor(0x222222);
-  map.setMouseOverHandler(on_mouse_over);
-  colors_changed();
-  update_background_color();
-  update_dataless_countries_color();
-  $("#hide_countries").change(update_countries_visibility);
-  //$("#help-button").click(toggle_help);
-  $("#hd_map").change(function () {loadMapModel($("#hd_map").is(":checked"))});
-  
-  loadMapModel(false);
-
-  on_resize();
-  $(window).resize(on_resize);
-});
-
 var loadMapModel = function (hd) {
   if (!hd) {
     $.getJSON('/static/world_map.json', {},
@@ -140,13 +120,14 @@ var loadMapModel = function (hd) {
 };
 
 var colors_changed = function(color) {
-  var color_min = parseInt($('#minColor').spectrum("get").toHex(), 16);
-  var color_max = parseInt($('#maxColor').spectrum("get").toHex(), 16);
   var gradient_min = $('#minColor').spectrum("get").toHex();
   var gradient_max = $('#maxColor').spectrum("get").toHex();
+  update_gradient(gradient_min, gradient_max);
+  
+  var color_min = parseInt(gradient_min, 16);
+  var color_max = parseInt(gradient_max, 16);
   map.setColorRange(color_min, color_max);
   map.updateColors();
-  update_gradient(gradient_min, gradient_max);
 }
 
 var update_gradient_min_max = function() {
@@ -156,7 +137,7 @@ var update_gradient_min_max = function() {
   $('#grad-max').html(parseFloat(max_value).toFixed(2));
 }
 
-var update_gradient = function(gradient_min, gradient_max) {
+function update_gradient(gradient_min, gradient_max) {
   $('#grad').css({'background': '-webkit-linear-gradient(left, #' + gradient_min+ ' , #' + gradient_max + ')'});
   $('#grad').css({'background': '-o-linear-gradient(right, #' + gradient_min + ' , #' + gradient_max + ')'});
   $('#grad').css({'background': '-moz-linear-gradient(right, #' +  gradient_min + ' , #' + gradient_max + ')'});
@@ -164,17 +145,7 @@ var update_gradient = function(gradient_min, gradient_max) {
   update_gradient_min_max();
 };
 
-$(function(){
-  var currentValue = $('#currentValue');
-  $('#slider').change(function(){
-    currentValue.html(this.value);
-    map.setHeightRange(0.05, this.value);
-    map.updateHeights();
-  });
-  $('#slider').change();
-});
-
-var send_color_query = function() {
+function send_color_query() {
   var color_selection = $("#color-select").val();
   var color_parameter = $("#color-param-select").val();
   $.getJSON("/_data", { id: color_selection, param: color_parameter },
@@ -187,11 +158,7 @@ var send_color_query = function() {
   return false;
 };
 
-$("#color-select").change(send_color_query);
-
-$("#color-param-select").change(send_color_query);
-
-var send_height_query = function() {
+function send_height_query() {
   var height_selection = $("#height-select").val();
   var height_parameter = $("#height-param-select").val();
   $.getJSON("/_data", { id: height_selection, param: height_parameter },
@@ -202,10 +169,6 @@ var send_height_query = function() {
     });
   return false;
 };
-
-$("#height-select").change(send_height_query);
-
-$("#height-param-select").change(send_height_query);
 
 var minColorPalette = {
   showPaletteOnly: true,
@@ -227,7 +190,7 @@ var minColorPalette = {
 }
 
 $("#minColor").spectrum(
-  minColorPalette
+    minColorPalette
 );
 
 maxColorPalette = minColorPalette;
@@ -252,3 +215,39 @@ BackgroundColorPalette.change = update_background_color;
 $("#BackgroundColor").spectrum(
   BackgroundColorPalette
 );
+
+function initMap() {
+  var mapdiv = document.getElementById("mapdiv");
+  map = new Map3D(mapdiv, $("#vert-shader").text(), $("#frag-shader").text());
+  map.setDefaultHeight(0.01);
+  map.setHeightRange(0.05, 1.0);
+  map.setDefaultColor(0x222222);
+  map.setMouseOverHandler(on_mouse_over);
+  colors_changed();
+  update_background_color();
+  update_dataless_countries_color();
+  loadMapModel(false);
+}
+
+$(document).ready(function () {
+  initMap();
+  
+  $("#hide_countries").change(update_countries_visibility);
+  $("#hd_map").change(function () {loadMapModel($("#hd_map").is(":checked"))});
+  
+  $("#color-select").change(send_color_query);
+  $("#color-param-select").change(send_color_query);
+  
+  $("#height-select").change(send_height_query);
+  $("#height-param-select").change(send_height_query);
+  
+  $('#slider').change(function(){
+    $('#currentValue').html(this.value);
+    map.setHeightRange(0.05, this.value);
+    map.updateHeights();
+  });
+  $('#slider').change();
+  
+  $(window).resize(on_resize);
+  on_resize();
+});
