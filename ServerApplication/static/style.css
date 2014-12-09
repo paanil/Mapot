@@ -172,3 +172,25 @@ input[type='range'] {
     margin: 0;
     padding: 0;
 }
+
+.va-middle {
+    vertical-align: middle;
+}
+
+.flex {
+    display: flex;
+}
+
+.mouse-help {
+    display: flex;
+    flex-grow: 3;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.mouse-help-text {
+    margin-left: 0.1em;
+}
+.mouse-help-icon {
+    height: 3em;
+}
