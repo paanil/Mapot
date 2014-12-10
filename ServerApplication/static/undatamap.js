@@ -133,8 +133,8 @@ var colors_changed = function(color) {
 var update_gradient_min_max = function() {
   var min_value = map.getColorDataMin();
   var max_value = map.getColorDataMax();
-  $('#grad-min').html(parseFloat(min_value).toFixed(2));
-  $('#grad-max').html(parseFloat(max_value).toFixed(2));
+  $('#grad-min').html(pretty_number(parseFloat(min_value)));
+  $('#grad-max').html(pretty_number(parseFloat(max_value)));
 }
 
 function update_gradient(gradient_min, gradient_max) {
