@@ -4,9 +4,11 @@
         <meta charset="utf-8">
         <title>UNdataMap</title>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="{{
-            url_for('static', filename='jquery.js') }}">\x3C/script>')</script>
-        <script src="/static/three.js"></script>
+        <script>window.jQuery || document.write('<script src="{{ url_for('static', filename='jquery.min.js') }}">\x3C/script>')
+        </script>
+        <script src="//ajax.googleapis.com/ajax/libs/threejs/r69/three.min.js"></script>
+        <script>typeof(THREE) !== "undefined" || document.write('<script src="{{ url_for('static', filename='three.min.js') }}">\x3C/script>')
+        </script>
         <!--script src="http://cdnjs.cloudflare.com/ajax/libs/stats.js/r11/Stats.min.js"></script-->
         <script src="static/spectrum.js"></script>
         <link rel="stylesheet" href="static/spectrum.css">
