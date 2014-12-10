@@ -1,10 +1,16 @@
 
-Files in 3Dmap/ folder are licensed under GPL.
+Files in 3Dmap/ are licensed under GPLv3.
+Files in DataCollector/queries/ have been created with UNdata SDMX Browser
+(http://data.un.org/SdmxBrowser/start).
 Everything else is licensed under MIT.
+Brian Grinstead holds copyright to Spectrum.
+See ServerApplication/static/spectrum/LICENSE.
 
 ------------------------------------------------------------
 
 The MIT License (MIT)
+
+Copyright (c) 2014 Susanne Jauhiainen, Markku Kovanen, Ilari Paananen
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
