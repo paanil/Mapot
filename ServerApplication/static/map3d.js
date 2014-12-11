@@ -76,16 +76,7 @@ function Controls(map) {
         var speed = this.cameraControlPoint.y;
         
         switch (this.mouseMode) {
-        case 0: // Left button - Drag
-            this.cameraControlPoint.x -= mouseChange.x * speed;
-            this.cameraControlPoint.z += mouseChange.y * speed;
-            break;
-            
-        case 1: // Middle button - Zoom
-            this.cameraControlPoint.y += mouseChange.y * speed;
-            break;
-            
-        case 2: // Right button - Rotate
+        case 0: // Left button - Rotate
             this.map.camera.rotation.x += mouseChange.y * 3.14 * 0.75;
             if (this.map.camera.rotation.x > 0)
                 this.map.camera.rotation.x = 0;
@@ -96,6 +87,15 @@ function Controls(map) {
                 this.map.camera.rotation.y = 3.14 * 0.5;
             if (this.map.camera.rotation.y < -3.14 * 0.5)
                 this.map.camera.rotation.y = -3.14 * 0.5;
+            break;
+
+        case 2: // Right button - Drag
+            this.cameraControlPoint.x -= mouseChange.x * speed;
+            this.cameraControlPoint.z += mouseChange.y * speed;
+            break;
+            
+        case 1: // Middle button - Zoom
+            this.cameraControlPoint.y += mouseChange.y * speed;
             break;
         }
         
@@ -291,7 +291,10 @@ function Range(min, max) {
 function Map3D(parentElement) {
     // --- Members ---
     this.container = parentElement;
-    this.renderer = new THREE.WebGLRenderer({antialias: true});
+    this.renderer = new THREE.WebGLRenderer({
+	antialias: true,
+	preserveDrawingBuffer: true 
+    });
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(75.0, 800.0/600.0, 0.1, 100.0);
     this.camera.rotation.x = -3.14 * 0.5;
@@ -596,5 +599,15 @@ function Map3D(parentElement) {
         this.controls.update();
         this.renderer.render(this.scene, this.camera);
         // this.stats.update();
+    };
+
+    this.toPng = function (width, height) {
+	this.renderer.setSize(width, height);
+	this.camera.aspect = width / height;
+        this.camera.updateProjectionMatrix();
+	this.renderer.render(this.scene, this.camera);
+	var dataUrl = this.renderer.domElement.toDataURL("image/png");
+	this.resize();
+	return dataUrl;
     };
 }
