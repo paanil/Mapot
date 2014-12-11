@@ -44,6 +44,7 @@ def divide_by_pop(data):
         return data
     new_data = divide(data, total_population)
     new_data["unit"] = data["unit"] + " divided by population"
+    new_data["name"] = data["name"]
     return new_data
     
 def divide_by_area(data):
@@ -53,6 +54,7 @@ def divide_by_area(data):
         return data
     new_data = divide(data, surface_area)
     new_data["unit"] = data["unit"] + " divided by area"
+    new_data["name"] = data["name"]
     return new_data
 
 parameters = {
