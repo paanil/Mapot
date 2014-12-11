@@ -72,7 +72,7 @@
       </div>
     </fieldset>
   </div>
-  <a id="help-button" href="javascript:toggle_help()">Hide help</a>
+  <a id="help-button" href="">Hide help</a>
 </div>
 <div id="container">
   <div id="help-container">
@@ -123,38 +123,4 @@
   </div>
 </div>
 
-<script id="vert-shader" type="x-shader/x-vertex">
- varying vec3 v_normal;
- 
- void main()
- {
-   v_normal = normal;
-   vec4 pos = modelViewMatrix * vec4(position, 1.0);
-   gl_Position = projectionMatrix * pos;
- }
-</script>
-
-<script id="frag-shader" type="x-shader/x-fragment">
- uniform vec3 color;
- 
- uniform vec3 directionalLightDirection[MAX_DIR_LIGHTS];
- uniform vec3 directionalLightColor[MAX_DIR_LIGHTS];
- 
- varying vec3 v_normal;
- 
- void main()
- {
-   vec3 light = vec3(0.0);
-   for (int i = 0; i < MAX_DIR_LIGHTS; i++)
-   {
-     vec3 normal = normalize(v_normal);
-     float n_dot_l = dot(normal, directionalLightDirection[i]);
-     n_dot_l = clamp(n_dot_l, 0.0, 1.0);
-     light += n_dot_l * directionalLightColor[i];
-   }
-   gl_FragColor = vec4(color * light, 1.0);
- }
-</script>
-
-<script src="static/undatamap.js"></script>
 {% endblock %}
