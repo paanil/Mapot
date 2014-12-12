@@ -41,6 +41,15 @@ function pretty_number(number) {
     return number.toLocaleString("en-US");
 }
 
+function export_png() {
+    var w = $("#export_width").val();
+    var h = $("#export_height").val();
+    if (w && h) {
+	var url = map.toPng(w, h);
+	window.open(url);
+    }
+}
+
 function on_mouse_over(countryID, countryName) {
   var info = "<h4>" + countryName + "</h4>";
 

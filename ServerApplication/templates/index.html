@@ -49,29 +49,44 @@
             </div>
         </fieldset>
     </div>
-  <div class="fieldset">
-    <fieldset>
-      <legend>Settings</legend>
-      <div>
+    <div class="fieldset">
+      <fieldset>
+	<legend>Settings</legend>
 	<div>
-          <input id="hide_countries" type="checkbox" name="hide" value="hide">
-          Hide countries with no data
+	  <div>
+            <input id="hide_countries" type="checkbox" name="hide" value="hide">
+            Hide countries with no data
+	  </div>
+	  <div>
+            <input id="hd_map" type="checkbox">
+            High definition map
+	  </div>
+          <div>
+            <input type='text' id="NoDataColor"/>
+            Color for countries with no data
+          </div>
+          <div>
+            <input type='text' id="BackgroundColor"/>
+            Background color
+          </div>
+	</div>
+      </fieldset>
+    </div>
+    <div class="fieldset">
+      <fieldset>
+	<legend>Export</legend>
+	<div>
+  	  Size:
+  	  <input id="export_width" type="number" min="50" max="4096" value="1280"> x
+  	  <input id="export_height" type="number" min="50" max="4096" value="720">
 	</div>
 	<div>
-          <input id="hd_map" type="checkbox">
-          High definition map
+	  <form action="javascript:export_png()">
+	    <button type="submit">Export</button>
+	  </form>
 	</div>
-        <div>
-          <input type='text' id="NoDataColor"/>
-          Color for countries with no data
-        </div>
-        <div>
-          <input type='text' id="BackgroundColor"/>
-          Background color
-        </div>
-      </div>
-    </fieldset>
-  </div>
+      </fieldset>
+    </div>
   <a id="help-button" href="javascript:toggle_help()">Hide help</a>
 </div>
 <div id="container">
