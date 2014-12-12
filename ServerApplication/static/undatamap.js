@@ -162,29 +162,29 @@ function export_png() {
 }
 
 function on_mouse_over(countryID, countryName) {
-  var info = "<h4>" + countryName + "</h4>";
+  var info = "<h3>" + countryName + "</h3>";
 
   if (height_data.values.hasOwnProperty(countryID)) {
     var height_value = height_data.values[countryID];
     info +=
-    "<p>Height</p>" +
-           "<ul><li>Dataset: " + height_data.name +
-           "</li><li>Unit: " + height_data.unit +
-           "</li><li>Value: " + pretty_number(height_value) +
-           "</li><li>Time: " + height_data.times[countryID] +
-           "</li></ul>";
-  }
+    "<p><b>Height:</b> " + height_data.name + "</p>" +
+	  "<table class='info-table'>" +
+	  "<tr><td>Value:</td><td>" + pretty_number(height_value) + "</td></tr>" +
+	  "<tr><td>Unit:</td><td>" + height_data.unit + "</td></tr>" +
+	  "<tr><td>Time:</td><td>" + height_data.times[countryID] + "</td></tr>" +
+	  "</table>";
+  };
   
   if (color_data.values.hasOwnProperty(countryID)) {
     var color_value = color_data.values[countryID];
     info +=
-    "<p>Color</p>" +
-           "<ul><li>Dataset: " + color_data.name +
-           "</li><li>Unit: " + color_data.unit +
-           "</li><li>Value: " + pretty_number(color_value) +
-           "</li><li>Time: " + color_data.times[countryID] +
-           "</li></ul>"
-  }
+    "<p><b>Color:</b> " + color_data.name + "</p>" +
+	  "<table class='info-table'>" +
+	  "<tr><td>Value:</td><td>" + pretty_number(color_value) + "</td></tr>" +
+	  "<tr><td>Unit:</td><td>" + color_data.unit + "</td></tr>" +
+	  "<tr><td>Time:</td><td>" + color_data.times[countryID] + "</td></tr>" +
+	  "</table>";
+  };
   
   return info;
 }
