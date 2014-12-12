@@ -288,7 +288,7 @@ function Range(min, max) {
     this.max = typeof max !== 'undefined' ? max : 1.0;
 }
 
-function Map3D(parentElement, vertShader, fragShader) {
+function Map3D(parentElement) {
     // --- Members ---
     this.container = parentElement;
     this.renderer = new THREE.WebGLRenderer({
@@ -306,16 +306,6 @@ function Map3D(parentElement, vertShader, fragShader) {
     this.colorRange = new Range(0x666666, 0xFFFFFF);
     this.colorData = {};
     this.heightData = {};
-    this.material = new THREE.ShaderMaterial( {
-        uniforms: THREE.UniformsUtils.merge([
-            THREE.UniformsLib["lights"],
-            {
-                color: { type: "v3", value: new THREE.Vector3() }
-            }]),
-        vertexShader: vertShader,
-        fragmentShader: fragShader,
-        lights: true
-    } );
     
     // --- Initialization ---
     
