@@ -14,3 +14,19 @@ The view can be moved, zoomed and rotated using the mouse.
 Libraries: Three.js, Flask, pyshp, pyproj.
 
 ![screenshot](https://raw.githubusercontent.com/wiki/paanil/UNdataMap/screenshot-2014-12-10.png)
+
+
+Building 3D map
+---------------
+
+
+
+Data collector
+-------------
+
+
+
+Server application
+------------------
+
+
