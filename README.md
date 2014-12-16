@@ -13,7 +13,7 @@ The view can be moved, zoomed and rotated using the mouse.
 
 Libraries: Three.js, Flask, pyshp, pyproj.
 
-![screenshot](https://raw.githubusercontent.com/wiki/paanil/UNdataMap/screenshot-2014-12-10.png)
+![screenshot](https://raw.githubusercontent.com/wiki/paanil/UNdataMap/screenshot.png)
 
 
 Building 3D map
@@ -38,7 +38,7 @@ Data collector
 
 Data collector retrieves the data with UNdata API.
 The datasets to be retrieved are defined in Data/metadata.json file.
-Corresponding queries created with SDMX Browser () are expected to be in DataCollector/queries/.
+Corresponding queries created with [SDMX Browser](http://data.un.org/SdmxBrowser/start) are expected to be in DataCollector/queries/.
 
 Run DataCollector/data_collector.py
 
