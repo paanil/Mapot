@@ -8,14 +8,20 @@ From the height/color box the user can choose the dataset to be visualized by he
 Parameters can be used to divide the data by population or area.
 The view can be moved, zoomed and rotated using the mouse.
 
+
 Libraries: Three.js, Flask, pyshp, pyproj.
 
 Send us email if you have questions.
 
 ![screenshot](https://raw.githubusercontent.com/wiki/paanil/UNdataMap/screenshot.png)
 
-Building 3D map
----------------
+Building and running
+--------------------
+
+UNdataMap uses python 3.
+Necessary libraries can be installed with pip.
+
+###Building 3D map
 
 To build the 3D map you need python 3, pyshp, pyproj and blender (version 2.72 is known to work) installed.
 Installing pyproj on Windows can be difficult because of a bug in python distutils.
@@ -32,8 +38,7 @@ These options are optional if you have python 3 as "python" and blender as "blen
 
 The output files world\_map.json and world\_map\_hd.json are created in ServerApplication/static/.
 
-Data collector
--------------
+###Data collector
 
 Data collector retrieves the data with UNdata API.
 The datasets to be retrieved are defined in Data/metadata.json file.
@@ -50,9 +55,9 @@ Options:
 
 The output JSON-files are created in Data/.
 
-Server application
-------------------
+###Server application
 
+The server application requires Flask.
 To start the server run ServerApplication/server_application.py.
 
 The server needs to be restarted if datasets are modified.
