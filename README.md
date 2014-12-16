@@ -20,6 +20,7 @@ Building 3D map
 ---------------
 
 To build the 3D map you need python 3, pyshp, pyproj and blender (version 2.72 is known to work) installed.
+Installing pyproj on Windows can be difficult because of a bug in python distutils.
 Run 3Dmap/build.py
 
 ```
