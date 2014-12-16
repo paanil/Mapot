@@ -236,7 +236,6 @@ $(document).ready(function () {
   update_map_colors();
   update_map_background_color();
   update_map_dataless_countries_color();
-  on_resize();
   
   $("#color-select").change(send_color_query);
   $("#color-param-select").change(send_color_query);
@@ -247,4 +246,8 @@ $(document).ready(function () {
   $("#hide_countries").change(update_map_visibilities);
   $("#hd_map").change(function () {load_map_model($("#hd_map").is(":checked"))});
   $(window).resize(on_resize);
+  
+  on_resize();
+  
+  setTimeout(on_resize, 100);
 });

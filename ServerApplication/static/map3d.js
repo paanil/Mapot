@@ -67,6 +67,7 @@ function Controls(map) {
     this.infoDiv.style.background = '#fff';
     this.infoDiv.id = 'map3d-info';
     this.infoDiv.style["white-space"] = "nowrap";
+    this.infoDiv.style.display = 'none';
     
     // --- Methods ---
     this.update = function() {
