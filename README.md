@@ -1,7 +1,7 @@
-UNdataMap
-=========
+Mapot
+=====
 
-UndataMap is a web application that visualizes statistical data on a 3D-map using color and height.
+Mapot is a web application that visualizes statistical data on a 3D-map using color and height.
 The data is retrieved from UNdata (http://data.un.org/), using UNdata API.
 
 From the height/color box the user can choose the dataset to be visualized by height/color.
@@ -13,12 +13,12 @@ Libraries: Three.js, Flask, pyshp, pyproj.
 
 Send us email if you have questions.
 
-![screenshot](https://raw.githubusercontent.com/wiki/paanil/UNdataMap/screenshot.png)
+![screenshot](https://raw.githubusercontent.com/wiki/paanil/Mapot/screenshot.png)
 
 Building and running
 --------------------
 
-UNdataMap uses python 3.
+Mapot uses python 3.
 Necessary libraries can be installed with pip.
 
 ###Building 3D map
